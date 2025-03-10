@@ -1,7 +1,6 @@
 from icecream import ic
 import argparse
 
-#test
 class CTask:
     #lp = 0
     def __init__(self, name_p, dur_p):
