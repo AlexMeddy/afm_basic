@@ -1,5 +1,17 @@
 from icecream import ic
 import argparse
+import pygame
+import sys
+import time
+
+pygame.init()
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+
 
 class CPeople:
     def __init__(self, name_p):
@@ -10,12 +22,24 @@ class CPeople:
         self.e = 0
         self.unl = []
         self.bnopta = 0
+
+def create_block_tree(root_p, x_p, y_p):
+    for cn in root_p.children_list:
+        ic(cn.name)    
+        y_p+=60
+        square_rect = pygame.Rect(x_p, y_p, 50, 50)  
+        pygame.draw.rect(screen, (250, 0, 0), square_rect)            
+        x_p+=60
+        y_p-=60 
+        create_block_tree(cn, x_p, y_p) 
+        pygame.display.update()     
+        
         
 def calculate_start_end_layer_for_all_people(current_person_p):
     ic(current_person_p.name, current_person_p.length, current_person_p.s, current_person_p.e)
     for cn in current_person_p.children_list:
-        cn.s = current_person_p.e
-        cn.e = cn.s + cn.length
+        cn.s = current_person_p.e + 1
+        cn.e = cn.length + cn.s
         calculate_start_end_layer_for_all_people(cn)
         
 def transfer_useful_nodes(root_p, which_task_p): #always root, if the unneccessary nodes are in the lis everything will be upse
@@ -88,6 +112,8 @@ def calculate_biggest_number_of_pp_of_1_person(person_p):
     
 def calc_max_parallel_people_for_all_people(current_node_p, mnopp_p, bnopp_p, root_p):
     ic(current_node_p.name, root_p.name)
+    for cn in current_node_p.unl:
+        ic(current_node_p.name, cn.name)
     for cn in current_node_p.children_list:
         cn.unl = transfer_useful_nodes(root_p, cn)    #for each task
         bnopp_p = calculate_biggest_number_of_pp_of_1_person(cn)
@@ -121,6 +147,8 @@ if __name__ == "__main__":
         g.length = 1
         h = CPeople("h")
         h.length = 1
+        i = CPeople("i")
+        i.length = 1
         
         root.children_list.append(a)
         a.children_list.append(b)
@@ -130,15 +158,30 @@ if __name__ == "__main__":
         b.children_list.append(f)
         d.children_list.append(g)
         d.children_list.append(h)
+        d.children_list.append(i)
         
         calculate_start_end_layer_for_all_people(root)
-        unl = transfer_useful_nodes(root, a)
-        for cn in unl:
-            ic(cn.name)
         ic('testing calc vt')
-        vt = calc_vt(a, b)
+        vt = calc_vt(b, c)
         ic(vt.s, vt.e)
             
-        #bnopt = calc_max_parallel_people_for_all_people(root, 0, 0, root)
-        #ic(bnopt)
+        bnopt = calc_max_parallel_people_for_all_people(root, 0, 0, root)
+        ic(bnopt)
         
+        #run = True
+        #while run:
+        
+        #create_block_tree(root, 10, 10)
+        
+        run = True
+        while run:
+            square_rect = pygame.Rect(10, 10, 50, 50)  
+            pygame.draw.rect(screen, (250, 0, 0), square_rect)        
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+            pygame.display.update()
+        pygame.quit()
+        sys.exit()
+        
+        #pygame.quit()
