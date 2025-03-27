@@ -6,34 +6,35 @@ import time
 
 pygame.init()
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 700
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+font = pygame.font.SysFont('Arial', 25)
 
-
-
-class CPeople:
+class CEmployee:
     def __init__(self, name_p):
         self.name = name_p
         self.length = 0
         self.children_list = []
         self.s = 0
         self.e = 0
+        self.w = 0
+        self.h = 0
         self.unl = []
         self.bnopta = 0
 
-def create_block_tree(root_p, x_p, y_p):
-    for cn in root_p.children_list:
-        ic(cn.name)    
-        y_p+=60
-        square_rect = pygame.Rect(x_p, y_p, 50, 50)  
-        pygame.draw.rect(screen, (250, 0, 0), square_rect)            
-        x_p+=60
-        y_p-=60 
-        create_block_tree(cn, x_p, y_p) 
-        pygame.display.update()     
-        
+def draw_block_tree(cn_p, x_p, y_p, w_p, h_p):
+    y = y_p+60
+    x = x_p-60
+    for child in cn_p.children_list:
+        x+=60
+        ic(child.name, x, y)
+        square_rect = pygame.Rect(x, y, w_p, h_p)         
+        pygame.draw.rect(screen, (250, 0, 0), square_rect) 
+        text = font.render(child.name, True, (0,0,0))
+        screen.blit(text, (x+w_p/2, y+h_p/2))
+        draw_block_tree(cn_p = child, x_p = x, y_p = child.s*scale, w_p = w_p, h_p = h_p)    
         
 def calculate_start_end_layer_for_all_people(current_person_p):
     ic(current_person_p.name, current_person_p.length, current_person_p.s, current_person_p.e)
@@ -51,7 +52,7 @@ def transfer_useful_nodes(root_p, which_task_p): #always root, if the unneccessa
     return which_task_p.unl
 
 def calc_vt(t1_p, t2_p):
-    temp = CPeople("temp")
+    temp = CEmployee("temp")
     temp.s = -1
     temp.e = -1
     if t2_p.s < t1_p.s and t2_p.e < t1_p.s: #1, t1 left and t2 right
@@ -129,26 +130,40 @@ if __name__ == "__main__":
     parser.add_argument('-t','--test', help='testing', required=True)
     args = vars(parser.parse_args())
     if args['test'] == 'calc_vt1':
-        root = CPeople("root")
+        root = CEmployee("root")
         root.length = 0
-        a = CPeople("a")
+        a = CEmployee("a")
         a.length = 1
-        b = CPeople("b")
+        a.w = 60
+        a.h = 60
+        b = CEmployee("b")
         b.length = 1
-        c = CPeople("c")
+        b.w = 60
+        b.h = 60
+        c = CEmployee("c")
         c.length = 1
-        d = CPeople("d")
+        c.w = 60
+        c.h = 60
+        d = CEmployee("d")
         d.length = 1
-        e = CPeople("e")
+        d.w = 60
+        d.h = 60
+        e = CEmployee("e")
         e.length = 1
-        f = CPeople("f")
+        e.w = 60
+        e.h = 60
+        f = CEmployee("f")
         f.length = 1
-        g = CPeople("g")
+        f.w = 60
+        f.h = 60
+        g = CEmployee("g")
         g.length = 1
-        h = CPeople("h")
+        g.w = 60
+        g.h = 60
+        h = CEmployee("h")
         h.length = 1
-        i = CPeople("i")
-        i.length = 1
+        h.w = 60
+        h.h = 60
         
         root.children_list.append(a)
         a.children_list.append(b)
@@ -158,7 +173,6 @@ if __name__ == "__main__":
         b.children_list.append(f)
         d.children_list.append(g)
         d.children_list.append(h)
-        d.children_list.append(i)
         
         calculate_start_end_layer_for_all_people(root)
         ic('testing calc vt')
@@ -171,17 +185,16 @@ if __name__ == "__main__":
         #run = True
         #while run:
         
-        #create_block_tree(root, 10, 10)
         
-        run = True
-        while run:
-            square_rect = pygame.Rect(10, 10, 50, 50)  
-            pygame.draw.rect(screen, (250, 0, 0), square_rect)        
+        y_p=60
+        x_p=60
+        draw_block_tree(root, x_p, y_p = root.s*scale, 50, 50)     
+        pygame.display.update()  
+        run = True        
+        while run:                                   
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            pygame.display.update()
         pygame.quit()
-        sys.exit()
-        
+        sys.exit()     
         #pygame.quit()
