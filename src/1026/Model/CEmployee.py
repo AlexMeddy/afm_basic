@@ -6,6 +6,7 @@ import time
 
 pygame.init()
 
+
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 700
 
@@ -19,22 +20,90 @@ class CEmployee:
         self.children_list = []
         self.s = 0
         self.e = 0
+        self.x = 0
+        self.y = 0
         self.w = 0
         self.h = 0
         self.unl = []
         self.bnopta = 0
-
-def draw_block_tree(root_p, x_p, y_p, w_p, h_p):
-    y = y_p+60
-    x = x_p-60
-    for cn in root_p.children_list:
-        x+=60
-        ic(cn.name, x, y)
+    
+    def get_last_child(self):
+        last_node = None
+        if len(self.children_list) > 0:
+            last_node = self.children_list[len(self.children_list) -1]
+            #ic(last_node.name)
+        return last_node
+        
+def draw_block_tree(cn_p, x_p, y_p, w_p, h_p, scale_p):#first sibling gets the same x of the parent and the rest increment by 60 + the last sibling
+    x= x_p # x is for the children
+    for child in cn_p.children_list: #drawing children of cn_p
+        y= child.s * scale_p
+        ic(child.name, x, y, child.s, child.e)
         square_rect = pygame.Rect(x, y, w_p, h_p)         
         pygame.draw.rect(screen, (250, 0, 0), square_rect) 
-        text = font.render(cn.name, True, (0,0,0))
+        time.sleep(1)
+        pygame.display.update()  
+        text = font.render(child.name, True, (0,0,0))
         screen.blit(text, (x+w_p/2, y+h_p/2))
-        draw_block_tree(cn, x, y, w_p, h_p)    
+        draw_block_tree(child, x, y, w_p, h_p, scale_p)    
+        x += 60
+        
+def calc_x_y_children(cn_p, scale_p): #first sibling gets the same x of the parent and the rest increment by 60 + the last sibling
+    first_sibling_flag = 1
+    previous_sibling = None
+    for child in cn_p.children_list:
+        if first_sibling_flag == 1:
+            ic(first_sibling_flag)
+            first_sibling_flag = 0
+            child.x = cn_p.x # e.g cn_p = a, child = b
+        else: #rest of the siblings
+            child.x = 60 + previous_sibling.x #e.g c, d
+        child.y= child.s * scale_p
+        ic(child.name, child.x, child.y)
+        previous_sibling = child #e.g child = c, previous_sibling = b
+        ic(previous_sibling.name)
+        calc_x_y_children(child, scale_p) 
+
+def calc_x_y_children_v2(parent_p, scale_p, uncle_p): #first sibling gets the same x of the parent and the rest increment by 60 + the last sibling
+    #previous sibling of root is None, children are A, previous sibling of C is B, no children, previous sibling of D is C and children is G and H
+    ic(parent_p.name)       
+    first_sibling_flag = 1
+    previous_sibling = None
+    if uncle_p == None:
+        ic('uncle_p == None')
+    else:
+        ic(uncle_p.name)    
+    for child in parent_p.children_list:
+        if first_sibling_flag == 1:
+            ic(first_sibling_flag)
+            first_sibling_flag = 0
+            child.x = parent_p.x # e.g parent_p = a, child = b
+        else: #rest of the siblings
+            child.x = 60 + previous_sibling.x #e.g c, d
+        child.y= child.s * scale_p
+        ic(child.name, child.x, child.y)
+        #previous sibling of root is None, children are A, previous sibling of C is B, no children, previous sibling of D is C and children is G and H
+        if uncle_p == None: # no uncle = no cousin
+            ic('NC')
+        else: #there is uncle
+            cousin = uncle_p.get_last_child()
+            if cousin != None: # there is cousin
+                ic(cousin.name, cousin.x)
+            #else:
+                #ic('NC')
+        calc_x_y_children_v2(child, scale_p, previous_sibling)
+        previous_sibling = child #e.g child = c, previous_sibling = b
+        ic(previous_sibling.name)
+        
+def draw_children(cn_p, scale_p):#first sibling gets the same x of the parent and the rest increment by 60 + the last sibling
+    for child in cn_p.children_list:
+        square_rect = pygame.Rect(child.x, child.y, child.w, child.h)         
+        pygame.draw.rect(screen, (250, 0, 0), square_rect) 
+        time.sleep(1)
+        pygame.display.update()  
+        text = font.render(child.name, True, (0,0,0))
+        screen.blit(text, (child.x+child.w/2, child.y+child.h/2))
+        draw_children(child, scale_p)    
         
 def calculate_start_end_layer_for_all_people(current_person_p):
     ic(current_person_p.name, current_person_p.length, current_person_p.s, current_person_p.e)
@@ -134,45 +203,51 @@ if __name__ == "__main__":
         root.length = 0
         a = CEmployee("a")
         a.length = 1
-        a.w = 60
-        a.h = 60
+        a.w = 50
+        a.h = 50
         b = CEmployee("b")
         b.length = 1
-        b.w = 60
-        b.h = 60
+        b.w = 50
+        b.h = 50
         c = CEmployee("c")
         c.length = 1
-        c.w = 60
-        c.h = 60
+        c.w = 50
+        c.h = 50
         d = CEmployee("d")
         d.length = 1
-        d.w = 60
-        d.h = 60
+        d.w = 50
+        d.h = 50
         e = CEmployee("e")
         e.length = 1
-        e.w = 60
-        e.h = 60
+        e.w = 50
+        e.h = 50
         f = CEmployee("f")
         f.length = 1
-        f.w = 60
-        f.h = 60
+        f.w = 50
+        f.h = 50
         g = CEmployee("g")
         g.length = 1
-        g.w = 60
-        g.h = 60
+        g.w = 50
+        g.h = 50
         h = CEmployee("h")
         h.length = 1
-        h.w = 60
-        h.h = 60
+        h.w = 50
+        h.h = 50
+        i = CEmployee("i")
+        i.length = 1
+        i.w = 50
+        i.h = 50
         
         root.children_list.append(a)
-        a.children_list.append(b)
+        a.children_list.append(b) 
         a.children_list.append(c)
         a.children_list.append(d)
         b.children_list.append(e)
         b.children_list.append(f)
         d.children_list.append(g)
         d.children_list.append(h)
+        c.children_list.append(i)
+        
         
         calculate_start_end_layer_for_all_people(root)
         ic('testing calc vt')
@@ -185,9 +260,11 @@ if __name__ == "__main__":
         #run = True
         #while run:
         
-        y_p=60
-        x_p=60
-        draw_block_tree(root, x_p, y_p, 50, 50)     
+        y_p=0
+        x_p=0
+        #previous sibling of root is None, children are A, previous sibling of C is B, no children, previous sibling of D is C and children is G and H
+        calc_x_y_children_v2(root, 100, None)     
+        draw_children(root, 100)
         pygame.display.update()  
         run = True        
         while run:                                   
