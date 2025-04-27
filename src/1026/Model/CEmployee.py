@@ -56,7 +56,7 @@ def calc_x_y_children(cn_p, scale_p): #first sibling gets the same x of the pare
             ic(first_sibling_flag)
             first_sibling_flag = 0
             child.x = cn_p.x # e.g cn_p = a, child = b
-        else: #rest of the siblings
+        else: #rest of the siblings 
             child.x = 60 + previous_sibling.x #e.g c, d
         child.y= child.s * scale_p
         ic(child.name, child.x, child.y)
@@ -87,10 +87,14 @@ def calc_x_y_children_v2(parent_p, scale_p, uncle_p): #first sibling gets the sa
             ic('NC')
         else: #there is uncle
             cousin = uncle_p.get_last_child()
-            if cousin != None: # there is cousin
-                ic(cousin.name, cousin.x)
-            #else:
-                #ic('NC')
+            if previous_sibling == None:
+                if cousin == None: # there is cousin
+                    child.x = parent.x
+                else:
+                    child.x = cousin.x + 60
+                    ic(cousin.name, cousin.x)
+            else:
+                child.x = previous_sibling.x + 60
         calc_x_y_children_v2(child, scale_p, previous_sibling)
         previous_sibling = child #e.g child = c, previous_sibling = b
         ic(previous_sibling.name)
@@ -237,6 +241,10 @@ if __name__ == "__main__":
         i.length = 1
         i.w = 50
         i.h = 50
+        i2 = CEmployee("i2")
+        i2.length = 1
+        i2.w = 50
+        i2.h = 50
         
         root.children_list.append(a)
         a.children_list.append(b) 
@@ -247,6 +255,7 @@ if __name__ == "__main__":
         d.children_list.append(g)
         d.children_list.append(h)
         c.children_list.append(i)
+        c.children_list.append(i2)
         
         
         calculate_start_end_layer_for_all_people(root)
