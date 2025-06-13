@@ -276,7 +276,7 @@ def calc_ps_of_children(parent_p):
             child.previous_sibling = None
         else:
             child.previous_sibling = previous_child    
-        previous_child = child         
+        previous_child = child            
         calc_ps_of_children(child)
         
 def calc_ps_of_childrenv2(parent_p):
@@ -321,10 +321,28 @@ def calc_x_children_v2(parent_p):
         calc_x_children_v2(cn)
         
 def calc_accumalated_distance_children(parent_p):
-    r1 = 0
-    r2 = 0
     for cn in parent_p.children_list:
-        cn.aw = cn.w + cn.previous_sibling.w
+        r1 = 0
+        r2 = 0
+        print("-----------------------calculating rules start-------------------------")
+        if cn.previous_sibling != None:
+            r2 = 1 
+        if cn.previous_sibling == None:
+            r1 = 1
+        ic(cn.name, r1, r2)
+        print("-----------------------calculating rules end-------------------------")
+        print("-----------------------selecting rules start-------------------------")
+        if r1 == 1:
+            ic(cn.name, r1)
+            cn.aw = cn.w
+            ic(cn.aw)
+        elif r2 == 1:
+            ic(cn.name, r2)
+            cn.aw = cn.w + cn.previous_sibling.aw
+            ic(cn.aw)
+        print("-----------------------selecting rules end-------------------------")
+        calc_accumalated_distance_children(cn)
+    
         
 def calc_rx_children(parent_p, scale_p): #x coordinate
     for cn in parent_p.children_list:
@@ -338,11 +356,14 @@ def calc_ry_children(parent_p, scale_p):
         
 
 def print_ps(parent_p):
-    for cn in parent_p.children_list:
-        ic(cn.name)
-        if cn.previous_sibling != None:
-            ic(cn.previous_sibling.name)
+    msg = ('print_ps------------------------------- start---------------')
+    ic(msg)
+    for cn in parent_p.children_list:        
+        msg = ('cn.name = ' + cn.name + ' ps = ' + cn.previous_sibling.name if cn.previous_sibling != None else 'no ps')
+        ic(msg)
         print_ps(cn)
+    msg = ('print_ps------------------------------- end---------------')
+    ic(msg)
     
 def print_rx_ry_children(parent_p):
     for cn in parent_p.children_list:
@@ -716,3 +737,94 @@ if __name__ == "__main__":
                     run = False
         pygame.quit()
         sys.exit()     
+    if args['test'] == 'calc_vt4':
+        root = CEmployee("root")
+        root.length = 0
+        a = CEmployee("a")
+        a.length = 1
+        a.w = 100
+        a.h = 10
+        b = CEmployee("b")
+        b.length = 1
+        b.w = 150
+        b.h = 10
+        c = CEmployee("c")
+        c.length = 1
+        c.w = 200
+        c.h = 10
+        d = CEmployee("d")
+        d.length = 1
+        d.w = 50
+        d.h = 10
+        e = CEmployee("e")
+        e.length = 1
+        e.w = 10
+        e.h = 10
+        '''
+        f = CEmployee("f")
+        f.length = 1
+        f.w = 10
+        f.h = 10
+        g = CEmployee("g")
+        g.length = 1
+        g.w = 10
+        g.h = 10
+        h = CEmployee("h")
+        h.length = 1
+        h.w = 10
+        h.h = 10
+        i = CEmployee("i")
+        i.length = 1
+        i.w = 10
+        i.h = 10
+        i2 = CEmployee("i2")
+        i2.length = 1
+        i2.w = 10
+        i2.h = 10 
+        '''
+        root.children_list.append(a)
+        root.children_list.append(b)
+        root.children_list.append(c)
+        root.children_list.append(e)
+        e.children_list.append(d)
+        '''        
+        a.children_list.append(c)
+        a.children_list.append(d)
+        b.children_list.append(e)
+        b.children_list.append(f)
+        d.children_list.append(g)
+        d.children_list.append(h)
+        b.children_list.append(i)
+        b.children_list.append(i2)        
+        '''
+        bnopt = calc_max_parallel_people_for_all_people(root, 0, 0, root)
+        ic(bnopt)
+        y_p=0
+        x_p=0
+        #previous sibling of root is None, children are A, previous sibling of C is B, no children, previous sibling of D is C and children is G and H
+        #calc_x_y_children_v3(root, 100, None)   
+        calc_y_children(root, 20)
+        #calc_x_children(root, None)        
+        calc_ps_of_children(root)
+        print_ps(root)
+        calc_accumalated_distance_children(root)
+        '''
+        calc_x_children_v2(root)
+        biggest_x = calc_biggest_x(root, 0)
+        ic(biggest_x)
+        scale_x = SCREEN_WIDTH / biggest_x
+        ic(scale_x)
+        calc_rx_children(root, scale_x)
+        calc_rw_children(root, scale_x)
+        #draw_children(root, 100)
+        draw_childrenv2(root)
+        '''
+        pygame.display.update()  
+        run = True        
+        while run:                                   
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+        pygame.quit()
+        sys.exit()     
+        #pygame.quit()
