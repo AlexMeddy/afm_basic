@@ -324,6 +324,7 @@ def calc_accumalated_distance_children(parent_p):
     for cn in parent_p.children_list:
         r1 = 0
         r2 = 0
+        r3 = 0
         print("-----------------------calculating rules start-------------------------")
         if cn.previous_sibling != None:
             r2 = 1 
