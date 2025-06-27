@@ -3,7 +3,7 @@ import argparse
 import pygame
 import sys
 sys.path.append("C:\\Users\\alexf\\afm_basic\\src\\lib")
-from mylogger import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
+from mylogger_v3 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
 import time
 
 pygame.init()
@@ -36,29 +36,13 @@ class CEmployee:
         
     @mylogger()    
     def print_tree(self):
-        for kid in self.c_l:
-            kid.print_tree()
+        for child in self.c_l:
+            child.print_tree()
     #@mylogger()    
     def add_child(self, child_p):#child_name_p only to help logger
         self.c_l.append(child_p) 
-    #@mylogger()            
-    def calc_scale_xd_tree(self):
-        self.scale_xd = 1
-        myic(self.scale_xd)
-        for kid in self.c_l:
-            kid.calc_scale_xd()
             
-    @mylogger(display_colors_p = 0)                               
-    def calc_ps_treev2(self, ps_p):
-        self.ps = ps_p
-        for child_i in range(len(self.c_l)):
-            temp = None
-            if child_i == 0: # if first
-                temp = None
-            else:
-                temp = self.c_l[child_i-1]
-            self.c_l[child_i].calc_ps_treev2(temp)
-    @mylogger(display_colors_p = 0)                               
+    @mylogger()                               
     def calc_ps_tree(self, ps_p):
         self.ps = ps_p
         
@@ -75,7 +59,7 @@ class CEmployee:
             
             child.calc_ps_tree(temp)
             
-    @mylogger(display_colors_p = 0)                               
+    @mylogger()                               
     def calc_ps_treev3(self):
         self.ps = self.parent.c_l[self.i_self-1]  if  (self.parent != None and 
                                                                 self.parent.c_l != [] and
@@ -83,13 +67,13 @@ class CEmployee:
         for child in self.c_l:           
             child.calc_ps_treev3()
             
-    @mylogger(display_colors_p = 0)                                               
+    @mylogger()                               
     def calc_i_self(self, i_self_p):
         self.i_self = i_self_p
         for i_child in range(len(self.c_l)):
             self.c_l[i_child].calc_i_self(i_child)
             
-    @mylogger(display_colors_p = 0)                                       
+    @mylogger()                               
     def calc_aw_v3(self):
         r1 = 0
         r2 = 0
@@ -114,16 +98,16 @@ class CEmployee:
         for child in self.c_l:           
             child.calc_aw_v3()  
     
-    @mylogger(display_colors_p = 0)                                       
+    #@mylogger()                               
     def get_longest_distance_children(self, biggest_distance_p):
         biggest_distance = biggest_distance_p
         if self.w > biggest_distance:
             biggest_distance = self.w
-        myic(biggest_distance)
         for child in self.c_l:
             biggest_distance = child.get_longest_distance_children(biggest_distance) 
         return biggest_distance
-
+    
+    #not needed, just for learning, get pattern
     def get_all_the_names_concatenated(self, all_the_names_concatenated_p):
         all_the_names_concatenated = all_the_names_concatenated_p
         all_the_names_concatenated = self.name + ', ' + all_the_names_concatenated
@@ -131,6 +115,7 @@ class CEmployee:
             all_the_names_concatenated = child.get_all_the_names_concatenated(all_the_names_concatenated)         
         return all_the_names_concatenated
         
+    #not needed, just for learning, get pattern
     def get_bla(self, bla_p):
         bla = bla_p
         bla += 1
