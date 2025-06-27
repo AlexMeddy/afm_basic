@@ -3,7 +3,7 @@ import argparse
 import pygame
 import sys
 sys.path.append("C:\\Users\\alexf\\afm_basic\\src\\lib")
-from mylogger_v3 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
+from mylogger_v3_1 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
 import time
 
 pygame.init()
@@ -22,7 +22,6 @@ class CEmployee:
         self.c_l = []
         self.ps = None #previous sibling
         self.w = w_p
-        self.scale_xd = 0 #scale of the x dimension
         self.aw = 0 #accumulated width
         self.rw = 0 #resized width
         self.i_self = -1 #resized width
@@ -98,7 +97,7 @@ class CEmployee:
         for child in self.c_l:           
             child.calc_aw_v3()  
     
-    #@mylogger()                               
+    @mylogger()                               
     def get_longest_distance_children(self, biggest_distance_p):
         biggest_distance = biggest_distance_p
         if self.w > biggest_distance:
@@ -123,6 +122,12 @@ class CEmployee:
         for child in self.c_l:
             bla = child.get_bla(bla)   
         return bla
+        
+    @mylogger()                               
+    def calc_rw(self, scale_xd_p):
+        self.rw = self.w * scale_xd_p
+        for child in self.c_l:
+            child.calc_rw(scale_xd_p)
 
 if __name__ == "__main__":
     ic.configureOutput(includeContext=True)
@@ -152,7 +157,10 @@ if __name__ == "__main__":
         myic(longest_length)
         scale_xd = SCREEN_WIDTH / longest_length
         myic(scale_xd)
+        '''
         all_names = root_obj.get_all_the_names_concatenated('')
         myic(all_names)
         bla = root_obj.get_bla(0)
         myic(bla)
+        '''
+        root_obj.calc_rw(scale_xd)

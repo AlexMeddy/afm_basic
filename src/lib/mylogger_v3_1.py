@@ -349,7 +349,7 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
                         #print('result_type_str '+str(result_type_str)) 
                 else:
                     result_type_str=f'{type(result)}'.replace('class ','').replace('<\'',':').replace('\'>','')
-                print (type(result))
+                #print (type(result))
                 result_str = f'{(truncate_memory_address(str(result)).replace('\"','\''))}'
               
                 msg_return = f'{pad*indent*indent_mult}{ansi_escape_colors[indent]}|{ansi_escape_colors[20]}{'Return'}\
