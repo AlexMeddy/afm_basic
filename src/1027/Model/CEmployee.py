@@ -155,6 +155,7 @@ class CEmployee:
             child.calc_raw()  
 
     def calc_raw(self, scale_xd_p):
+        #already done in calc_aw_v3
         '''
         r1 = 0
         r2 = 0
