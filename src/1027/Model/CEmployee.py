@@ -155,6 +155,27 @@ class CEmployee:
             child.calc_raw()  
 
     def calc_raw(self, scale_xd_p):
+        '''
+        r1 = 0
+        r2 = 0
+        r3 = 0
+        if self.ps != None:
+            nephew = self.ps.get_last_child()
+            if nephew != None:
+                r3 = 1
+        if self.ps != None:
+            r2 = 1 
+        if self.ps == None:
+            r1 = 1
+        temp = None
+        if r3 == 1:
+            temp = self.rw + nephew.rw
+        elif r2 == 1:
+            temp = self.rw + self.ps.rw
+        if r1 == 1:
+            temp = self.rw
+        self.raw = temp
+        '''
         self.raw = self.aw * scale_xd_p
         for child in self.c_l:
             child.calc_raw(scale_xd_p)
