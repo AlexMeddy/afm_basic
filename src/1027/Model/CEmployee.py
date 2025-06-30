@@ -131,7 +131,7 @@ class CEmployee:
             child.calc_rw(scale_xd_p)
             
     @mylogger()                               
-    def calc_raw(self):
+    def calc_rawv2(self):
         r1 = 0
         r2 = 0
         r3 = 0
@@ -153,6 +153,11 @@ class CEmployee:
         self.raw = temp        
         for child in self.c_l:           
             child.calc_raw()  
+
+    def calc_raw(self, scale_xd_p):
+        self.raw = self.aw * scale_xd_p
+        for child in self.c_l:
+            child.calc_raw(scale_xd_p)
 
 if __name__ == "__main__":
     ic.configureOutput(includeContext=True)
