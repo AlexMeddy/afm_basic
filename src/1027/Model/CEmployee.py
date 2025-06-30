@@ -26,6 +26,7 @@ class CEmployee:
         self.rw = 0 #resized width
         self.raw = 0 #resized accumulated width
         self.i_self = -1 #resized width
+        self.space = 10 #resized width
         
     def get_last_child(self):
         last_node = None
@@ -88,9 +89,9 @@ class CEmployee:
             r1 = 1
         temp = None
         if r3 == 1:
-            temp = self.w + nephew.aw
+            temp = self.w + nephew.aw + self.ps.space
         elif r2 == 1:
-            temp = self.w + self.ps.aw
+            temp = self.w + self.ps.aw + self.ps.space
         if r1 == 1:
             temp = self.w
         self.aw = temp
@@ -153,9 +154,31 @@ class CEmployee:
         self.raw = temp        
         for child in self.c_l:           
             child.calc_raw()  
-
+            
+    @mylogger()                               
+    def calc_x(self, lm_p):
+        r0 = 0
+        r1 = 0
+        r2 = 0
+        if self.parent == None:
+            r0 = 1 
+        if self.ps == None: #no ps
+            r1 = 1
+        if self.ps != None: #ps
+            r2 = 1 
+        if r0 == 1:
+            temp = 0 + lm_p
+        elif r2 == 1:
+            temp = self.ps.raw
+        elif r1 == 1:
+            temp = self.parent.x
+        self.x = temp
+        for child in self.c_l:
+            child.calc_x(lm_p)
+            
+    @mylogger()                               
     def calc_raw(self, scale_xd_p):
-        #already done in calc_aw_v3
+        #rules already applied in calc_aw_v3
         '''
         r1 = 0
         r2 = 0
@@ -216,4 +239,5 @@ if __name__ == "__main__":
         myic(bla)
         '''
         root_obj.calc_rw(scale_xd)
-        root_obj.calc_raw()
+        root_obj.calc_raw(scale_xd)
+        root_obj.calc_x(100)
