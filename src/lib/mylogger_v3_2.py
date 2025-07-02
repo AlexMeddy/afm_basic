@@ -1,6 +1,8 @@
 #C:\Users\medeirog\AppData\Local\Programs\Python\Python313\python.exe tree.py
 import json
 import pickle
+import copy
+
 from functools import wraps
 indent_mult = 5
 indent = -1
@@ -102,6 +104,27 @@ DISPLAY_STD         = 0b01111111
 DISPLAY_FULL        = 0b11111111
 DISPLAY_COLORS      = 0
 
+
+
+
+def truncate_substring(text, S, E, n=16):
+    # Regular expression to find the n-character long substring starting with S and ending with E
+    pattern = re.escape(S) + r'(.{' + str(n - len(S) - len(E)) + '})' + re.escape(E)
+    
+    # Function to replace the found substring with a 3-character long substring
+    def replace_match(match):
+        return match.group(0)[:len(S)] + match.group(0)[len(S):len(S)+1] + E
+
+    # Replace the matched substring in the text
+    result = re.sub(pattern, replace_match, text)
+    return result
+
+
+
+
+
+
+
 def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
 
 
@@ -142,11 +165,11 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
             args_desc = '{'
             i=0
             for name, value in bound_args.arguments.items():
-                arg_type = str(type(value)).replace('<class \'','').replace('\'>','').replace('__main__.','')
+                arg_type = str(type(value)).replace('<class \'','').replace('\'>','').replace('__main__.','')                       
                 if ('self' in name and (log_level_p & DISPLAY_SELF)):
                     args_desc+=f'{',' if i else ''}\'{name}({arg_type})\':{value}({arg_type})'
                     i+=1
-                elif 'self' not in name:    
+                elif 'self' not in name:  
                     args_desc+=f'{',' if i else ''}\'{name}({arg_type})\':\'{value}\''
                     i+=1                 
                 if ('self' in name):
@@ -178,8 +201,9 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
             
             
             #std_header = calc_log_header(args[0],' ')
+            copied_dict = args[0].__dict__# copy.deepcopy(args[0].__dict__)
 
-            args0_fixed = str(args[0].__dict__).replace('\'','\"').replace('None','\"None\"')
+            args0_fixed = str(copied_dict).replace('\'','\"').replace('None','\"None\"')
             args0_fixed = truncate_memory_address(args0_fixed)
        
             #myprint(args0_fixed)
@@ -238,8 +262,11 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
             END = "\'"
             PREF = ansi_escape_colors[ID_COLOR]
             POSF = ansi_escape_colors[15]
-            msg2=modified_string = add_prefix_postfix(msg2, START, END,PREF, POSF)          
-    
+            msg2=modified_string = add_prefix_postfix(msg2, START, END,PREF, POSF)   
+            
+            msg2=truncate_substring(msg2,'.',',',n=18)
+            msg2=truncate_substring(msg2,'.','}',n=18)
+            msg2=truncate_substring(msg2,'.','\'',n=18)            
             
             myprint(msg2)     
             
@@ -266,6 +293,11 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
                 POSF = ansi_escape_colors[15]
                 msg1= replace_and_modify_substring(msg1, START, END,PREF, POSF)
 
+                msg1=truncate_substring(msg1,'.',',')
+                msg1=truncate_substring(msg1,'.','}')
+                msg1=truncate_substring(msg1,'.','\'')
+       
+                
                 myprint(msg1) 
 
 
@@ -303,7 +335,8 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
 {escape_color}{differences}{ansi_escape_colors[COLOR_RESET]}'
                 msg3 = msg3.replace('\t','')
                 msg3=add_tree_ident(msg3)
-                
+                msg3=truncate_substring(msg3,'.',',')
+                msg3=truncate_substring(msg3,'.','}')      
 
                 
                 myprint(msg3)
@@ -330,6 +363,8 @@ def mylogger(log_level_p=DISPLAY_STD,display_colors_p=1):
                 POSF = ansi_escape_colors[15]
                 msg1= replace_and_modify_substring(msg1, START, END,PREF, POSF)
                
+                msg1=truncate_substring(msg1,'.',',')
+                msg1=truncate_substring(msg1,'.','}')
 
                 myprint(msg1) 
              

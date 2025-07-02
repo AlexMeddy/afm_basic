@@ -3,7 +3,7 @@ import argparse
 import pygame
 import sys
 sys.path.append("C:\\Users\\alexf\\afm_basic\\src\\lib")
-from mylogger_v3_1 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
+from mylogger_v3_2 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
 import time
 
 pygame.init()
@@ -22,6 +22,7 @@ class CEmployee:
         self.c_l = []
         self.ps = None #previous sibling
         self.w = w_p
+        self.x = 0
         self.aw = 0 #accumulated width
         self.rw = 0 #resized width
         self.raw = 0 #resized accumulated width
@@ -169,7 +170,7 @@ class CEmployee:
         if r0 == 1:
             temp = 0 + lm_p
         elif r2 == 1:
-            temp = self.ps.raw
+            temp = self.ps.raw + lm_p
         elif r1 == 1:
             temp = self.parent.x
         self.x = temp
@@ -203,6 +204,7 @@ class CEmployee:
         self.raw = self.aw * scale_xd_p
         for child in self.c_l:
             child.calc_raw(scale_xd_p)
+            
 
 if __name__ == "__main__":
     ic.configureOutput(includeContext=True)
@@ -213,13 +215,15 @@ if __name__ == "__main__":
         mylog_section('intialising tree')
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
         a = CEmployee(guid_p = 'a',name_p='a',w_p=100, parent_p = root_obj)
-        b = CEmployee(guid_p = 'b',name_p='b',w_p=120, parent_p = root_obj)
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=100, parent_p = root_obj)
         c = CEmployee(guid_p = 'c',name_p='c',w_p=100, parent_p = a)
-        c2 = CEmployee(guid_p = 'c2',name_p='c2',w_p=101, parent_p = a)
-        d = CEmployee(guid_p = 'd',name_p='d',w_p=200, parent_p = root_obj)
+        c2 = CEmployee(guid_p = 'c2',name_p='c2',w_p=100, parent_p = a)
+        d = CEmployee(guid_p = 'd',name_p='d',w_p=100, parent_p = root_obj)
+        e = CEmployee(guid_p = 'e',name_p='e',w_p=100, parent_p = root_obj)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
         root_obj.add_child(child_p = d)
+        root_obj.add_child(child_p = e)
         a.add_child(child_p = c)
         a.add_child(child_p = c2)
         mylog_section('printing tree')
@@ -240,4 +244,24 @@ if __name__ == "__main__":
         '''
         root_obj.calc_rw(scale_xd)
         root_obj.calc_raw(scale_xd)
-        root_obj.calc_x(100)
+        root_obj.calc_x(10)
+        
+        square_rect = pygame.Rect(root_obj.x, 0, root_obj.rw, root_obj.rw)         
+        pygame.draw.rect(screen, (250, 0, 0), square_rect) 
+        square_rect = pygame.Rect(a.x, 100, a.rw, a.rw)         
+        pygame.draw.rect(screen, (25, 100, 0), square_rect)
+        square_rect = pygame.Rect(b.x, 100, b.rw, b.rw)         
+        pygame.draw.rect(screen, (250, 0, 100), square_rect)
+        square_rect = pygame.Rect(c.x, 210, c.rw, c.rw)         
+        pygame.draw.rect(screen, (250, 0, 0), square_rect)
+        square_rect = pygame.Rect(c2.x, 210, c2.rw, c2.rw)         
+        pygame.draw.rect(screen, (0, 250, 0), square_rect)
+        square_rect = pygame.Rect(d.x, 100, d.rw, d.rw)         
+        pygame.draw.rect(screen, (200, 0, 0), square_rect)
+        
+        pygame.display.update()  
+        run = True        
+        while run:                                   
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
