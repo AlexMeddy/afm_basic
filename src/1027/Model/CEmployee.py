@@ -146,6 +146,7 @@ class CEmployee:
         self.x = temp
         for child in self.c_l:
             child.calc_x_tree(lm_p)
+        myic(r0,r1,r2) #for logging purposes
         return r0,r1,r2 #for logging purposes
             
     @mylogger()                               
