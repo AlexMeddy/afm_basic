@@ -45,7 +45,7 @@ class CEmployee:
         self.c_l.append(child_p) 
             
     @mylogger()                               
-    def calc_ps_tree(self, ps_p):
+    def calc_ps_treev2(self, ps_p):
         self.ps = ps_p
         
         first_sibling_flag = 1
@@ -59,15 +59,15 @@ class CEmployee:
                 temp = previous_child
             previous_child = child #save last child
             
-            child.calc_ps_tree(temp)
+            child.calc_ps_treev2(temp)
             
     @mylogger()                               
-    def calc_ps_treev3(self):
+    def calc_ps_tree(self):
         self.ps = self.parent.c_l[self.i_self-1]  if  (self.parent != None and 
                                                                 self.parent.c_l != [] and
                                                                 self.i_self>0) else None
         for child in self.c_l:           
-            child.calc_ps_treev3()
+            child.calc_ps_tree()
             
     @mylogger()                               
     def calc_i_self(self, i_self_p):
@@ -84,7 +84,7 @@ class CEmployee:
         if self.ps == None:
             r1 = 1
         temp = None
-        elif r2 == 1:
+        if r2 == 1:
             temp = self.w + self.ps.aw + self.ps.space
         elif r1 == 1:
             temp = self.w
@@ -153,19 +153,12 @@ class CEmployee:
         '''
         r1 = 0
         r2 = 0
-        r3 = 0
-        if self.ps != None:
-            nephew = self.ps.get_last_child()
-            if nephew != None:
-                r3 = 1
         if self.ps != None:
             r2 = 1 
         if self.ps == None:
             r1 = 1
         temp = None
-        if r3 == 1:
-            temp = self.rw + nephew.rw
-        elif r2 == 1:
+        if r2 == 1:
             temp = self.rw + self.ps.rw
         if r1 == 1:
             temp = self.rw
@@ -200,7 +193,7 @@ if __name__ == "__main__":
         root_obj.print_tree()
         mylog_section('calculating ps')
         root_obj.calc_i_self(0)
-        root_obj.calc_ps_treev3()
+        root_obj.calc_ps_tree()
         root_obj.calc_aw()
         longest_length = root_obj.get_longest_distance_children(0)
         myic(longest_length)
