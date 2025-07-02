@@ -76,7 +76,7 @@ class CEmployee:
             self.c_l[i_child].calc_i_self(i_child)
             
     @mylogger()                               
-    def calc_aw(self):
+    def calc_aw_tree(self):
         r1 = 0
         r2 = 0
         if self.ps != None:
@@ -91,15 +91,15 @@ class CEmployee:
         self.aw = temp
         
         for child in self.c_l:           
-            child.calc_aw()  
+            child.calc_aw_tree()  
     
     @mylogger()                               
-    def get_longest_distance_children(self, biggest_distance_p):
+    def get_longest_distance_tree(self, biggest_distance_p):
         biggest_distance = biggest_distance_p
         if self.aw > biggest_distance:
             biggest_distance = self.aw
         for child in self.c_l:
-            biggest_distance = child.get_longest_distance_children(biggest_distance) 
+            biggest_distance = child.get_longest_distance_tree(biggest_distance) 
         return biggest_distance
     
     #not needed, just for learning, get pattern
@@ -120,14 +120,14 @@ class CEmployee:
         return bla
         
     @mylogger()                               
-    def calc_rw(self, scale_xd_p):
+    def calc_rw_tree(self, scale_xd_p):
         self.rw = self.w * scale_xd_p
         for child in self.c_l:
-            child.calc_rw(scale_xd_p)
+            child.calc_rw_tree(scale_xd_p)
             
             
     @mylogger()                               
-    def calc_x(self, lm_p):
+    def calc_x_tree(self, lm_p):
         r0 = 0
         r1 = 0
         r2 = 0
@@ -145,10 +145,11 @@ class CEmployee:
             temp = self.parent.x
         self.x = temp
         for child in self.c_l:
-            child.calc_x(lm_p)
+            child.calc_x_tree(lm_p)
+        return r0,r1,r2 #for logging purposes
             
     @mylogger()                               
-    def calc_raw(self, scale_xd_p):
+    def calc_raw_tree(self, scale_xd_p):
         #rules already applied in calc_aw
         '''
         r1 = 0
@@ -166,7 +167,7 @@ class CEmployee:
         '''
         self.raw = self.aw * scale_xd_p
         for child in self.c_l:
-            child.calc_raw(scale_xd_p)
+            child.calc_raw_tree(scale_xd_p)
             
 
 if __name__ == "__main__":
@@ -194,20 +195,15 @@ if __name__ == "__main__":
         mylog_section('calculating ps')
         root_obj.calc_i_self(0)
         root_obj.calc_ps_tree()
-        root_obj.calc_aw()
-        longest_length = root_obj.get_longest_distance_children(0)
+        root_obj.calc_aw_tree()
+        longest_length = root_obj.get_longest_distance_tree(0)
         myic(longest_length)
         scale_xd = SCREEN_WIDTH / longest_length
         myic(scale_xd)
-        '''
-        all_names = root_obj.get_all_the_names_concatenated('')
-        myic(all_names)
-        bla = root_obj.get_bla(0)
-        myic(bla)
-        '''
-        root_obj.calc_rw(scale_xd)
-        root_obj.calc_raw(scale_xd)
-        root_obj.calc_x(10)
+
+        root_obj.calc_rw_tree(scale_xd_p = scale_xd)
+        root_obj.calc_raw_tree(scale_xd_p = scale_xd)
+        root_obj.calc_x_tree(lm_p = 10)
         
         square_rect = pygame.Rect(root_obj.x, 0, root_obj.rw, root_obj.rw)         
         pygame.draw.rect(screen, (250, 0, 0), square_rect) 
