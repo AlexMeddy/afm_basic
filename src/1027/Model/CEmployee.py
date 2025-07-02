@@ -76,29 +76,22 @@ class CEmployee:
             self.c_l[i_child].calc_i_self(i_child)
             
     @mylogger()                               
-    def calc_aw_v3(self):
+    def calc_aw(self):
         r1 = 0
         r2 = 0
-        r3 = 0
-        if self.ps != None:
-            nephew = self.ps.get_last_child()
-            if nephew != None:
-                r3 = 1
         if self.ps != None:
             r2 = 1 
         if self.ps == None:
             r1 = 1
         temp = None
-        if r3 == 1:
-            temp = self.w + nephew.aw + self.ps.space
         elif r2 == 1:
             temp = self.w + self.ps.aw + self.ps.space
-        if r1 == 1:
+        elif r1 == 1:
             temp = self.w
         self.aw = temp
         
         for child in self.c_l:           
-            child.calc_aw_v3()  
+            child.calc_aw()  
     
     @mylogger()                               
     def get_longest_distance_children(self, biggest_distance_p):
@@ -132,29 +125,6 @@ class CEmployee:
         for child in self.c_l:
             child.calc_rw(scale_xd_p)
             
-    @mylogger()                               
-    def calc_rawv2(self):
-        r1 = 0
-        r2 = 0
-        r3 = 0
-        if self.ps != None:
-            nephew = self.ps.get_last_child()
-            if nephew != None:
-                r3 = 1
-        if self.ps != None:
-            r2 = 1 
-        if self.ps == None:
-            r1 = 1
-        temp = None
-        if r3 == 1:
-            temp = self.rw + nephew.rw
-        elif r2 == 1:
-            temp = self.rw + self.ps.rw
-        if r1 == 1:
-            temp = self.rw
-        self.raw = temp        
-        for child in self.c_l:           
-            child.calc_raw()  
             
     @mylogger()                               
     def calc_x(self, lm_p):
@@ -179,7 +149,7 @@ class CEmployee:
             
     @mylogger()                               
     def calc_raw(self, scale_xd_p):
-        #rules already applied in calc_aw_v3
+        #rules already applied in calc_aw
         '''
         r1 = 0
         r2 = 0
@@ -231,7 +201,7 @@ if __name__ == "__main__":
         mylog_section('calculating ps')
         root_obj.calc_i_self(0)
         root_obj.calc_ps_treev3()
-        root_obj.calc_aw_v3()
+        root_obj.calc_aw()
         longest_length = root_obj.get_longest_distance_children(0)
         myic(longest_length)
         scale_xd = SCREEN_WIDTH / longest_length
