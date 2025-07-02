@@ -2,7 +2,7 @@ from icecream import ic
 import argparse
 import pygame
 import sys
-sys.path.append("C:\\Users\\alexf\\afm_basic\\src\\lib")
+sys.path.append("..\\..\\lib")
 from mylogger_v3_2 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
 import time
 
