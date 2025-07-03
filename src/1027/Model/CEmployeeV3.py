@@ -86,7 +86,7 @@ class CEmployee:
             r1 = 1
         temp = None
         if r2 == 1:
-            temp = self.w + self.ps.aw + self.ps.space
+            temp = self.w + self.ps.aw
         elif r1 == 1:
             temp = self.w
         self.aw = temp
@@ -173,7 +173,7 @@ class CEmployee:
             
     def draw_tree(self):
         square_rect = pygame.Rect(self.x, self.y, self.rw, self.rh)         
-        pygame.draw.rect(screen, (250, 0, 0), square_rect)
+        pygame.draw.rect(screen, (self.x, self.y, 100), square_rect)
         for child in self.c_l:
             child.draw_tree()        
 
@@ -198,6 +198,8 @@ if __name__ == "__main__":
         b = CEmployee(guid_p = 'b',name_p='b',w_p=100, parent_p = root_obj)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
+        root_obj.y = 0
+        root_obj.rh = 100
         a.y = 100
         a.rh = 100
         b.y = 100
@@ -223,6 +225,17 @@ if __name__ == "__main__":
             root_obj.draw_tree()
         if args['scenario'] == '1':
             root_obj = create_tree_for_testing_1()
+            root_obj.calc_i_self(0)
+            root_obj.calc_ps_tree()
+            root_obj.calc_aw_tree()
+            longest_length = root_obj.get_longest_distance_tree(0)
+            scale_xd = SCREEN_WIDTH / longest_length
+            root_obj.calc_rw_tree(scale_xd_p = scale_xd)
+            root_obj.calc_raw_tree(scale_xd_p = scale_xd)
+            root_obj.calc_x_tree()
+            root_obj.draw_tree()
+        if args['scenario'] == '2':
+            root_obj = create_tree_for_testing_2()
             root_obj.calc_i_self(0)
             root_obj.calc_ps_tree()
             root_obj.calc_aw_tree()
