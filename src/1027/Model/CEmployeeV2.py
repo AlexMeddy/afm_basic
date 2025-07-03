@@ -22,11 +22,12 @@ class CEmployee:
         self.c_l = []
         self.ps = None #previous sibling
         self.w = w_p
-        self.x = 0
-        self.y = 0
         self.aw = 0 #accumulated width
         self.rw = 0 #resized width
         self.raw = 0 #resized accumulated width
+        self.x = 0
+        self.rh = 0
+        self.y = 0
         self.i_self = -1 #resized width
         self.space = 10 #resized width
         
@@ -170,21 +171,43 @@ class CEmployee:
         self.raw = self.aw * scale_xd_p
         for child in self.c_l:
             child.calc_raw_tree(scale_xd_p)
-            
+    
+    
+    def draw_tree(self):
+        square_rect = pygame.Rect(self.x, self.y, self.rw, self.rh)         
+        pygame.draw.rect(screen, (250, 0, 0), square_rect)
+        for child in self.c_l:
+            child.draw_tree()
 
 if __name__ == "__main__":
-    ic.configureOutput(includeContext=True)
-    parser = argparse.ArgumentParser(description='CMainController')
-    parser.add_argument('-t','--test', help='testing', required=True)
-    args = vars(parser.parse_args())
-    if args['test'] == 'tree':
-        mylog_section('intialising tree')
+    def create_tree_for_testing_0():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
+        return root_obj
+    def create_tree_for_testing_1():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100, parent_p = root_obj)
+        root_obj.add_child(child_p = a)
+        a.y = 100
+        a.rh = 100
+        return root_obj
+    def create_tree_for_testing_2():
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
         a = CEmployee(guid_p = 'a',name_p='a',w_p=100, parent_p = root_obj)
         b = CEmployee(guid_p = 'b',name_p='b',w_p=100, parent_p = root_obj)
-        c = CEmployee(guid_p = 'c',name_p='c',w_p=100, parent_p = a)
-        c2 = CEmployee(guid_p = 'c2',name_p='c2',w_p=100, parent_p = a)
-        d = CEmployee(guid_p = 'd',name_p='d',w_p=100, parent_p = root_obj)
+        root_obj.add_child(child_p = a)
+        root_obj.add_child(child_p = b)
+        a.y = 100
+        a.rh = 100
+        b.y = 100
+        b.rh = 100
+        return root_obj
+    def create_tree_for_testing_3():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100, parent_p = root_obj)        
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=100, parent_p = root_obj)        
+        c = CEmployee(guid_p = 'c',name_p='c',w_p=100, parent_p = a)        
+        c2 = CEmployee(guid_p = 'c2',name_p='c2',w_p=100, parent_p = a)        
+        d = CEmployee(guid_p = 'd',name_p='d',w_p=100, parent_p = root_obj)       
         e = CEmployee(guid_p = 'e',name_p='e',w_p=100, parent_p = root_obj)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
@@ -192,6 +215,28 @@ if __name__ == "__main__":
         root_obj.add_child(child_p = e)
         a.add_child(child_p = c)
         a.add_child(child_p = c2)
+        a.y = 100
+        a.rh = 100
+        b.y = 100
+        b.rh = 100
+        c.y = 200
+        c.rh = 200
+        c2.y = 200
+        c2.rh = 200
+        d.y = 100
+        d.rh = 100
+        return root_obj
+    ic.configureOutput(includeContext=True)
+    parser = argparse.ArgumentParser(description='CMainController')
+    parser.add_argument('-t','--test', help='testing', required=True)
+    parser.add_argument('-s','--scenario', help='testing', required=True)
+    args = vars(parser.parse_args())
+    if args['test'] == 'rxd':
+        mylog_section('intialising tree')
+        if args['scenario'] == '0':
+            root_obj = create_tree_for_testing_0()
+        if args['scenario'] == '1':
+            root_obj = create_tree_for_testing_1()
         mylog_section('printing tree')
         root_obj.print_tree()
         mylog_section('calculating ps')

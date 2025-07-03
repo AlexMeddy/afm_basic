@@ -28,7 +28,6 @@ class CEmployee:
         self.rw = 0 #resized width
         self.raw = 0 #resized accumulated width
         self.i_self = -1 #resized width
-        self.space = 10 #resized width
         
     def get_last_child(self):
         last_node = None
@@ -128,7 +127,7 @@ class CEmployee:
             
             
     @mylogger()                               
-    def calc_x_tree(self, lm_p):
+    def calc_x_tree(self):
         r0 = 0
         r1 = 0
         r2 = 0
@@ -139,14 +138,14 @@ class CEmployee:
         if self.ps != None: #ps
             r2 = 1 
         if r0 == 1:
-            temp = 0 + lm_p
+            temp = 0
         elif r2 == 1:
-            temp = self.ps.raw + lm_p
+            temp = self.ps.raw
         elif r1 == 1:
             temp = self.parent.x
         self.x = temp
         for child in self.c_l:
-            child.calc_x_tree(lm_p)
+            child.calc_x_tree()
         myic(r0,r1,r2) #for logging purposes
         return r0,r1,r2 #for logging purposes
             
@@ -205,7 +204,7 @@ if __name__ == "__main__":
 
         root_obj.calc_rw_tree(scale_xd_p = scale_xd)
         root_obj.calc_raw_tree(scale_xd_p = scale_xd)
-        root_obj.calc_x_tree(lm_p = 10)
+        root_obj.calc_x_tree()
         
         square_rect = pygame.Rect(root_obj.x, 0, root_obj.rw, root_obj.rw)         
         pygame.draw.rect(screen, (250, 0, 0), square_rect) 
