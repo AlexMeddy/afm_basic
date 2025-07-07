@@ -29,6 +29,8 @@ class CEmployee:
         self.rh = 0
         self.y = 0
         self.i_self = -1 #resized width
+        self.space = 10
+        self.r_space = 0
         
     def get_last_child(self):
         last_node = None
@@ -86,7 +88,7 @@ class CEmployee:
             r1 = 1
         temp = None
         if r2 == 1:
-            temp = self.w + self.ps.aw
+            temp = self.w + self.ps.aw + self.ps.space
         elif r1 == 1:
             temp = self.w
         self.aw = temp
@@ -141,7 +143,7 @@ class CEmployee:
         if r0 == 1:
             temp = 0
         elif r2 == 1:
-            temp = self.ps.raw
+            temp = self.ps.raw + self.ps.r_space
         elif r1 == 1:
             temp = self.parent.x
         self.x = temp
@@ -170,12 +172,18 @@ class CEmployee:
         self.raw = self.aw * scale_xd_p
         for child in self.c_l:
             child.calc_raw_tree(scale_xd_p)
-            
+    
+    def calc_r_space(self, scale_xd_p):
+        self.r_space = self.space * scale_xd_p
+        for child in self.c_l:
+            child.calc_r_space(scale_xd_p)
+    
     def draw_tree(self):
         square_rect = pygame.Rect(self.x, self.y, self.rw, self.rh)         
         pygame.draw.rect(screen, (self.x, self.y, 100), square_rect)
         for child in self.c_l:
             child.draw_tree()        
+
 
 if __name__ == "__main__":
     def create_tree_for_testing_0():
@@ -195,7 +203,7 @@ if __name__ == "__main__":
     def create_tree_for_testing_2():
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
         a = CEmployee(guid_p = 'a',name_p='a',w_p=100, parent_p = root_obj)
-        b = CEmployee(guid_p = 'b',name_p='b',w_p=100, parent_p = root_obj)
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=300, parent_p = root_obj)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
         root_obj.y = 0
@@ -243,6 +251,7 @@ if __name__ == "__main__":
             scale_xd = SCREEN_WIDTH / longest_length
             root_obj.calc_rw_tree(scale_xd_p = scale_xd)
             root_obj.calc_raw_tree(scale_xd_p = scale_xd)
+            root_obj.calc_r_space(scale_xd_p = scale_xd)
             root_obj.calc_x_tree()
             root_obj.draw_tree()
         mylog_section('printing tree')
