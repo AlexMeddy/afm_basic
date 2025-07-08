@@ -82,14 +82,21 @@ class CEmployee:
     def calc_aw_tree(self):
         r1 = 0
         r2 = 0
+        r3 = 0
+        if self.ps != None:
+            nephew = self.ps.get_last_child()
+            if nephew != None:
+                r3 = 1
         if self.ps != None:
             r2 = 1 
         if self.ps == None:
             r1 = 1
         temp = None
-        if r2 == 1:
+        if r3 == 1:
+            temp = nephew.aw + nephew.space + self.w
+        elif r2 == 1:
             temp = self.w + self.ps.aw + self.ps.space
-        elif r1 == 1:
+        if r1 == 1:
             temp = self.w
         self.aw = temp
         
@@ -134,14 +141,22 @@ class CEmployee:
         r0 = 0
         r1 = 0
         r2 = 0
+        r3 = 0
         if self.parent == None:
             r0 = 1 
+        nephew = None
+        if self.ps != None:
+            nephew = self.ps.get_last_child()
+            if nephew != None:
+                r3 = 1
         if self.ps == None: #no ps
             r1 = 1
         if self.ps != None: #ps
-            r2 = 1 
+            r2 = 1         
         if r0 == 1:
             temp = 0
+        elif r3 == 1:
+            temp = nephew.raw + nephew.space
         elif r2 == 1:
             temp = self.ps.raw + self.ps.r_space
         elif r1 == 1:
@@ -149,8 +164,8 @@ class CEmployee:
         self.x = temp
         for child in self.c_l:
             child.calc_x_tree()
-        myic(r0,r1,r2) #for logging purposes
-        return r0,r1,r2 #for logging purposes
+        myic(r0,r1,r2,r3, nephew) #for logging purposes
+        return r0,r1,r2,r3 #for logging purposes
             
     @mylogger()                               
     def calc_raw_tree(self, scale_xd_p):
@@ -204,14 +219,22 @@ if __name__ == "__main__":
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, parent_p = None)
         a = CEmployee(guid_p = 'a',name_p='a',w_p=100, parent_p = root_obj)
         b = CEmployee(guid_p = 'b',name_p='b',w_p=300, parent_p = root_obj)
+        c = CEmployee(guid_p = 'c',name_p='c',w_p=100, parent_p = a)
+        d = CEmployee(guid_p = 'd',name_p='d',w_p=100, parent_p = a)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
+        a.add_child(child_p = c)
+        a.add_child(child_p = d)
         root_obj.y = 0
         root_obj.rh = 100
         a.y = 100
         a.rh = 100
         b.y = 100
         b.rh = 100
+        c.y = 200
+        c.rh = 100
+        d.y = 200
+        d.rh = 100
         return root_obj
     ic.configureOutput(includeContext=True)
     parser = argparse.ArgumentParser(description='CMainController')
