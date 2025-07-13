@@ -23,19 +23,19 @@ class CEmployee:
         self.ps = None #previous sibling
         self.w = w_p
         self.h = h_p
-        self.aw = 0 #accumulated width
-        self.ah = 0 #accumulated height
-        self.rw = 0 #resized width
-        self.rh = 0 #resized height
-        self.raw = 0 #resized accumulated width
-        self.rah = 0 #resized accumulated height
-        self.x = 0
-        self.y = 0
+        self.aw = -1 #accumulated width
+        self.ah = -1 #accumulated height
+        self.rw = -1 #resized width
+        self.rh = -1 #resized height
+        self.raw = -1 #resized accumulated width
+        self.rah = -1 #resized accumulated height
+        self.x = -1
+        self.y = -1
         self.i_self = -1 #resized width
         self.space_x = 10
-        self.r_space_x = 0
+        self.r_space_x = -1
         self.space_y = 10
-        self.r_space_y = 0
+        self.r_space_y = -1
         
     def get_last_child(self):
         last_node = None
@@ -69,7 +69,6 @@ class CEmployee:
             
             child.calc_ps_treev2(temp)
             
-    @mylogger()                               
     def calc_ps_tree(self):
         self.ps = self.parent.c_l[self.i_self-1]  if  (self.parent != None and 
                                                                 self.parent.c_l != [] and
@@ -77,7 +76,6 @@ class CEmployee:
         for child in self.c_l:           
             child.calc_ps_tree()
             
-    @mylogger()                               
     def calc_i_self(self, i_self_p):
         self.i_self = i_self_p
         for i_child in range(len(self.c_l)):
@@ -191,6 +189,24 @@ class CEmployee:
             child.calc_x_tree()
         myic(r0,r1,r2,r3, nephew) #for logging purposes
         return r0,r1,r2,r3 #for logging purposes
+    
+    @mylogger()                               
+    def calc_y_tree(self):
+        r0 = 0
+        r1 = 0
+        if self.parent == None:
+            r0 = 1 
+        if self.parent != None:
+            r1 = 1
+        if r0 == 1:
+            temp = 0
+        if r1 == 1:
+            temp = self.parent.rah + self.parent.r_space_y
+        self.y = temp
+        for child in self.c_l:
+            child.calc_y_tree()
+        myic(r0,r1) #for logging purposes
+        return r0,r1 #for logging purposes
             
     @mylogger()                               
     def calc_raw_tree(self, scale_xd_p):
@@ -213,19 +229,38 @@ class CEmployee:
         for child in self.c_l:
             child.calc_raw_tree(scale_xd_p)
     
+    @mylogger()                               
+    def calc_rah_tree(self, scale_yd_p):
+        self.rah = self.ah * scale_yd_p
+        for child in self.c_l:
+            child.calc_rah_tree(scale_yd_p)
+    
     def calc_r_space_x(self, scale_xd_p):
         self.r_space_x = self.space_x * scale_xd_p
         for child in self.c_l:
             child.calc_r_space_x(scale_xd_p)
+            
+    @mylogger()                                      
+    def calc_r_space_y(self, scale_yd_p):
+        self.r_space_y = self.space_y * scale_yd_p
+        for child in self.c_l:
+            child.calc_r_space_y(scale_yd_p)
     
     def draw_tree(self):
-        square_rect = pygame.Rect(self.x, self.y, self.rw, self.rh)         
-        pygame.draw.rect(screen, (self.x, self.y, 100), square_rect)
+        square_rect = pygame.Rect(self.x, self.y, self.rw, self.rh) 
+        myic(self.x, self.y)
+        pygame.draw.rect(screen, (self.x % 255, self.y % 255, 100), square_rect)
         for child in self.c_l:
             child.draw_tree()        
 
 
 if __name__ == "__main__":
+    left_margin = 50
+    right_margin = 50
+    availible_width = SCREEN_WIDTH - left_margin - right_margin
+    top_margin = 50
+    bottom_margin = 50
+    availible_height = SCREEN_HEIGHT - top_margin - bottom_margin
     def create_tree_for_testing_0():
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, h_p=100, parent_p = None)
         root_obj.rh = 100
@@ -274,6 +309,36 @@ if __name__ == "__main__":
         d.y = 200
         d.rh = 100
         return root_obj
+    def create_tree_for_testing_10():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100, h_p=100, parent_p = None)
+        return root_obj
+    def create_tree_for_testing_11():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100, parent_p = root_obj)
+        root_obj.add_child(child_p = a)
+        return root_obj
+    def create_tree_for_testing_12():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100, parent_p = root_obj)
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=300,h_p=100, parent_p = root_obj)
+        root_obj.add_child(child_p = a)
+        root_obj.add_child(child_p = b)
+        return root_obj
+    def create_tree_for_testing_13():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100, parent_p = root_obj)
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=300,h_p=100, parent_p = root_obj)
+        c = CEmployee(guid_p = 'c',name_p='c',w_p=100,h_p=100, parent_p = a)
+        d = CEmployee(guid_p = 'd',name_p='d',w_p=100,h_p=100, parent_p = a)
+        e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100, parent_p = root_obj)
+        f = CEmployee(guid_p = 'f',name_p='f',w_p=100,h_p=100, parent_p = b)
+        root_obj.add_child(child_p = a)
+        root_obj.add_child(child_p = b)
+        root_obj.add_child(child_p = e)
+        a.add_child(child_p = c)
+        a.add_child(child_p = d)
+        b.add_child(child_p = f)
+        return root_obj
     ic.configureOutput(includeContext=True)
     parser = argparse.ArgumentParser(description='CMainController')
     parser.add_argument('-t','--test', help='testing', required=True)
@@ -310,22 +375,61 @@ if __name__ == "__main__":
     if args['test'] == 'ryd':
         mylog_section('intialising tree')       
         if args['scenario'] == '0':
-            root_obj = create_tree_for_testing_0()
+            root_obj = create_tree_for_testing_10()
         if args['scenario'] == '1':
-            root_obj = create_tree_for_testing_1()
+            root_obj = create_tree_for_testing_11()
         if args['scenario'] == '2':
-            root_obj = create_tree_for_testing_2()
+            root_obj = create_tree_for_testing_12()
         if args['scenario'] == '3':
-            root_obj = create_tree_for_testing_3()    
+            root_obj = create_tree_for_testing_13()            
         root_obj.print_tree()
-        root_obj.calc_i_self(0)
-        root_obj.calc_ps_tree()
+        #y starts here
         root_obj.calc_ah_tree()
         longest_length_y = root_obj.get_longest_distance_tree_y(0)
         scale_yd = SCREEN_HEIGHT / longest_length_y
         myic(scale_yd, SCREEN_HEIGHT, longest_length_y)
-        root_obj.calc_rh_tree(scale_yd_p = scale_yd)
-        
+        root_obj.calc_rh_tree(scale_yd_p = scale_yd)        
+        root_obj.calc_rah_tree(scale_yd_p = scale_yd)
+        root_obj.calc_r_space_y(scale_yd_p = scale_yd)
+        root_obj.calc_y_tree()
+        pygame.display.update()  
+        run = True        
+        while run:                                   
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    
+    if args['test'] == 'rxyd':
+        mylog_section('intialising tree')       
+        if args['scenario'] == '0':
+            root_obj = create_tree_for_testing_10()
+        if args['scenario'] == '1':
+            root_obj = create_tree_for_testing_11()
+        if args['scenario'] == '2':
+            root_obj = create_tree_for_testing_12()
+        if args['scenario'] == '3':
+            root_obj = create_tree_for_testing_13()            
+        root_obj.print_tree()
+        #y starts here
+        root_obj.calc_ah_tree()
+        longest_length_y = root_obj.get_longest_distance_tree_y(0)
+        scale_yd = SCREEN_HEIGHT / longest_length_y
+        myic(scale_yd, availible_height, longest_length_y)
+        root_obj.calc_rh_tree(scale_yd_p = scale_yd)        
+        root_obj.calc_rah_tree(scale_yd_p = scale_yd)
+        root_obj.calc_r_space_y(scale_yd_p = scale_yd)
+        root_obj.calc_y_tree()
+        #x starts here
+        root_obj.calc_i_self(0)
+        root_obj.calc_ps_tree()
+        root_obj.calc_aw_tree()
+        longest_length_x = root_obj.get_longest_distance_tree_x(0)
+        scale_xd = SCREEN_WIDTH / longest_length_x
+        root_obj.calc_rw_tree(scale_xd_p = scale_xd)
+        root_obj.calc_raw_tree(scale_xd_p = scale_xd)
+        root_obj.calc_r_space_x(scale_xd_p = scale_xd)
+        root_obj.calc_x_tree()
+        root_obj.draw_tree()
         pygame.display.update()  
         run = True        
         while run:                                   
