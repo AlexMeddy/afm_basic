@@ -3,7 +3,7 @@ import argparse
 import pygame
 import sys
 sys.path.append("..\\..\\lib")
-from mylogger_v3_3 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
+from mylogger_v3_4 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM,DISPLAY_STATE,DISPLAY_STD,DISPLAY_FULL
 import time
 
 pygame.init()
@@ -13,7 +13,7 @@ SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-font = pygame.font.SysFont('Arial', 25)
+font = pygame.font.SysFont('Arial', 15)
 class CEmployee:
     def __init__(self, guid_p, name_p, w_p, h_p, parent_p):
         self.guid = guid_p 
@@ -190,7 +190,6 @@ class CEmployee:
         myic(r0,r1,r2,r3, nephew) #for logging purposes
         return r0,r1,r2,r3 #for logging purposes
     
-    @mylogger()                               
     def calc_y_tree(self):
         r0 = 0
         r1 = 0
@@ -208,7 +207,6 @@ class CEmployee:
         myic(r0,r1) #for logging purposes
         return r0,r1 #for logging purposes
             
-    @mylogger()                               
     def calc_raw_tree(self, scale_xd_p):
         #rules already applied in calc_aw
         '''
@@ -229,7 +227,6 @@ class CEmployee:
         for child in self.c_l:
             child.calc_raw_tree(scale_xd_p)
     
-    @mylogger()                               
     def calc_rah_tree(self, scale_yd_p):
         self.rah = self.ah * scale_yd_p
         for child in self.c_l:
@@ -240,16 +237,27 @@ class CEmployee:
         for child in self.c_l:
             child.calc_r_space_x(scale_xd_p)
             
-    @mylogger()                                      
     def calc_r_space_y(self, scale_yd_p):
         self.r_space_y = self.space_y * scale_yd_p
         for child in self.c_l:
             child.calc_r_space_y(scale_yd_p)
     
+    @mylogger()                               
     def draw_tree(self):
         square_rect = pygame.Rect(self.x, self.y, self.rw, self.rh) 
         myic(self.x, self.y)
         pygame.draw.rect(screen, (self.x % 255, self.y % 255, 100), square_rect)
+        text = font.render(self.name, True, (255,255,255))
+        screen.blit(text, (self.x+self.rw/2, self.y+self.rh/2))
+        text = font.render(str(int(self.aw)), True, (255,255,255))
+        screen.blit(text, (self.x+self.rw/2, self.y+self.rh/2+20))
+        if self.parent != None:
+            myic(self.parent.x,self.parent.rw, self.parent.y,self.parent.rah, self.x,self.rw, self.y,self.rh)
+            pygame.draw.line(screen, (255,255,255), (self.parent.x+self.parent.rw/2, self.parent.rah)
+            , (self.x+self.rw/2, self.y))
+        pygame.display.update() 
+        pygame.event.get()        
+        input()
         for child in self.c_l:
             child.draw_tree()        
 
@@ -331,14 +339,30 @@ if __name__ == "__main__":
         c = CEmployee(guid_p = 'c',name_p='c',w_p=100,h_p=100, parent_p = a)
         d = CEmployee(guid_p = 'd',name_p='d',w_p=100,h_p=100, parent_p = a)
         e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100, parent_p = root_obj)
-        f = CEmployee(guid_p = 'f',name_p='f',w_p=100,h_p=100, parent_p = b)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
         root_obj.add_child(child_p = e)
         a.add_child(child_p = c)
         a.add_child(child_p = d)
-        b.add_child(child_p = f)
         return root_obj
+    def create_tree_for_testing_14():
+        root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100, parent_p = root_obj)
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=300,h_p=100, parent_p = root_obj)
+        c = CEmployee(guid_p = 'c',name_p='c',w_p=100,h_p=100, parent_p = root_obj)
+        d = CEmployee(guid_p = 'd',name_p='d',w_p=100,h_p=100, parent_p = a)
+        e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100, parent_p = b)
+        f = CEmployee(guid_p = 'f',name_p='f',w_p=100,h_p=100, parent_p = c)
+        g = CEmployee(guid_p = 'g',name_p='g',w_p=100,h_p=100, parent_p = c)
+        root_obj.add_child(child_p = a)
+        root_obj.add_child(child_p = b)
+        root_obj.add_child(child_p = c)
+        a.add_child(child_p = d)
+        b.add_child(child_p = e)
+        c.add_child(child_p = f)
+        c.add_child(child_p = g)
+        return root_obj
+
     ic.configureOutput(includeContext=True)
     parser = argparse.ArgumentParser(description='CMainController')
     parser.add_argument('-t','--test', help='testing', required=True)
@@ -408,7 +432,9 @@ if __name__ == "__main__":
         if args['scenario'] == '2':
             root_obj = create_tree_for_testing_12()
         if args['scenario'] == '3':
-            root_obj = create_tree_for_testing_13()            
+            root_obj = create_tree_for_testing_13() 
+        if args['scenario'] == '4':
+            root_obj = create_tree_for_testing_14()
         root_obj.print_tree()
         #y starts here
         root_obj.calc_ah_tree()
