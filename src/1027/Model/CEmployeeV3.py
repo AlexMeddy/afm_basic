@@ -98,8 +98,10 @@ class CEmployee:
             temp = nephew.aw + nephew.space_x + self.w
         elif r2 == 1:
             temp = self.w + self.ps.aw + self.ps.space_x
-        if r1 == 1:
+        elif r1 == 1:
             temp = self.w
+        else:
+            assert false, "cannot apply rule"
         self.aw = temp
         
         for child in self.c_l:           
@@ -122,6 +124,15 @@ class CEmployee:
         for child in self.c_l:
             biggest_distance = child.get_longest_distance_tree_x(biggest_distance) 
         return biggest_distance
+    
+    @mylogger()                               
+    def get_longest_raw_tree(self, biggest_raw_p):
+        biggest_raw = biggest_raw_p
+        if self.aw > biggest_raw:
+            biggest_raw = self.raw
+        for child in self.c_l:
+            biggest_raw = child.get_longest_distance_tree_x(biggest_raw) 
+        return biggest_raw
         
     @mylogger()                               
     def get_longest_distance_tree_y(self, biggest_distance_p):
@@ -166,29 +177,30 @@ class CEmployee:
         r0 = 0
         r1 = 0
         r2 = 0
-        r3 = 0
+        if self.ps != None:
+            biggest_raw = self.ps.get_longest_raw_tree(0)
+            myic(biggest_raw)
         if self.parent == None:
             r0 = 1 
-        nephew = self.ps.get_last_child()  if  (self.ps != None) else None
-        if nephew != None:
-            r3 = 1
         if self.ps == None: #no ps
             r1 = 1
         if self.ps != None: #ps
             r2 = 1         
         if r0 == 1:
             temp = 0
-        elif r3 == 1:
-            temp = nephew.raw + nephew.space_x
         elif r2 == 1:
-            temp = self.ps.raw + self.ps.r_space_x
+            temp = biggest_raw + self.ps.r_space_x
+            myic(r2)
         elif r1 == 1:
             temp = self.parent.x
+            myic(r1)
+        else:
+            assert false, "cannot apply rule"
         self.x = temp
         for child in self.c_l:
             child.calc_x_tree()
-        myic(r0,r1,r2,r3, nephew) #for logging purposes
-        return r0,r1,r2,r3 #for logging purposes
+        myic(r0,r1,r2) #for logging purposes
+        return r0,r1,r2 #for logging purposes
     
     def calc_y_tree(self):
         r0 = 0
@@ -249,7 +261,7 @@ class CEmployee:
         pygame.draw.rect(screen, (self.x % 255, self.y % 255, 100), square_rect)
         text = font.render(self.name, True, (255,255,255))
         screen.blit(text, (self.x+self.rw/2, self.y+self.rh/2))
-        text = font.render(str(int(self.aw)), True, (255,255,255))
+        text = font.render(f'self.aw = {int(self.aw)}', True, (255,255,255))
         screen.blit(text, (self.x+self.rw/2, self.y+self.rh/2+20))
         if self.parent != None:
             myic(self.parent.x,self.parent.rw, self.parent.y,self.parent.rah, self.x,self.rw, self.y,self.rh)
@@ -348,19 +360,19 @@ if __name__ == "__main__":
     def create_tree_for_testing_14():
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
         a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100, parent_p = root_obj)
-        b = CEmployee(guid_p = 'b',name_p='b',w_p=300,h_p=100, parent_p = root_obj)
+        b = CEmployee(guid_p = 'b',name_p='b',w_p=200,h_p=100, parent_p = root_obj)
         c = CEmployee(guid_p = 'c',name_p='c',w_p=100,h_p=100, parent_p = root_obj)
-        d = CEmployee(guid_p = 'd',name_p='d',w_p=100,h_p=100, parent_p = a)
-        e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100, parent_p = b)
-        f = CEmployee(guid_p = 'f',name_p='f',w_p=100,h_p=100, parent_p = c)
-        g = CEmployee(guid_p = 'g',name_p='g',w_p=100,h_p=100, parent_p = c)
+        d = CEmployee(guid_p = 'd',name_p='d',w_p=200,h_p=100, parent_p = a)
+        e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100, parent_p = a)
+        f = CEmployee(guid_p = 'f',name_p='f',w_p=250,h_p=100, parent_p = d)
+        #g = CEmployee(guid_p = 'g',name_p='g',w_p=51,h_p=100, parent_p = e)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
         root_obj.add_child(child_p = c)
         a.add_child(child_p = d)
-        b.add_child(child_p = e)
-        c.add_child(child_p = f)
-        c.add_child(child_p = g)
+        #a.add_child(child_p = e)
+        d.add_child(child_p = f)
+        #e.add_child(child_p = g)
         return root_obj
 
     ic.configureOutput(includeContext=True)
