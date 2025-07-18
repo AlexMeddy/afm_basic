@@ -83,21 +83,23 @@ class CEmployee:
             
     @mylogger()                               
     def calc_aw_tree(self):
+        r0 = 0
         r1 = 0
         r2 = 0
-        r3 = 0
-        nephew = self.ps.get_last_child()  if  (self.ps != None) else None
-        if nephew != None:
-            r3 = 1
         if self.ps != None:
+            biggest_aw = self.ps.get_longest_distance_tree_x(0)
+            myic(biggest_aw)
             r2 = 1 
+        if self.parent == None:
+            r0 = 1 
         if self.ps == None:
             r1 = 1
         temp = None
-        if r3 == 1:
-            temp = nephew.aw + nephew.space_x + self.w
+        if r0 == 1:
+            temp = self.w
         elif r2 == 1:
-            temp = self.w + self.ps.aw + self.ps.space_x
+            temp = self.w + biggest_aw + self.ps.space_x
+            myic(self.w, biggest_aw, self.ps.r_space_x)
         elif r1 == 1:
             temp = self.w
         else:
@@ -106,6 +108,8 @@ class CEmployee:
         
         for child in self.c_l:           
             child.calc_aw_tree()  
+        myic(r0,r1,r2) #for logging purposes
+        return r0,r1,r2 #for logging purposes
     
     @mylogger()                               
     def calc_ah_tree(self):
@@ -126,12 +130,12 @@ class CEmployee:
         return biggest_distance
     
     @mylogger()                               
-    def get_longest_raw_tree(self, biggest_raw_p):
+    def get_longest_resized_distance_tree_x(self, biggest_raw_p):
         biggest_raw = biggest_raw_p
-        if self.aw > biggest_raw:
+        if self.raw > biggest_raw:
             biggest_raw = self.raw
         for child in self.c_l:
-            biggest_raw = child.get_longest_distance_tree_x(biggest_raw) 
+            biggest_raw = child.get_longest_resized_distance_tree_x(biggest_raw) 
         return biggest_raw
         
     @mylogger()                               
@@ -178,7 +182,7 @@ class CEmployee:
         r1 = 0
         r2 = 0
         if self.ps != None:
-            biggest_raw = self.ps.get_longest_raw_tree(0)
+            biggest_raw = self.ps.get_longest_resized_distance_tree_x(0)
             myic(biggest_raw)
         if self.parent == None:
             r0 = 1 
@@ -261,8 +265,8 @@ class CEmployee:
         pygame.draw.rect(screen, (self.x % 255, self.y % 255, 100), square_rect)
         text = font.render(self.name, True, (255,255,255))
         screen.blit(text, (self.x+self.rw/2, self.y+self.rh/2))
-        text = font.render(f'self.aw = {int(self.aw)}', True, (255,255,255))
-        screen.blit(text, (self.x+self.rw/2, self.y+self.rh/2+20))
+        text = font.render(f'self.raw = {int(self.raw)}', True, (255,255,255))
+        screen.blit(text, (self.x, self.y+self.rh/2+20))
         if self.parent != None:
             myic(self.parent.x,self.parent.rw, self.parent.y,self.parent.rah, self.x,self.rw, self.y,self.rh)
             pygame.draw.line(screen, (255,255,255), (self.parent.x+self.parent.rw/2, self.parent.rah)
@@ -370,10 +374,9 @@ if __name__ == "__main__":
         root_obj.add_child(child_p = b)
         root_obj.add_child(child_p = c)
         a.add_child(child_p = d)
-        #a.add_child(child_p = e)
-        d.add_child(child_p = f)
-        #e.add_child(child_p = g)
-        return root_obj
+        a.add_child(child_p = e)
+        a.add_child(child_p = f)
+        return root_obj, a
 
     ic.configureOutput(includeContext=True)
     parser = argparse.ArgumentParser(description='CMainController')
@@ -446,7 +449,7 @@ if __name__ == "__main__":
         if args['scenario'] == '3':
             root_obj = create_tree_for_testing_13() 
         if args['scenario'] == '4':
-            root_obj = create_tree_for_testing_14()
+            root_obj, a = create_tree_for_testing_14()
         root_obj.print_tree()
         #y starts here
         root_obj.calc_ah_tree()
@@ -464,10 +467,11 @@ if __name__ == "__main__":
         longest_length_x = root_obj.get_longest_distance_tree_x(0)
         scale_xd = SCREEN_WIDTH / longest_length_x
         root_obj.calc_rw_tree(scale_xd_p = scale_xd)
-        root_obj.calc_raw_tree(scale_xd_p = scale_xd)
+        root_obj.calc_raw_tree(scale_xd_p = scale_xd)        
         root_obj.calc_r_space_x(scale_xd_p = scale_xd)
         root_obj.calc_x_tree()
         root_obj.draw_tree()
+        
         pygame.display.update()  
         run = True        
         while run:                                   

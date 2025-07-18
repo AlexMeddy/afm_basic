@@ -1,0 +1,14 @@
+how to code a text input in pygame	
+	add code to write the text into a flat file
+	add code to save coordinates of the mouse into the same flat file
+	add code to save coordinates of the mouse into a different flat file	
+	using the user text input, add code to instantiate the following class: 
+	class CEmployee:
+		def __init__(self, guid_p, name_p):
+			self.guid = guid_p 
+			self.name = name_p	
+	instantiate the class CEmployee using a comma delimited flat file
+	show an example of the file employees.csv
+	using socket, add code to instantiate the class CEmployee 
+	
+how to write a string text into a flat file in python
