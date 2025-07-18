@@ -273,7 +273,7 @@ class CEmployee:
             , (self.x+self.rw/2, self.y))
         pygame.display.update() 
         pygame.event.get()        
-        input()
+        #input()
         for child in self.c_l:
             child.draw_tree()        
 
@@ -363,12 +363,12 @@ if __name__ == "__main__":
         return root_obj
     def create_tree_for_testing_14():
         root_obj = CEmployee(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
-        a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100, parent_p = root_obj)
+        a = CEmployee(guid_p = 'a',name_p='a',w_p=100,h_p=100/2, parent_p = root_obj)
         b = CEmployee(guid_p = 'b',name_p='b',w_p=200,h_p=100, parent_p = root_obj)
         c = CEmployee(guid_p = 'c',name_p='c',w_p=100,h_p=100, parent_p = root_obj)
         d = CEmployee(guid_p = 'd',name_p='d',w_p=200,h_p=100, parent_p = a)
-        e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100, parent_p = a)
-        f = CEmployee(guid_p = 'f',name_p='f',w_p=250,h_p=100, parent_p = d)
+        e = CEmployee(guid_p = 'e',name_p='e',w_p=100,h_p=100/2, parent_p = a)
+        f = CEmployee(guid_p = 'f',name_p='f',w_p=400,h_p=100, parent_p = a)
         #g = CEmployee(guid_p = 'g',name_p='g',w_p=51,h_p=100, parent_p = e)
         root_obj.add_child(child_p = a)
         root_obj.add_child(child_p = b)
