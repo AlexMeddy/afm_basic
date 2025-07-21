@@ -211,8 +211,6 @@ class CEmployee:
         found_employee = found_employee_p
         if self.name == employee_name_p: #self is always first
             found_employee = self
-        else:
-            found_employee = None
         myic(found_employee)
         myic(self.name)
         for child in self.c_l:
