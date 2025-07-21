@@ -214,14 +214,11 @@ class CEmployee:
         else:
             myic(found_employee)
             myic(self.name)
-            for child in self.c_l:
-                found_employee = child.search_by_name(employee_name_p)
-        return found_employee
-        
-    def get_bla2(self):
-        bla2 = 0
-        bla2 = self.w
-        return bla2
+            if found_employee != None:
+                return found_employee
+            else:
+                for child in self.c_l:
+                    found_employee = child.search_by_name(employee_name_p)
     
 def initialise_employee_tree():
     def create_tree_for_testing_14():
