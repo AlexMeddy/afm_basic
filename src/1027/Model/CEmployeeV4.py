@@ -207,6 +207,22 @@ class CEmployee:
         self.calc_x_tree()
         return scale_xd, scale_yd
     
+    def search_by_name(self, employee_name_p, found_employee_p):
+        found_employee = found_employee_p
+        if self.name == employee_name_p: #self is always first
+            found_employee = self
+        else:
+            found_employee = None
+        myic(found_employee)
+        myic(self.name)
+        for child in self.c_l:
+            found_employee = child.search_by_name(employee_name_p, found_employee)
+        return found_employee
+        
+    def get_bla2(self):
+        bla2 = 0
+        bla2 = self.w
+        return bla2
     
 def initialise_employee_tree():
     def create_tree_for_testing_14():
@@ -226,7 +242,18 @@ def initialise_employee_tree():
         a.add_child(child_p = f)
         a.add_child(child_p = g)
         return root_obj, a
-
+    def create_tree_from_input(employee_p):
+        while True:
+            result = input("please enter guid,name,w,h,parent or enter q to quit: ")
+            if result != "q":
+                parts = result.split(",", 4)
+                if len(parts) == 5:
+                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
+                    employee_p.search_by_name(parent_name, None)
+                    employee = CEmployee(guid, name, w, h, parent)
+                    print("Employee Created:", employee)
+            else:
+                break
     parser = argparse.ArgumentParser(description='CMainController')
     parser.add_argument('-t','--test', help='testing', required=True)
     parser.add_argument('-s','--scenario', help='testing', required=True)
@@ -255,6 +282,7 @@ def main():
     #input_box = TextInputBox(100, 200, 440, 40)
     clock = pygame.time.Clock()
     root_obj, scale_xd, scale_yd = initialise_employee_tree()
+    parent = root_obj.search_by_name("a", None)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -265,6 +293,7 @@ def main():
         screen.fill(BLACK)
         #input_box.draw(screen)
         root_obj.draw_tree(scale_xd, scale_yd)
+        myic(parent.name)
         draw_mouse_coordinates(screen)
         pygame.display.flip()
         clock.tick(30)
