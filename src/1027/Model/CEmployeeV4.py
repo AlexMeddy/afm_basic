@@ -214,10 +214,10 @@ class CEmployee:
         else:
             myic(found_employee)
             myic(self.name)
-            if found_employee != None:
-                return found_employee
-            else:
-                for child in self.c_l:
+            for child in self.c_l:
+                if found_employee != None:
+                    return found_employee
+                else:
                     found_employee = child.search_by_name(employee_name_p)
     
 def initialise_employee_tree():
