@@ -211,10 +211,11 @@ class CEmployee:
         found_employee = None
         if self.name == employee_name_p: #self is always first
             found_employee = self
-        myic(found_employee)
-        myic(self.name)
-        for child in self.c_l:
-            found_employee = child.search_by_name(employee_name_p, found_employee)
+        else:
+            myic(found_employee)
+            myic(self.name)
+            for child in self.c_l:
+                found_employee = child.search_by_name(employee_name_p, found_employee)
         return found_employee
         
     def get_bla2(self):
