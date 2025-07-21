@@ -208,7 +208,7 @@ class CEmployee:
         return scale_xd, scale_yd
     
     def search_by_name(self, employee_name_p, found_employee_p):
-        found_employee = found_employee_p
+        found_employee = None
         if self.name == employee_name_p: #self is always first
             found_employee = self
         myic(found_employee)
