@@ -210,7 +210,7 @@ class CEmployeeView:
 
 # Standard Python entry point
 if __name__ == '__main__':
-    def create_tree_for_testing_14():
+    def get_tree_for_testing_14():
         root_obj = CEmployeeView(guid_p = 'root',name_p='root',w_p=100,h_p=100, parent_p = None)
         a = CEmployeeView(guid_p = 'a',name_p='a',w_p=100,h_p=100/2, parent_p = root_obj)
         b = CEmployeeView(guid_p = 'b',name_p='b',w_p=200,h_p=100, parent_p = root_obj)
@@ -227,29 +227,35 @@ if __name__ == '__main__':
         a.add_child(child_p = f)
         a.add_child(child_p = g)
         return root_obj
-    def calc_tree_from_input(employee_p):
-        root_obj = None
-        while True:
-            result = input('please enter guid,name,w,h,parent or enter q to quit: ')
-            if result != 'q':
-                parts = result.split(',', 4)
-                if len(parts) == 5:
-                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
-                    employee_p.search_by_name(parent_name, None)
-                    employee = CEmployeeView(guid, name, w, h, parent)
-                    print('Employee Created:', employee)
-            else:
-                break
-        return root_obj
         
     def get_tree_from_input():
         root_obj = None
-        result = input('please enter guid,name,w,h,parent or enter q to quit: ')
-        parts = result.split(',', 4)
-        if len(parts) == 5:
-            guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
-            myic(guid, name, w, h, parent_name)
-            root_obj = CEmployeeView(guid, name, int(w), int(h), None)                   
+        flag_first_employee = 1
+        while True:            
+            if flag_first_employee == 1:  #if first employee instantiate root
+                flag_first_employee = 0
+                result = input('please enter root guid,name,w,h,parent or enter q to quit: ')
+                parts = result.split(',', 4)
+                if len(parts) == 5:
+                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
+                    root_obj = CEmployeeView(guid, name, int(w), int(h), None) 
+            else:
+                result = input('please enter employee guid,name,w,h,parent or enter q to quit: ')
+                parts = result.split(',', 4)
+                if len(parts) == 5:
+                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
+                    parent = root_obj.search_by_name(parent_name)
+                    myic(parent)
+                    employee = CEmployeeView(guid, name, int(w), int(h), parent) 
+                    if parent:
+                        parent.add_child(child_p = employee)
+                    else:
+                        myic('parent not found')
+            
+            if result == 'q':
+                break
+            root_obj.print_tree()
+
         return root_obj
         
     
