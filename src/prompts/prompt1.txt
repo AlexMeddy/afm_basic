@@ -1,7 +1,14 @@
+#working
+create a pygame app encapsulated in a class named CMainView with:
+a text input, and a method in CMainView to draw coordinates of the mouse into the top right corner of the pygame window
+
+
+
+#to be tested
 how to code a text input in pygame with __name__
+	add a method to draw coordinates of the mouse into the top right corner of the pygame window
 	add code to write the text into a flat file
 	add code to save coordinates of the mouse into the same flat file
-	add a method to draw coordinates of the mouse into the top right corner of the pygame window
 	add code to save coordinates of the mouse into a different flat file	
 	using the user text input, add code to instantiate the following class: 
 	class CEmployee:
