@@ -257,6 +257,7 @@ if __name__ == '__main__':
         
     def get_tree_from_flat_file():
         root_obj = None
+        root_obj = CEmployeeView('root', 'root', 50, 50, None) 
         return root_obj
 
     parser = argparse.ArgumentParser(description='CMainController')
@@ -266,7 +267,10 @@ if __name__ == '__main__':
     if args['test'] == 'get_tree_from_flat_file':
         if args['scenario'] == '4':
             root_obj = get_tree_from_flat_file()
-            myic(root_obj)
+            if root_obj: #safe code
+                myic(root_obj.name)
+            else:
+                myic('no tree')
     if args['test'] == 'print_tree':
         if args['scenario'] == '4':
             root_obj = create_tree_for_testing_14()
