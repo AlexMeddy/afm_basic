@@ -232,12 +232,14 @@ if __name__ == '__main__':
             if flag_first_employee == 1:  #if first employee instantiate root
                 flag_first_employee = 0
                 result = input('please enter root guid,name,w,h,parent or enter q to quit: ')
+                #parse result
                 parts = result.split(',', 4)
                 if len(parts) == 5:
                     guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
                     root_obj = CEmployeeView(guid, name, int(w), int(h), None) 
             else:
                 result = input('please enter employee guid,name,w,h,parent or enter q to quit: ')
+                #parse result
                 parts = result.split(',', 4)
                 if len(parts) == 5:
                     guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
@@ -257,7 +259,30 @@ if __name__ == '__main__':
         
     def get_tree_from_flat_file():
         root_obj = None
-        root_obj = CEmployeeView('root', 'root', 50, 50, None) 
+        flag_first_employee = 1
+        with open('employee_tree.txt', 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            if flag_first_employee == 1:  #if first employee instantiate root
+                flag_first_employee = 0
+                #parse line
+                print(line.strip())
+                parts = line.split(',', 4)
+                if len(parts) == 5:
+                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
+                    root_obj = CEmployeeView(guid, name, int(w), int(h), None) 
+            else:
+                #parse line
+                print(line.strip())
+                parts = line.split(',', 4)
+                if len(parts) == 5:
+                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
+                    parent = root_obj.get_employee_by_name(parent_name)
+                    employee = CEmployeeView(guid, name, int(w), int(h), parent)
+                    if parent:
+                        parent.add_child(child_p = employee)
+                    else:
+                        myic('parent not found')
         return root_obj
 
     parser = argparse.ArgumentParser(description='CMainController')
@@ -268,7 +293,7 @@ if __name__ == '__main__':
         if args['scenario'] == '4':
             root_obj = get_tree_from_flat_file()
             if root_obj: #safe code
-                myic(root_obj.name)
+                root_obj.print_tree()
             else:
                 myic('no tree')
     if args['test'] == 'print_tree':

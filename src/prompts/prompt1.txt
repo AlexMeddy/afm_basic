@@ -1,7 +1,8 @@
 #working
 create a pygame app encapsulated in a class named CMainView with:
 a text input, and a method in CMainView to draw coordinates of the mouse into the top right corner of the pygame window
-
+show an example of how to open a flat file in python
+alternative to with open
 
 
 #to be tested
