@@ -177,7 +177,7 @@ class CEmployeeView:
         for child in self.c_l:
             child.draw_tree(scale_xd_p, scale_yd_p)        
 
-    def align(self, screen_height_p, screen_width_p):        
+    def align(self, screen_height_p, screen_width_p): #get/calc       
         #y starts here
         self.calc_ah_tree()
         longest_length_y = self.get_longest_distance_tree_y(0)
@@ -192,21 +192,18 @@ class CEmployeeView:
         self.calc_x_tree()
         return scale_xd, scale_yd
     
-    def search_by_name(self, employee_name_p):
-        found_employee = None
+    def get_employee_by_name(self, employee_name_p):
+        employee = None
         if self.name == employee_name_p: #self is always first
-            found_employee = self
+            employee = self
         else:
             for child in self.c_l:
-                if found_employee != None:
+                if employee != None:
                     break
                 else:
-                    found_employee = child.search_by_name(employee_name_p)
-        return found_employee
+                    employee = child.get_employee_by_name(employee_name_p)
+        return employee
             
-    
-
-        
 
 # Standard Python entry point
 if __name__ == '__main__':
@@ -244,7 +241,7 @@ if __name__ == '__main__':
                 parts = result.split(',', 4)
                 if len(parts) == 5:
                     guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
-                    parent = root_obj.search_by_name(parent_name)
+                    parent = root_obj.get_employee_by_name(parent_name)
                     myic(parent)
                     employee = CEmployeeView(guid, name, int(w), int(h), parent) 
                     if parent:
@@ -258,23 +255,29 @@ if __name__ == '__main__':
 
         return root_obj
         
-    
+    def get_tree_from_flat_file():
+        root_obj = None
+        return root_obj
 
     parser = argparse.ArgumentParser(description='CMainController')
     parser.add_argument('-t','--test', help='testing', required=True)
     parser.add_argument('-s','--scenario', help='testing', required=True)
     args = vars(parser.parse_args())
+    if args['test'] == 'get_tree_from_flat_file':
+        if args['scenario'] == '4':
+            root_obj = get_tree_from_flat_file()
+            myic(root_obj)
     if args['test'] == 'print_tree':
         if args['scenario'] == '4':
             root_obj = create_tree_for_testing_14()
             root_obj.print_tree()
-    if args['test'] == 'search_by_name':
+    if args['test'] == 'get_employee_by_name':
         if args['scenario'] == '4':
             root_obj = create_tree_for_testing_14()
             while True:
                 result = input('please enter name or enter q to quit: ')
                 if result != 'q':
-                    employeeview = root_obj.search_by_name(result)
+                    employeeview = root_obj.get_employee_by_name(result)
                 else:
                     break
                 print(employeeview.name if employeeview else 'not found')
@@ -282,7 +285,7 @@ if __name__ == '__main__':
         if args['scenario'] == '4':
             root_obj = create_tree_for_testing_14()
             root_obj.align(500,500)
-            root_obj.print_tree()
+            root_obj.print_tree()    
     if args['test'] == 'get_tree_from_input':
         if args['scenario'] == '4':
             root_obj = get_tree_from_input()
