@@ -49,6 +49,7 @@ class CMainView:
         self.clock = pygame.time.Clock()
         self.running = True
         self.input_box = TextInput(100, 200, 440, 40)
+        self.employee_root_obj = None
 
     def draw_mouse_coordinates(self):
         x, y = pygame.mouse.get_pos()
@@ -66,6 +67,10 @@ class CMainView:
                 self.input_box.handle_event(event)
 
             self.input_box.draw(self.screen)
+            if self.employee_root_obj:
+                self.employee_root_obj.draw(self.screen)
+            else:
+                print("no employee_root_obj")
             self.draw_mouse_coordinates()  # ← Call mouse coordinate drawing
 
             pygame.display.flip()

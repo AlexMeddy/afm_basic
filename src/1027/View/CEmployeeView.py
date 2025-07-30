@@ -175,7 +175,8 @@ class CEmployeeView:
             pygame.draw.line(screen, (255,255,255), line_xy, line_wh)
         #input()
         for child in self.c_l:
-            child.draw_tree(scale_xd_p, scale_yd_p)        
+            child.draw_tree(scale_xd_p, scale_yd_p)   
+ 
 
     def align(self, screen_height_p, screen_width_p): #get/calc       
         #y starts here
