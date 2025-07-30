@@ -1,11 +1,13 @@
 import pygame
 import sys
+from CEmployeeView import CEmployeeView
 
 # Initialize Pygame
 pygame.init()
 
 # Constants
-WIDTH, HEIGHT = 640, 480
+WIDTH = 500
+HEIGHT = 800
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -48,8 +50,10 @@ class CMainView:
         pygame.display.set_caption("CMainView: Text Input + Mouse Coordinates")
         self.clock = pygame.time.Clock()
         self.running = True
-        self.input_box = TextInput(100, 200, 440, 40)
-        self.employee_root_obj = None
+        self.input_box = TextInput(0, 0, 200, 40)
+        
+        self.employee_root_obj = self.get_tree_from_flat_file()
+
 
     def draw_mouse_coordinates(self):
         x, y = pygame.mouse.get_pos()
@@ -57,18 +61,50 @@ class CMainView:
         text_width = coord_text.get_width()
         self.screen.blit(coord_text, (WIDTH - text_width - 10, 10))  # Top-right corner
 
+    def get_tree_from_flat_file(self):
+        root_obj = None
+        flag_first_employee = 1
+        with open('employee_tree.txt', 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            if flag_first_employee == 1:  #if first employee instantiate root
+                flag_first_employee = 0
+                #parse line
+                print(line.strip())
+                parts = line.split(',', 6)
+                if len(parts) == 7:
+                    guid, name, w, h, space_x, space_y, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip(), parts[5].strip(), parts[6].strip() 
+                    root_obj = CEmployeeView(guid, name, int(w), int(h), int(space_x), int(space_y), None) 
+            else:
+                #parse line
+                print(line.strip())
+                parts = line.split(',', 6)
+                if len(parts) == 7:
+                    guid, name, w, h, space_x, space_y, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip(), parts[5].strip(), parts[6].strip() 
+                    parent = root_obj.get_employee_by_name(parent_name)
+                    employee = CEmployeeView(guid, name, int(w), int(h), int(space_x), int(space_y), parent) 
+                    if parent:
+                        parent.add_child(child_p = employee)
+                    else:
+                        print('parent not found')
+        return root_obj
+
     def run(self):
         while self.running:
-            self.screen.fill(WHITE)
+            self.screen.fill(BLACK)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                 self.input_box.handle_event(event)
-
+            
             self.input_box.draw(self.screen)
             if self.employee_root_obj:
-                self.employee_root_obj.draw(self.screen)
+                top_margin = 50
+                scale_x, scale_y = self.employee_root_obj.align(available_screen_width_p = WIDTH, available_screen_height_p = HEIGHT-top_margin)
+                self.employee_root_obj.draw_tree(scale_x, scale_y, pygame, self.screen, FONT, top_margin)
+
+
             else:
                 print("no employee_root_obj")
             self.draw_mouse_coordinates()  # ← Call mouse coordinate drawing

@@ -6,7 +6,7 @@ from mylogger_v3_4 import mylogger,mylog_section,myic,DISPLAY_SELF,DISPLAY_PARAM
 import time
 
 class CEmployeeView:
-    def __init__(self, guid_p, name_p, w_p, h_p, parent_p):
+    def __init__(self, guid_p, name_p, w_p, h_p, space_x_p, space_y_p, parent_p):
         self.guid = guid_p 
         self.name = name_p
         self.parent = parent_p
@@ -19,8 +19,8 @@ class CEmployeeView:
         self.x = -1
         self.y = -1
         self.i_self = -1 #resized width
-        self.space_x = 100
-        self.space_y = 10
+        self.space_x = space_x_p
+        self.space_y = space_y_p
         
     def get_last_child(self):
         last_node = None
@@ -79,7 +79,7 @@ class CEmployeeView:
     
     def calc_ah_tree(self):
         if self.parent != None:
-            self.ah = self.parent.ah + self.h + self.space_y
+            self.ah = self.parent.ah + self.h + self.parent.space_y
         else:
             self.ah = self.h
         for child in self.c_l:           
@@ -159,37 +159,38 @@ class CEmployeeView:
             child.calc_y_tree()
             
     
-    def draw_tree(self, scale_xd_p, scale_yd_p):
-        sqaure_xy = self.x*scale_xd_p, self.y*scale_yd_p
+    def draw_tree(self, scale_xd_p, scale_yd_p, pygame_p, screen_p, font_p, top_margin_p):
+        sqaure_xy = self.x*scale_xd_p, self.y*scale_yd_p+top_margin_p
         sqaure_wh = self.w*scale_xd_p, self.h*scale_yd_p
-        square_rect = pygame.Rect(sqaure_xy, sqaure_wh) 
-        pygame.draw.rect(screen, (self.x*scale_xd_p % 255, self.y*scale_yd_p % 255, 100), square_rect)
-        text = font.render(self.name, True, (255,255,255))
-        text_xy = (self.x*scale_xd_p+self.w*scale_xd_p/2, self.y*scale_yd_p+self.h*scale_yd_p/2)
-        screen.blit(text, text_xy)
-        text = font.render(f'r-aw = {int(self.aw*scale_xd_p)}', True, (255,255,255))
-        screen.blit(text, (self.x*scale_xd_p, self.y*scale_yd_p+self.h*scale_yd_p/2+20))
+        square_rect = pygame_p.Rect(sqaure_xy, sqaure_wh) 
+        pygame_p.draw.rect(screen_p, (self.x*scale_xd_p % 255, self.y*scale_yd_p % 255, 100), square_rect)
+        text = font_p.render(self.name, True, (255,255,255))
+        text_xy = (self.x*scale_xd_p+self.w*scale_xd_p/2, self.y*scale_yd_p+self.h*scale_yd_p/2+top_margin_p)
+        screen_p.blit(text, text_xy)
+        text = font_p.render(f'r-aw = {int(self.aw*scale_xd_p)}', True, (255,255,255))
+        text_xy = (self.x*scale_xd_p, self.y*scale_yd_p+self.h*scale_yd_p/2+20)
+        screen_p.blit(text, text_xy)
         if self.parent != None:
-            line_xy = (self.parent.x*scale_xd_p+self.parent.w*scale_xd_p/2, self.parent.ah*scale_yd_p)
-            line_wh = (self.x*scale_xd_p+self.w*scale_xd_p/2, self.y*scale_yd_p)
-            pygame.draw.line(screen, (255,255,255), line_xy, line_wh)
+            line_xy_start = (self.parent.x*scale_xd_p+self.parent.w*scale_xd_p/2, self.parent.ah*scale_yd_p+top_margin_p)
+            line_xy_end = (self.x*scale_xd_p+self.w*scale_xd_p/2, self.y*scale_yd_p+top_margin_p)
+            pygame_p.draw.line(screen_p, (255,255,255), line_xy_start, line_xy_end)
         #input()
         for child in self.c_l:
-            child.draw_tree(scale_xd_p, scale_yd_p)   
+            child.draw_tree(scale_xd_p, scale_yd_p, pygame_p, screen_p, font_p, top_margin_p)   
  
 
-    def align(self, screen_height_p, screen_width_p): #get/calc       
+    def align(self, available_screen_width_p, available_screen_height_p): #get/calc       
         #y starts here
         self.calc_ah_tree()
         longest_length_y = self.get_longest_distance_tree_y(0)
-        scale_yd = screen_height_p / longest_length_y
+        scale_yd = available_screen_height_p / longest_length_y
         self.calc_y_tree()
         #x starts here
         self.calc_i_self(0)
         self.calc_ps_tree()
         self.calc_aw_tree()
         longest_length_x = self.get_longest_distance_tree_x(0)
-        scale_xd = screen_width_p / longest_length_x
+        scale_xd = available_screen_width_p / longest_length_x 
         self.calc_x_tree()
         return scale_xd, scale_yd
     
@@ -268,18 +269,18 @@ if __name__ == '__main__':
                 flag_first_employee = 0
                 #parse line
                 print(line.strip())
-                parts = line.split(',', 4)
-                if len(parts) == 5:
-                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
-                    root_obj = CEmployeeView(guid, name, int(w), int(h), None) 
+                parts = line.split(',', 6)
+                if len(parts) == 7:
+                    guid, name, w, h, space_x, space_y, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip(), parts[5].strip(), parts[6].strip() 
+                    root_obj = CEmployeeView(guid, name, int(w), int(h), int(space_x), int(space_y), None) 
             else:
                 #parse line
                 print(line.strip())
-                parts = line.split(',', 4)
-                if len(parts) == 5:
-                    guid, name, w, h, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip()
+                parts = line.split(',', 6)
+                if len(parts) == 7:
+                    guid, name, w, h, space_x, space_y, parent_name = parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip(), parts[4].strip(), parts[5].strip(), parts[6].strip() 
                     parent = root_obj.get_employee_by_name(parent_name)
-                    employee = CEmployeeView(guid, name, int(w), int(h), parent)
+                    employee = CEmployeeView(guid, name, int(w), int(h), int(space_x), int(space_y), parent) 
                     if parent:
                         parent.add_child(child_p = employee)
                     else:
@@ -293,6 +294,8 @@ if __name__ == '__main__':
     if args['test'] == 'get_tree_from_flat_file':
         if args['scenario'] == '4':
             root_obj = get_tree_from_flat_file()
+            root_obj.align(500,500)
+            root_obj.print_tree()
             if root_obj: #safe code
                 root_obj.print_tree()
             else:
@@ -323,4 +326,4 @@ if __name__ == '__main__':
                 root_obj.print_tree()
             else:
                 myic('no root')
-
+            
