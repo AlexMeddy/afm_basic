@@ -165,7 +165,7 @@ class CEmployeeView:
         square_rect = pygame_p.Rect(sqaure_xy, sqaure_wh) 
         pygame_p.draw.rect(screen_p, (self.x*scale_xd_p % 255, self.y*scale_yd_p % 255, 100), square_rect)
         text = font_p.render(self.name, True, (255,255,255))
-        text_xy = (self.x*scale_xd_p+self.w*scale_xd_p/2, self.y*scale_yd_p+self.h*scale_yd_p/2+top_margin_p)
+        text_xy = (self.x*scale_xd_p, self.y*scale_yd_p+self.h*scale_yd_p/2+top_margin_p)
         screen_p.blit(text, text_xy)
         text = font_p.render(f'r-aw = {int(self.aw*scale_xd_p)}', True, (255,255,255))
         text_xy = (self.x*scale_xd_p, self.y*scale_yd_p+self.h*scale_yd_p/2+20)
