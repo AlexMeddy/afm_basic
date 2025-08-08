@@ -1,0 +1,60 @@
+'''
+create a console python app, encapsulated in a class named CConsoleApp with main function. 
+And 1 generic arg --do_sth as placeholder only.
+Include a recursive python class to represent an Employee with the attrbiutes name,
+title and parent (as an Employe object), and with method find and display the tree (idented).
+Avoi 
+Add code to instantiate the tree
+from a comma delimited file.  Instantiate the tree inside CConsoleApp constructor.
+Add a method to promote an Employee.
+Postfix each recursive method with _recursive.
+Avoid static methods.
+Rename class Employee to CEmployee_light
+Provide sample comma delimited file.
+'''
+import argparse
+import csv
+import argparse
+from icecream import ic
+from typing import Optional, List
+from tools import build_tree_from_csv
+from CEmployee_pattern import CEmployee_pattern
+
+
+
+
+
+def main(args,root_obj_p):
+
+    #1 print the whole tree from the top employee
+    if args['method'] == 'print_tree_recursive':
+        if root_obj_p:
+            root_obj_p.print_tree_recursive()   
+
+    #2 promote a chosen employee
+    if args['method'] == 'chosen_employee.promote':
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        chosen_employee_new_title = input ('enter chosen_employee_new_title:')
+        found_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if found_employee != None:       
+            found_employee.promote(chosen_employee_new_title)
+        else:
+            print("employee not found")
+        root_obj_p.print_tree_recursive()   
+    
+     
+
+
+if __name__ == "__main__":
+    
+    root_obj = build_tree_from_csv("employees.csv")
+    parser = argparse.ArgumentParser(description="Console App with Employee Tree")
+    parser.add_argument('-m','--method', help='testing', required=True)
+    args = vars(parser.parse_args())
+    
+    main(args,root_obj)
+    
+    
+
+ 
+            
