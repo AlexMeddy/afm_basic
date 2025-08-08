@@ -21,9 +21,17 @@ class CPygameTest:
         self.root_obj = None
         self.flag_first_employee = 1
     
-        
+        self.top_margin = 50
+    
 
     def handle_event(self, event):
+        def handle_collision():
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if self.root_obj:
+                scale_x, scale_y = self.root_obj.get_scale_xy(available_screen_width_p=self.width, available_screen_height_p=self.height-self.top_margin)
+                if( (mouse_x > self.root_obj.x*scale_x and mouse_x < self.root_obj.aw*scale_x) 
+                and (mouse_y > self.root_obj.y*scale_y+self.top_margin and mouse_y < self.root_obj.ah*scale_y+self.top_margin)):
+                    print(self.root_obj.guid)
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
             if self.input_box.collidepoint(event.pos):
@@ -31,7 +39,8 @@ class CPygameTest:
             else:
                 self.active = False
             self.color = self.color_active if self.active else self.color_inactive
-
+            handle_collision()
+                
         elif event.type == pygame.KEYDOWN and self.active:
             if event.key == pygame.K_RETURN:        
                 if self.flag_first_employee == 1:  #if first employee instantiate root
@@ -57,7 +66,8 @@ class CPygameTest:
                 self.input_text = self.input_text[:-1]
             else:
                 self.input_text += event.unicode
-                print(self.input_text)
+                
+        
 
     def draw_input(self):
         # Render the current input text
@@ -73,17 +83,13 @@ class CPygameTest:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                print(event)
                 self.handle_event(event)
             
             self.screen.fill((0, 0, 0))  # Clear screen
             self.draw_input()  # Draw text input box
-            top_margin = 50
             if self.root_obj:
-                scale_x, scale_y = self.root_obj.align(available_screen_width_p=self.width, available_screen_height_p=self.height-top_margin)
-                self.root_obj.draw_tree(scale_xd_p=scale_x, scale_yd_p=scale_y, pygame_p=pygame, screen_p=self.screen, font_p=self.font, top_margin_p=top_margin)
-            else:
-                print('no root')
+                scale_x, scale_y = self.root_obj.align(available_screen_width_p=self.width, available_screen_height_p=self.height-self.top_margin)
+                self.root_obj.draw_tree(scale_xd_p=scale_x, scale_yd_p=scale_y, pygame_p=pygame, screen_p=self.screen, font_p=self.font, top_margin_p=self.top_margin)
             pygame.display.flip()
             self.clock.tick(60)  # Limit to 60 FPS
 

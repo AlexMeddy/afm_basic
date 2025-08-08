@@ -178,6 +178,13 @@ class CEmployeeView:
         for child in self.c_l:
             child.draw_tree(scale_xd_p, scale_yd_p, pygame_p, screen_p, font_p, top_margin_p)   
  
+    def get_scale_xy(self, available_screen_width_p, available_screen_height_p):
+        longest_length_y = self.get_longest_distance_tree_y(0)
+        scale_yd = available_screen_height_p / longest_length_y
+        
+        longest_length_x = self.get_longest_distance_tree_x(0)
+        scale_xd = available_screen_width_p / longest_length_x
+        return scale_xd, scale_yd
 
     def align(self, available_screen_width_p, available_screen_height_p): #get/calc       
         #y starts here
