@@ -1,4 +1,3 @@
 *.conf
 *.txt
 *.py
-_pycache_/
