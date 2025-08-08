@@ -213,6 +213,18 @@ class CEmployeeView:
                     employee = child.get_employee_by_name(employee_name_p)
         return employee
             
+    def find_by_mouse_pos_recursive(self, mouse_x_p, mouse_y_p, scale_x_p, scale_y_p, top_margin_p):
+        employee = None
+        if( (mouse_x_p > self.x*scale_x_p and mouse_x_p < self.aw*scale_x_p) 
+            and (mouse_y_p > self.y*scale_y_p+top_margin_p and mouse_y_p < self.ah*scale_y_p+top_margin_p)):
+                employee = self
+        else:
+            for child in self.c_l:
+                if employee:
+                    break
+                else:
+                    employee = child.find_by_mouse_pos_recursive(mouse_x_p, mouse_y_p, scale_x_p, scale_y_p, top_margin_p)
+        return employee
 
 # Standard Python entry point
 if __name__ == '__main__':

@@ -22,9 +22,9 @@ class CPygameTest:
         self.flag_first_employee = 1
     
         self.top_margin = 50
-    
 
     def handle_event(self, event):
+        '''
         def handle_collision():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if self.root_obj:
@@ -32,6 +32,19 @@ class CPygameTest:
                 if( (mouse_x > self.root_obj.x*scale_x and mouse_x < self.root_obj.aw*scale_x) 
                 and (mouse_y > self.root_obj.y*scale_y+self.top_margin and mouse_y < self.root_obj.ah*scale_y+self.top_margin)):
                     print(self.root_obj.guid)
+        '''
+        #6 print guid of chosen employee
+        def handle_collision2():
+            if self.root_obj:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                scale_x, scale_y = self.root_obj.get_scale_xy(available_screen_width_p=self.width, 
+                    available_screen_height_p=self.height-self.top_margin)
+                chosen_employee = self.root_obj.find_by_mouse_pos_recursive(mouse_x_p = mouse_x, mouse_y_p = mouse_y, 
+                    scale_x_p = scale_x, scale_y_p = scale_y, top_margin_p= self.top_margin)
+                if chosen_employee:
+                    print(chosen_employee.guid)
+                else:
+                    print('chosen_employee not found')
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
             if self.input_box.collidepoint(event.pos):
@@ -39,7 +52,7 @@ class CPygameTest:
             else:
                 self.active = False
             self.color = self.color_active if self.active else self.color_inactive
-            handle_collision()
+            handle_collision2()
                 
         elif event.type == pygame.KEYDOWN and self.active:
             if event.key == pygame.K_RETURN:        
@@ -81,6 +94,9 @@ class CPygameTest:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                #6 print guid of chosen employee
+                #chosen_employee_name = input ('enter chosen_employee_name:')
+                #chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
                 self.handle_event(event)
             
             self.screen.fill((0, 0, 0))  # Clear screen
