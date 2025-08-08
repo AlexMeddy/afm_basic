@@ -43,3 +43,8 @@ class CEmployee_pattern:
     
     def dismiss(self):
         print(f'{self.name} dismissed') #mockup
+        
+    def pay_rise_recursive(self):
+        print(f'{self.name} pay raised') #mockup
+        for child in self.children:
+            child.pay_rise_recursive()

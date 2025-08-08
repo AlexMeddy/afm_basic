@@ -52,6 +52,11 @@ def main(args,root_obj_p):
             print("employee not found")
         root_obj_p.print_tree_recursive()   
 
+    #4 pay rise for everyone
+    if args['method'] == 'chosen_employee.pay_rise_for_everyone':
+        root_obj_p.pay_rise_recursive()
+
+
 
 if __name__ == "__main__":
     
