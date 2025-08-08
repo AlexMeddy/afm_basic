@@ -49,3 +49,7 @@ class CEmployee_pattern:
         self.hourly_rate *= 5
         for child in self.children:
             child.pay_rise_recursive()
+            
+    def print_guid(self):
+        print(f'{self.name} guid tbd') #mockup
+

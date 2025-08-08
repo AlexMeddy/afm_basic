@@ -68,7 +68,15 @@ def main(args,root_obj_p):
             print("employee not found")
         root_obj_p.print_tree_recursive()       
             
-
+    #6 print guid of chosen employee
+    if args['method'] == 'chosen_employee.print_guid_of_chosen_employee':
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if chosen_employee != None:
+            chosen_employee.print_guid() #mockup
+        else:
+            print("employee not found")
+        root_obj_p.print_tree_recursive() 
 
 
 
