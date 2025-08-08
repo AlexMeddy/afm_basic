@@ -67,7 +67,6 @@ class CPygameTest:
             else:
                 self.input_text += event.unicode
                 
-        
 
     def draw_input(self):
         # Render the current input text
