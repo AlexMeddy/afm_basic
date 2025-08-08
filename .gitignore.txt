@@ -1,3 +1,4 @@
 *.conf
 *.txt
 *.py
+__pycache__/
