@@ -42,7 +42,15 @@ def main(args,root_obj_p):
             print("employee not found")
         root_obj_p.print_tree_recursive()   
     
-     
+    #3 dismiss chosen employee
+    if args['method'] == 'chosen_employee.dismiss':
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        found_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if found_employee != None:  
+            found_employee.dismiss() #mockup
+        else:
+            print("employee not found")
+        root_obj_p.print_tree_recursive()   
 
 
 if __name__ == "__main__":

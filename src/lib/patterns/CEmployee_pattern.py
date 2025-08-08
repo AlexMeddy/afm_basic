@@ -41,3 +41,5 @@ class CEmployee_pattern:
     def promote(self, new_title):
         self.title = new_title
     
+    def dismiss(self):
+        print(f'{self.name} dismissed') #mockup
