@@ -18,7 +18,7 @@ class CEmployee_pattern:
         self.name = name
         self.title = title
         self.parent = parent
-        self.hourly_rate = hourly_rate
+        self.hourly_rate = int(hourly_rate)
         self.children = []
 
     def add_child(self, child):
@@ -42,9 +42,10 @@ class CEmployee_pattern:
         self.title = new_title
     
     def dismiss(self):
-        print(f'{self.name} dismissed') #mockup
+        print(f'{self.name} dismissed') #mockup non recursive
         
     def pay_rise_recursive(self):
-        print(f'{self.name} pay raised') #mockup
+        print(f'{self.name} pay raised') #mockup recursive
+        self.hourly_rate *= 5
         for child in self.children:
             child.pay_rise_recursive()

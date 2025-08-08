@@ -35,9 +35,9 @@ def main(args,root_obj_p):
     if args['method'] == 'chosen_employee.promote':
         chosen_employee_name = input ('enter chosen_employee_name:')
         chosen_employee_new_title = input ('enter chosen_employee_new_title:')
-        found_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
-        if found_employee != None:       
-            found_employee.promote(chosen_employee_new_title)
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if chosen_employee != None:       
+            chosen_employee.promote(chosen_employee_new_title)
         else:
             print("employee not found")
         root_obj_p.print_tree_recursive()   
@@ -45,9 +45,9 @@ def main(args,root_obj_p):
     #3 dismiss chosen employee
     if args['method'] == 'chosen_employee.dismiss':
         chosen_employee_name = input ('enter chosen_employee_name:')
-        found_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
-        if found_employee != None:  
-            found_employee.dismiss() #mockup
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if chosen_employee != None:  
+            chosen_employee.dismiss() #mockup
         else:
             print("employee not found")
         root_obj_p.print_tree_recursive()   
@@ -55,6 +55,20 @@ def main(args,root_obj_p):
     #4 pay rise for everyone
     if args['method'] == 'chosen_employee.pay_rise_for_everyone':
         root_obj_p.pay_rise_recursive()
+        root_obj_p.print_tree_recursive()   
+
+    #5 pay rise for subtree
+    if args['method'] == 'chosen_employee.pay_rise_for_subtree':
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        root_obj_p.print_tree_recursive()       
+        if chosen_employee != None:
+            chosen_employee.pay_rise_recursive()
+        else:
+            print("employee not found")
+        root_obj_p.print_tree_recursive()       
+            
+
 
 
 
