@@ -78,7 +78,27 @@ def main(args,root_obj_p):
             print("employee not found")
         root_obj_p.print_tree_recursive() 
 
-
+    #7 toggle activation state for a chosen employee
+    if args['method'] == 'chosen_employee.toggle_activation_employee':
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if chosen_employee != None:
+            chosen_employee.toggle_activation_employee()
+        else:
+            print("employee not found")
+        first_activated_employee = root_obj_p.find_first_employee_by_activation_status()
+        print('first_activated_employee = ' + f'{first_activated_employee.name}')
+        root_obj_p.print_tree_recursive() 
+        
+    #8 delete a chosen employee
+    if args['method'] == 'chosen_employee.toggle_activation_employee':
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if chosen_employee != None:
+            chosen_employee.toggle_activation_employee()
+        else:
+            print("employee not found")
+        root_obj_p.print_tree_recursive() 
 
 if __name__ == "__main__":
     

@@ -20,6 +20,7 @@ class CEmployee_pattern:
         self.parent = parent
         self.hourly_rate = int(hourly_rate)
         self.children = []
+        self.activation_status = 0 #starts off as -1 when calculated later
 
     def add_child(self, child):
         self.children.append(child)
@@ -53,3 +54,18 @@ class CEmployee_pattern:
     def print_guid(self):
         print(f'{self.name} guid tbd') #mockup
 
+    def toggle_activation_employee(self):
+        if self.activation_status == 1:
+            self.activation_status = 0
+        else:
+            self.activation_status = 1
+        print(self.activation_status)
+        
+    def find_first_employee_by_activation_status(self):
+        if self.activation_status == 1:
+            return self
+        for child in self.children:
+            first_activated_employee = child.find_by_name_recursive(name)
+            if first_activated_employee:
+                return first_activated_employee
+        return None
