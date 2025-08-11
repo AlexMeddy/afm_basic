@@ -75,6 +75,9 @@ class CEmployee_pattern:
             if first_activated_employee:
                 return first_activated_employee
         return None
-        
+    
+'''    
     def delete_chosen_employee(self, index_employee_p):
-        
+        for i in range(len(self.children)):
+            if 
+'''

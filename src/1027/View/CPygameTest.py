@@ -43,6 +43,7 @@ class CPygameTest:
                     scale_x_p = scale_x, scale_y_p = scale_y, top_margin_p= self.top_margin)
                 if chosen_employee:
                     print(chosen_employee.guid)
+                    chosen_employee.toggle_activation_employee()
                 else:
                     print('chosen_employee not found')
         if event.type == pygame.MOUSEBUTTONDOWN:

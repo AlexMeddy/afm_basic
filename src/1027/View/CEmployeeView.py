@@ -21,6 +21,7 @@ class CEmployeeView:
         self.i_self = -1 #resized width
         self.space_x = space_x_p
         self.space_y = space_y_p
+        self.activation_status = 0
         
     def get_last_child(self):
         last_node = None
@@ -163,7 +164,10 @@ class CEmployeeView:
         sqaure_xy = self.x*scale_xd_p, self.y*scale_yd_p+top_margin_p
         sqaure_wh = self.w*scale_xd_p, self.h*scale_yd_p
         square_rect = pygame_p.Rect(sqaure_xy, sqaure_wh) 
-        pygame_p.draw.rect(screen_p, (self.x*scale_xd_p % 255, self.y*scale_yd_p % 255, 100), square_rect)
+        if self.activation_status == 0:
+            pygame_p.draw.rect(screen_p, (0, 0, 255), square_rect)
+        else:
+            pygame_p.draw.rect(screen_p, (255, 0, 0), square_rect)
         text = font_p.render(self.name, True, (255,255,255))
         text_xy = (self.x*scale_xd_p, self.y*scale_yd_p+self.h*scale_yd_p/2+top_margin_p)
         screen_p.blit(text, text_xy)
@@ -225,6 +229,22 @@ class CEmployeeView:
                 else:
                     employee = child.find_by_mouse_pos_recursive(mouse_x_p, mouse_y_p, scale_x_p, scale_y_p, top_margin_p)
         return employee
+    
+    def toggle_activation_employee(self):
+        if self.activation_status == 1:
+            self.activation_status = 0
+        else:
+            self.activation_status = 1
+        print(self.activation_status)
+    
+    def find_first_employee_by_activation_status(self):
+        if self.activation_status == 1:
+            return self
+        for child in self.c_l:
+            first_activated_employee = child.find_by_name_recursive(name)
+            if first_activated_employee:
+                return first_activated_employee
+        return None
 
 # Standard Python entry point
 if __name__ == '__main__':
