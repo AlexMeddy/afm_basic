@@ -14,7 +14,7 @@ Provide sample comma delimited file.
 '''
 
 class CEmployee_pattern:
-    def __init__(self, name, title, hourly_rate,parent=None):
+    def __init__(self, name, title, hourly_rate,annual_leave_p,bla_p,parent=None):
         self.name = name
         self.title = title
         self.parent = parent
@@ -22,6 +22,8 @@ class CEmployee_pattern:
         self.children = []
         self.activation_status = 0 #starts off as -1 when calculated later
         self.i_self = -1
+        self.annual_leave = int(annual_leave_p)
+        self.bla = int(bla_p)
 
     def add_child(self, child):
         self.children.append(child)
@@ -75,6 +77,42 @@ class CEmployee_pattern:
             if first_activated_employee:
                 return first_activated_employee
         return None
+        
+    def delete_chosen_employee(self, index_employee_p):
+        if self.i_self == index_employee_p:
+            self.parent.children.pop(index_employee_p)
+    
+    def calculate_highest_hourly_rate_tree(self, highest_hourly_rate_p):
+        highest_hourly_rate = highest_hourly_rate_p
+        if self.hourly_rate > highest_hourly_rate:
+            highest_hourly_rate = self.hourly_rate
+        for child in self.children:
+            highest_hourly_rate = child.calculate_highest_hourly_rate_tree(highest_hourly_rate) 
+        return highest_hourly_rate
+    
+    def calculate_highest_annual_leave_p(self, highest_annual_leave_p):
+        highest_annual_leave = highest_annual_leave_p
+        if self.annual_leave > highest_annual_leave:
+            highest_annual_leave = self.annual_leave
+        for child in self.children:
+            highest_annual_leave = child.calculate_highest_annual_leave_p(highest_annual_leave) 
+        return highest_annual_leave
+        
+    def calculate_highest_bla_p(self, highest_bla_p):
+        highest_bla = highest_bla_p
+        if self.bla > highest_bla:
+            highest_bla = self.bla
+        for child in self.children:
+            highest_bla = child.calculate_highest_bla_p(highest_bla) 
+        return highest_bla
+        
+    def calculate_biggest_norn(self, highest_norn_p):
+        highest_norn = highest_norn_p
+        if self.name > highest_norn:
+            highest_norn = self.bla
+        for child in self.children:
+            highest_norn = child.calculate_biggest_norn(highest_norn) 
+        return highest_norn
     
 '''    
     def delete_chosen_employee(self, index_employee_p):

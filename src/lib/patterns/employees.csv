@@ -1,7 +1,7 @@
-name,title,parent,hourly_rate
-alex,CEO,,100
-kaz,CTO,alex,20
-henry,Engineer,kaz,20
-sage,Engineer,kaz,20
-george,CFO,alex,20
-carter,Accountant,george,20
+name,title,parent,hourly_rate,annual_leave,bla
+alex,CEO,,100,10000,1
+kaz,CTO,alex,20,2000,2
+henry,Engineer,kaz,20,2000,3
+sage,Engineer,kaz,20,2000,4
+george,CFO,alex,20,2000,5
+carter,Accountant,george,20,2000,6

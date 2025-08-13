@@ -91,15 +91,40 @@ def main(args,root_obj_p):
         root_obj_p.print_tree_recursive() 
         
     #8 delete a chosen employee
-    if args['method'] == 'chosen_employee.toggle_activation_employee':
+    if args['method'] == 'chosen_employee.delete_chosen_employee':
         chosen_employee_name = input ('enter chosen_employee_name:')
+        root_obj_p.calc_i_self(0)
         chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
         if chosen_employee != None:
-            chosen_employee.toggle_activation_employee()
+            chosen_employee.delete_chosen_employee(chosen_employee.i_self)
         else:
             print("employee not found")
+        root_obj_p.print_tree_recursive()
+    
+    #9 calculate the highest hourly rate
+    if args['method'] == 'chosen_employee.calculate_highest_hourly_rate':
+        biggest_hourly_rate = root_obj_p.calculate_highest_hourly_rate_tree(0)
+        print(biggest_hourly_rate)
+        root_obj_p.print_tree_recursive()   
+        
+    #9.1 calculate the highest annual leave balance
+    if args['method'] == 'chosen_employee.calculate_highest_annual_leave':
+        highest_annual_leave_p = root_obj_p.calculate_highest_annual_leave_p(0)
+        print(highest_annual_leave_p)
         root_obj_p.print_tree_recursive() 
-
+        
+    #9.2 calculate the highest bla
+    if args['method'] == 'chosen_employee.calculate_highest_bla':
+        highest_bla = root_obj_p.calculate_highest_bla_p(0)
+        print(highest_bla)
+        root_obj_p.print_tree_recursive() 
+        
+    #9.3 calculate the highest number of repeated names #original  "calculate the name that repeats the most"
+    if args['method'] == 'chosen_employee.calculate_biggest_norn':
+        highest_norn = root_obj_p.calculate_biggest_norn(0)
+        print(highest_norn)
+        root_obj_p.print_tree_recursive() 
+        
 if __name__ == "__main__":
     
     root_obj = build_tree_from_csv("employees.csv")

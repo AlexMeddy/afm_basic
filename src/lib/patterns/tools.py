@@ -29,8 +29,10 @@ def build_tree_from_csv(csv_file):
         name = row['name']
         title = row['title']
         hourly_rate = row['hourly_rate']
+        annual_leave = row['annual_leave']
+        bla = row['bla']
 
-        employees[name] = CEmployee_pattern(name, title,hourly_rate)
+        employees[name] = CEmployee_pattern(name, title,hourly_rate,annual_leave,bla)
 
     # Second pass: assign parents and build tree
     for row in rows:
