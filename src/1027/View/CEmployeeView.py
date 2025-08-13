@@ -245,6 +245,10 @@ class CEmployeeView:
             if first_activated_employee:
                 return first_activated_employee
         return None
+        
+    def delete_chosen_employee(self, index_employee_p):
+        if self.i_self == index_employee_p:
+            self.parent.c_l.pop(index_employee_p)
 
 # Standard Python entry point
 if __name__ == '__main__':
