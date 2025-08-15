@@ -125,6 +125,14 @@ def main(args,root_obj_p):
         print(highest_norn)
         root_obj_p.print_tree_recursive() 
         
+    #9.3 calculate the highest number of repeated names #original  "calculate the name that repeats the most"
+    if args['method'] == 'chosen_employee.calculate_biggest_norn2':
+        root_obj_p.calc_norn_recursive()
+        
+        highest_norn = root_obj_p.get_biggest_norn_recursive(0)
+        print(highest_norn)
+        root_obj_p.print_tree_recursive()
+        
 if __name__ == "__main__":
     
     root_obj = build_tree_from_csv("employees.csv")

@@ -12,6 +12,7 @@ Avoid static methods.
 Rename class Employee to CEmployee_pattern
 Provide sample comma delimited file.
 '''
+import random
 
 class CEmployee_pattern:
     def __init__(self, name, title, hourly_rate,annual_leave_p,bla_p,parent=None):
@@ -24,6 +25,8 @@ class CEmployee_pattern:
         self.i_self = -1
         self.annual_leave = int(annual_leave_p)
         self.bla = int(bla_p)
+        self.norn = 0 
+
 
     def add_child(self, child):
         self.children.append(child)
@@ -43,7 +46,7 @@ class CEmployee_pattern:
         return None
 
     def print_tree_recursive(self, level=0):
-        print("    " * level + f"{self.name} ({self.title})  (${self.hourly_rate}))")
+        print("    " * level + f"{self.name} ({self.title})  (${self.hourly_rate}) ({self.norn}))")
         for child in self.children:
             child.print_tree_recursive(level + 1)
 
@@ -106,13 +109,21 @@ class CEmployee_pattern:
             highest_bla = child.calculate_highest_bla_p(highest_bla) 
         return highest_bla
         
-    def calculate_biggest_norn(self, highest_norn_p):
+    def get_biggest_norn_recursive(self, highest_norn_p):
         highest_norn = highest_norn_p
-        if self.name > highest_norn:
-            highest_norn = self.bla
+        if self.norn > highest_norn:
+            highest_norn = self.norn
         for child in self.children:
-            highest_norn = child.calculate_biggest_norn(highest_norn) 
+            highest_norn = child.get_biggest_norn_recursive(highest_norn) 
         return highest_norn
+        
+    def calc_norn(self):
+        self.norn = random.randint(1, 10)
+        
+    def calc_norn_recursive(self):
+        self.calc_norn()
+        for child in self.children:
+            child.calc_norn_recursive()
     
 '''    
     def delete_chosen_employee(self, index_employee_p):
