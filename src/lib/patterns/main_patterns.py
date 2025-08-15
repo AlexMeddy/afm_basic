@@ -27,9 +27,9 @@ from CEmployee_pattern import CEmployee_pattern
 def main(args,root_obj_p):
 
     #1 print the whole tree from the top employee
-    if args['method'] == 'print_tree_recursive':
+    if args['method'] == 'print_recursive':
         if root_obj_p:
-            root_obj_p.print_tree_recursive()   
+            root_obj_p.print_recursive()   
 
     #2 promote a chosen employee
     if args['method'] == 'chosen_employee.promote':
@@ -40,7 +40,7 @@ def main(args,root_obj_p):
             chosen_employee.promote(chosen_employee_new_title)
         else:
             print("employee not found")
-        root_obj_p.print_tree_recursive()   
+        root_obj_p.print_recursive()   
     
     #3 dismiss chosen employee
     if args['method'] == 'chosen_employee.dismiss':
@@ -50,23 +50,23 @@ def main(args,root_obj_p):
             chosen_employee.dismiss() #mockup
         else:
             print("employee not found")
-        root_obj_p.print_tree_recursive()   
+        root_obj_p.print_recursive()   
 
     #4 pay rise for everyone
     if args['method'] == 'chosen_employee.pay_rise_for_everyone':
         root_obj_p.pay_rise_recursive()
-        root_obj_p.print_tree_recursive()   
+        root_obj_p.print_recursive()   
 
     #5 pay rise for subtree
     if args['method'] == 'chosen_employee.pay_rise_for_subtree':
         chosen_employee_name = input ('enter chosen_employee_name:')
         chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
-        root_obj_p.print_tree_recursive()       
+        root_obj_p.print_recursive()       
         if chosen_employee != None:
             chosen_employee.pay_rise_recursive()
         else:
             print("employee not found")
-        root_obj_p.print_tree_recursive()       
+        root_obj_p.print_recursive()       
             
     #6 print guid of chosen employee
     if args['method'] == 'chosen_employee.print_guid_of_chosen_employee':
@@ -76,7 +76,7 @@ def main(args,root_obj_p):
             chosen_employee.print_guid() #mockup
         else:
             print("employee not found")
-        root_obj_p.print_tree_recursive() 
+        root_obj_p.print_recursive() 
 
     #7 toggle activation state for a chosen employee
     if args['method'] == 'chosen_employee.toggle_activation_employee':
@@ -88,42 +88,47 @@ def main(args,root_obj_p):
             print("employee not found")
         first_activated_employee = root_obj_p.find_first_employee_by_activation_status()
         print('first_activated_employee = ' + f'{first_activated_employee.name}')
-        root_obj_p.print_tree_recursive() 
+        root_obj_p.print_recursive() 
         
-    #8 delete a chosen employee
+
+    #8.1 run a chosen employee
     if args['method'] == 'chosen_employee.delete_chosen_employee':
+        root_obj_p.calc_i_self_recursive(0)
         chosen_employee_name = input ('enter chosen_employee_name:')
-        root_obj_p.calc_i_self(0)
         chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
-        if chosen_employee != None:
-            chosen_employee.delete_chosen_employee(chosen_employee.i_self)
+        if chosen_employee: #if employee exists
+            if chosen_employee.parent == None: #if it is root
+                root_obj_p = None #delete root from outside
+            else:
+                chosen_employee.delete(chosen_employee.i_self)
         else:
             print("employee not found")
-        root_obj_p.print_tree_recursive()
-    
+        if root_obj_p:
+            root_obj_p.print_recursive()
+
+
+
     #9 calculate the highest hourly rate
     if args['method'] == 'chosen_employee.calculate_highest_hourly_rate':
-        biggest_hourly_rate = root_obj_p.calculate_highest_hourly_rate_tree(0)
+        #calc_highest_hourly_rate_recursive no needed because already given
+        biggest_hourly_rate = root_obj_p.get_highest_hourly_rate_recursive(0) 
         print(biggest_hourly_rate)
-        root_obj_p.print_tree_recursive()   
+        root_obj_p.print_recursive()   
         
     #9.1 calculate the highest annual leave balance
     if args['method'] == 'chosen_employee.calculate_highest_annual_leave':
-        highest_annual_leave_p = root_obj_p.calculate_highest_annual_leave_p(0)
+        #calc_highest_annual_leave_recursive no needed because already given
+        highest_annual_leave_p = root_obj_p.get_highest_annual_leave_recursive(0)
         print(highest_annual_leave_p)
-        root_obj_p.print_tree_recursive() 
+        root_obj_p.print_recursive() 
         
     #9.2 calculate the highest bla
     if args['method'] == 'chosen_employee.calculate_highest_bla':
-        highest_bla = root_obj_p.calculate_highest_bla_p(0)
+        #get_highest_bla_recursive no needed because already given
+        root_obj_p.get_highest_bla_recursive()
+        highest_bla = root_obj_p.get_highest_bla_recursive(0)
         print(highest_bla)
-        root_obj_p.print_tree_recursive() 
-        
-    #9.3 calculate the highest number of repeated names #original  "calculate the name that repeats the most"
-    if args['method'] == 'chosen_employee.calculate_biggest_norn':
-        highest_norn = root_obj_p.calculate_biggest_norn(0)
-        print(highest_norn)
-        root_obj_p.print_tree_recursive() 
+        root_obj_p.print_recursive()
         
     #9.3 calculate the highest number of repeated names #original  "calculate the name that repeats the most"
     if args['method'] == 'chosen_employee.calculate_biggest_norn2':
@@ -131,7 +136,7 @@ def main(args,root_obj_p):
         
         highest_norn = root_obj_p.get_biggest_norn_recursive(0)
         print(highest_norn)
-        root_obj_p.print_tree_recursive()
+        root_obj_p.print_recursive()
         
 if __name__ == "__main__":
     

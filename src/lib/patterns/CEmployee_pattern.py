@@ -26,6 +26,7 @@ class CEmployee_pattern:
         self.annual_leave = int(annual_leave_p)
         self.bla = int(bla_p)
         self.norn = 0 
+ 
 
 
     def add_child(self, child):
@@ -33,8 +34,11 @@ class CEmployee_pattern:
 
     def calc_i_self(self, i_self_p):
         self.i_self = i_self_p
+
+    def calc_i_self_recursive(self, i_self_p):
+        self.calc_i_self(i_self_p)
         for i_child in range(len(self.children)):
-            self.children[i_child].calc_i_self(i_child)
+            self.children[i_child].calc_i_self_recursive(i_child)
 
     def find_by_name_recursive(self, name):
         if self.name == name:
@@ -45,10 +49,10 @@ class CEmployee_pattern:
                 return found
         return None
 
-    def print_tree_recursive(self, level=0):
-        print("    " * level + f"{self.name} ({self.title})  (${self.hourly_rate}) ({self.norn}))")
+    def print_recursive(self, level=0):
+        print("    " * level + f"{self.name} ({self.title})  (${self.hourly_rate}) ({self.norn}) ({self.bla}))")
         for child in self.children:
-            child.print_tree_recursive(level + 1)
+            child.print_recursive(level + 1)
 
     def promote(self, new_title):
         self.title = new_title
@@ -56,59 +60,65 @@ class CEmployee_pattern:
     def dismiss(self):
         print(f'{self.name} dismissed') #mockup non recursive
         
-    def pay_rise_recursive(self):
-        print(f'{self.name} pay raised') #mockup recursive
+    def pay_rise(self):
         self.hourly_rate *= 5
+        print(f'{self.name} pay raised') #mockup recursive
+
+    def pay_rise_recursive(self):
+        self.pay_rise()
         for child in self.children:
             child.pay_rise_recursive()
             
     def print_guid(self):
         print(f'{self.name} guid tbd') #mockup
 
-    def toggle_activation_employee(self):
+    def toggle_activation(self):
         if self.activation_status == 1:
             self.activation_status = 0
         else:
             self.activation_status = 1
         print(self.activation_status)
         
-    def find_first_employee_by_activation_status(self):
-        if self.activation_status == 1:
-            return self
-        for child in self.children:
-            first_activated_employee = child.find_by_name_recursive(name)
-            if first_activated_employee:
-                return first_activated_employee
-        return None
         
-    def delete_chosen_employee(self, index_employee_p):
+        
+    def delete(self, index_employee_p):
         if self.i_self == index_employee_p:
-            self.parent.children.pop(index_employee_p)
+            if self.parent:
+                self.parent.children.pop(index_employee_p)
+     
     
-    def calculate_highest_hourly_rate_tree(self, highest_hourly_rate_p):
+    def get_highest_hourly_rate_recursive(self, highest_hourly_rate_p):
         highest_hourly_rate = highest_hourly_rate_p
         if self.hourly_rate > highest_hourly_rate:
             highest_hourly_rate = self.hourly_rate
         for child in self.children:
-            highest_hourly_rate = child.calculate_highest_hourly_rate_tree(highest_hourly_rate) 
+            highest_hourly_rate = child.get_highest_hourly_rate_recursive(highest_hourly_rate) 
         return highest_hourly_rate
     
-    def calculate_highest_annual_leave_p(self, highest_annual_leave_p):
+    def get_highest_annual_leave_recursive(self, highest_annual_leave_p):
         highest_annual_leave = highest_annual_leave_p
         if self.annual_leave > highest_annual_leave:
             highest_annual_leave = self.annual_leave
         for child in self.children:
-            highest_annual_leave = child.calculate_highest_annual_leave_p(highest_annual_leave) 
+            highest_annual_leave = child.get_highest_annual_leave_recursive(highest_annual_leave) 
         return highest_annual_leave
         
-    def calculate_highest_bla_p(self, highest_bla_p):
+    def get_highest_bla_recursive(self, highest_bla_p):
         highest_bla = highest_bla_p
         if self.bla > highest_bla:
             highest_bla = self.bla
         for child in self.children:
-            highest_bla = child.calculate_highest_bla_p(highest_bla) 
+            highest_bla = child.get_highest_bla_recursive(highest_bla) 
         return highest_bla
-        
+     
+    def calc_bla(self):
+        self.bla +=1
+     
+    def calc_bla_recursive(self):
+        self.calc_bla()
+        for child in self.children:
+            child.calc_bla_recursive()
+     
     def get_biggest_norn_recursive(self, highest_norn_p):
         highest_norn = highest_norn_p
         if self.norn > highest_norn:
@@ -125,8 +135,35 @@ class CEmployee_pattern:
         for child in self.children:
             child.calc_norn_recursive()
     
-'''    
-    def delete_chosen_employee(self, index_employee_p):
-        for i in range(len(self.children)):
-            if 
-'''
+    def find_by_name(self, employee_name_p):
+        found_employee = None
+        if self.name == employee_name_p:
+            found_employee = self
+        return found_employee
+        
+    def find_by_activation_status(self):
+        found_employee = None
+        if self.activation_status == 1:
+            found_employee = self
+        return found_employee
+        
+    def find_by_name_recursive(self, employee_name_p):
+        found_employee = None
+        found_employee = self.find_by_name(employee_name_p)
+        if found_employee == None: #not found
+            for child in self.children:
+                found_employee = child.find_by_name_recursive(employee_name_p)
+                if found_employee != None: #if found
+                    break
+        return found_employee
+        
+    def find_by_activation_status_recursive(self):
+        found_employee = None
+        found_employee = self.find_by_activation_status()
+        if found_employee == None: #not found
+            for child in self.children:
+                found_employee = child.find_by_activation_status_recursive()
+                if found_employee != None: #found
+                    break
+        return found_employee
+        
