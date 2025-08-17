@@ -25,7 +25,7 @@ class CEmployee_pattern:
         self.i_self = -1
         self.annual_leave = int(annual_leave_p)
         self.bla = int(bla_p)
-        self.norn = 0 
+        self.nort = 0 
  
 
 
@@ -50,7 +50,7 @@ class CEmployee_pattern:
         return None
 
     def print_recursive(self, level=0):
-        print("    " * level + f"{self.name} ({self.title})  (${self.hourly_rate}) ({self.norn}) ({self.bla}))")
+        print("    " * level + f"{self.name} ({self.title})  (${self.hourly_rate}) ({self.nort}) ({self.bla}))")
         for child in self.children:
             child.print_recursive(level + 1)
 
@@ -119,22 +119,42 @@ class CEmployee_pattern:
         for child in self.children:
             child.calc_bla_recursive()
      
-    def get_biggest_norn_recursive(self, highest_norn_p):
-        highest_norn = highest_norn_p
-        if self.norn > highest_norn:
-            highest_norn = self.norn
-        for child in self.children:
-            highest_norn = child.get_biggest_norn_recursive(highest_norn) 
-        return highest_norn
-        
-    def calc_norn(self):
-        self.norn = random.randint(1, 10)
-        
-    def calc_norn_recursive(self):
-        self.calc_norn()
-        for child in self.children:
-            child.calc_norn_recursive()
     
+    
+        
+    #not needed, just for learning, get pattern
+    def get_all_the_names_concatenated(self, all_the_names_concatenated_so_far_p):
+        all_the_names_concatenated = all_the_names_concatenated_so_far_p
+        all_the_names_concatenated = self.name + ', ' + all_the_names_concatenated
+        for child in self.c_l:
+            all_the_names_concatenated = child.get_all_the_names_concatenated(all_the_names_concatenated)         
+        return all_the_names_concatenated
+    #count pattern-------------------------------
+    def count_nort_recursive(self, employee_title_p, nort_so_far_p):
+        #nort_so_far = 0
+        nort_so_far = nort_so_far_p        
+        if self.title == employee_title_p:
+            nort_so_far +=1
+        for child in self.children:
+            nort_so_far = child.count_nort_recursive(employee_title_p=employee_title_p, nort_so_far_p = nort_so_far)                         
+        return nort_so_far
+    
+    def calc_nort(self, root_p):
+        self.nort = root_p.count_nort_recursive(employee_title_p=self.title, nort_so_far_p=0)       
+        
+    def calc_nort_recursive(self, root_p):            
+        self.calc_nort(root_p)
+        for child in self.children:
+            child.calc_nort_recursive(root_p=root_p)
+            
+    def get_biggest_nort_recursive(self, highest_norn_p):
+        highest_norn = highest_norn_p
+        if self.nort > highest_norn:
+            highest_norn = self.nort
+        for child in self.children:
+            highest_norn = child.get_biggest_nort_recursive(highest_norn) 
+        return highest_norn
+    #count pattern-----------------------------        
     def find_by_name(self, employee_name_p):
         found_employee = None
         if self.name == employee_name_p:

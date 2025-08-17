@@ -125,19 +125,18 @@ def main(args,root_obj_p):
     #9.2 calculate the highest bla
     if args['method'] == 'chosen_employee.calculate_highest_bla':
         #get_highest_bla_recursive no needed because already given
-        root_obj_p.get_highest_bla_recursive()
         highest_bla = root_obj_p.get_highest_bla_recursive(0)
         print(highest_bla)
         root_obj_p.print_recursive()
         
-    #9.3 calculate the highest number of repeated names #original  "calculate the name that repeats the most"
+    #9.3 calculate the highest number of repeated titles #original  "calculate the title that repeats the most"
     if args['method'] == 'chosen_employee.calculate_biggest_norn2':
-        root_obj_p.calc_norn_recursive()
-        
-        highest_norn = root_obj_p.get_biggest_norn_recursive(0)
-        print(highest_norn)
         root_obj_p.print_recursive()
+        root_obj_p.calc_nort_recursive(root_obj_p)
+        highest_nort = root_obj_p.get_biggest_nort_recursive(0)
+        print(highest_nort)
         
+        root_obj_p.print_recursive()
 if __name__ == "__main__":
     
     root_obj = build_tree_from_csv("employees.csv")
