@@ -137,6 +137,25 @@ def main(args,root_obj_p):
         print(highest_nort)
         
         root_obj_p.print_recursive()
+        
+    #9.4 calculate the max number of employees working at same time
+    if args['method'] == 'chosen_employee.calc_noewast_recursive':
+        root_obj_p.calc_noewast_recursive(root_obj_p)
+        max_noewast = root_obj_p.find_max_noewast_recursive(0)
+        print(max_noewast)
+        root_obj_p.print_recursive()
+        
+    #10 display in the  pygame top right corner the number of active employees
+    if args['method'] == 'chosen_employee.count_noae_recursive':  
+        chosen_employee_name = input ('enter chosen_employee_name:')
+        chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
+        if chosen_employee != None:
+            chosen_employee.toggle_activation()
+        else:
+            print("employee not found")    
+        noae = root_obj_p.count_noae_recursive(0)
+        print(noae)
+        root_obj_p.print_recursive()
 if __name__ == "__main__":
     
     root_obj = build_tree_from_csv("employees.csv")

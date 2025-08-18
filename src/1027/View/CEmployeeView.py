@@ -249,6 +249,14 @@ class CEmployeeView:
     def delete_chosen_employee(self, index_employee_p):
         if self.i_self == index_employee_p:
             self.parent.c_l.pop(index_employee_p)
+            
+    def count_noae_recursive(self, noae_so_far_p):
+        noae_so_far = noae_so_far_p
+        if self.activation_status == 1: #matching
+            noae_so_far +=1
+        for child in self.children:
+            noae_so_far = child.count_noae_recursive(noae_so_far)
+        return noae_so_far
 
 # Standard Python entry point
 if __name__ == '__main__':

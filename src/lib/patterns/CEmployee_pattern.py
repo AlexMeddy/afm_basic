@@ -26,6 +26,7 @@ class CEmployee_pattern:
         self.annual_leave = int(annual_leave_p)
         self.bla = int(bla_p)
         self.nort = 0 
+        self.noewast = 0 
  
 
 
@@ -129,6 +130,15 @@ class CEmployee_pattern:
         for child in self.c_l:
             all_the_names_concatenated = child.get_all_the_names_concatenated(all_the_names_concatenated)         
         return all_the_names_concatenated
+        
+    def count_noae_recursive(self, noae_so_far_p):
+        noae_so_far = noae_so_far_p
+        if self.activation_status == 1: #matching
+            noae_so_far +=1
+        for child in self.children:
+            noae_so_far = child.count_noae_recursive(noae_so_far)
+        return noae_so_far
+        
     #count pattern-------------------------------
     def count_nort_recursive(self, employee_title_p, nort_so_far_p):
         #nort_so_far = 0
@@ -154,7 +164,31 @@ class CEmployee_pattern:
         for child in self.children:
             highest_norn = child.get_biggest_nort_recursive(highest_norn) 
         return highest_norn
-    #count pattern-----------------------------        
+    #count pattern-----------------------------   
+    def count_noewast_recursive(self,noewast_so_far_p):
+        noewast_so_far = noewast_so_far_p
+        if self.noewast == 0: #matching to follow
+            noewast_so_far +=1
+        for child in self.children:
+            noewast_so_far = child.count_noewast_recursive(noewast_so_far_p=noewast_so_far)
+        return noewast_so_far
+        
+    def calc_noewast(self, root_p):
+        self.noewast = root_p.count_noewast_recursive(0) #matching
+    
+    def calc_noewast_recursive(self, root_p):
+        self.calc_noewast(root_p)
+        for child in self.children:
+            child.calc_noewast_recursive(root_p=root_p)
+        
+    def find_max_noewast_recursive(self, max_noewast_p):
+        max_noewast = max_noewast_p
+        if self.noewast > max_noewast:
+            max_noewast = self.noewast
+        for child in self.children:
+            max_noewast = child.find_max_noewast_recursive(max_noewast) 
+        return max_noewast
+        
     def find_by_name(self, employee_name_p):
         found_employee = None
         if self.name == employee_name_p:
