@@ -2,7 +2,7 @@ import pygame
 import sys
 from CEmployeeView import CEmployeeView
 class CPygameTest:
-    def __init__(self, width=640, height=480):
+    def __init__(self, width=500, height=500):
         pygame.init()
         self.width = width
         self.height = height
@@ -13,6 +13,7 @@ class CPygameTest:
 
         # Input box settings
         self.input_box = pygame.Rect(0, 0, 200, 40)
+        self.summary_text = ''
         self.input_text = 'r,r,100,100,10,100,n'
         self.active = False
         self.color_inactive = pygame.Color('gray')
@@ -35,6 +36,7 @@ class CPygameTest:
         '''
         #6 print guid of chosen employee
         def handle_collision2():
+            biggest_noae = 0
             if self.root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 scale_x, scale_y = self.root_obj.get_scale_xy(available_screen_width_p=self.width, 
@@ -44,8 +46,12 @@ class CPygameTest:
                 if chosen_employee:
                     print(chosen_employee.guid)
                     chosen_employee.toggle_activation_employee()
+                    self.summary_text = str(self.root_obj.count_noae_recursive(0))
                 else:
                     print('chosen_employee not found')
+        
+
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
             if self.input_box.collidepoint(event.pos):
@@ -102,6 +108,12 @@ class CPygameTest:
         self.screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 5))
         pygame.draw.rect(self.screen, self.color, self.input_box, 2)
         
+    def draw_summary_text(self): #summary_text_p doesnt work when event handler calls draw
+        text = self.font.render(self.summary_text, True, pygame.Color('white')) 
+        text_xy = (self.width-50, 0)
+        self.screen.blit(text, text_xy)
+        
+        
     def run(self):
         while True:
             for event in pygame.event.get():
@@ -113,7 +125,8 @@ class CPygameTest:
                 #chosen_employee = root_obj_p.find_by_name_recursive(chosen_employee_name)
                 self.handle_event(event)
             
-            self.screen.fill((0, 0, 0))  # Clear screen
+            self.screen.fill((0, 0, 0))  # Clear screen 
+            self.draw_summary_text()
             self.draw_input()  # Draw text input box
             if self.root_obj:
                 scale_x, scale_y = self.root_obj.align(available_screen_width_p=self.width, available_screen_height_p=self.height-self.top_margin)

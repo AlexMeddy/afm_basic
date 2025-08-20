@@ -254,7 +254,7 @@ class CEmployeeView:
         noae_so_far = noae_so_far_p
         if self.activation_status == 1: #matching
             noae_so_far +=1
-        for child in self.children:
+        for child in self.c_l:
             noae_so_far = child.count_noae_recursive(noae_so_far)
         return noae_so_far
 
