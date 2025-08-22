@@ -50,6 +50,7 @@ class CPygameTest:
                 else:
                     print('chosen_employee not found')
         
+        
 
         
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -62,15 +63,19 @@ class CPygameTest:
             handle_collision2()
             
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            print(event)
             if self.root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 scale_x, scale_y = self.root_obj.get_scale_xy(available_screen_width_p=self.width, 
                     available_screen_height_p=self.height-self.top_margin)
                 chosen_employee = self.root_obj.find_by_mouse_pos_recursive(mouse_x_p = mouse_x, mouse_y_p = mouse_y, 
                     scale_x_p = scale_x, scale_y_p = scale_y, top_margin_p= self.top_margin)
-                if chosen_employee:
+                if chosen_employee: #if found
                     print(chosen_employee.guid)
-                    chosen_employee.delete_chosen_employee(chosen_employee.i_self)
+                    if chosen_employee.parent == None: #to delete an employee u need to ask the parent to pop
+                        self.root_obj = None
+                    else:
+                        chosen_employee.delete_chosen_employee(chosen_employee.i_self)
                 else:
                     print('chosen_employee not found')
                 

@@ -249,6 +249,7 @@ class CEmployeeView:
     def delete_chosen_employee(self, index_employee_p):
         if self.i_self == index_employee_p:
             self.parent.c_l.pop(index_employee_p)
+            print(self)
             
     def count_noae_recursive(self, noae_so_far_p):
         noae_so_far = noae_so_far_p
