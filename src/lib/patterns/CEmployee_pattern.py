@@ -157,12 +157,12 @@ class CEmployee_pattern:
         for child in self.children:
             child.calc_nort_recursive(root_p=root_p)
             
-    def get_biggest_nort_recursive(self, highest_norn_p):
+    def find_biggest_nort_recursive(self, highest_norn_p):
         highest_norn = highest_norn_p
         if self.nort > highest_norn:
             highest_norn = self.nort
         for child in self.children:
-            highest_norn = child.get_biggest_nort_recursive(highest_norn) 
+            highest_norn = child.find_biggest_nort_recursive(highest_norn) 
         return highest_norn
     #count pattern-----------------------------   
     def count_noewast_recursive(self,noewast_so_far_p):
