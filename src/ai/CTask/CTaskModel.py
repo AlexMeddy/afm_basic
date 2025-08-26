@@ -2,11 +2,11 @@ import random
 
 
 class CTaskModel:
-    def __init__(self, name: str, st: int = 1, et: int = 1):
+    def __init__(self, name: str, start_time: int = 1, end_time: int = 1):
         self.name = name
         self.number_of_parallel_tasks = 1  # Always start with 1
-        self.st = st  # Start time as integer
-        self.et = et  # End time as integer
+        self.start_time = start_time  # Start time as integer
+        self.end_time = end_time  # End time as integer
 
     def calc_number_of_parallel_tasks(self):
         self.number_of_parallel_tasks = random.randint(1, 10)
@@ -15,7 +15,7 @@ class CTaskModel:
     def __repr__(self):
         return (f"CTaskModel(name='{self.name}', "
                 f"number_of_parallel_tasks={self.number_of_parallel_tasks}, "
-                f"st={self.st}, et={self.et})")
+                f"start_time={self.start_time}, end_time={self.end_time})")
 
 
 class CTaskModelListManager:
@@ -75,9 +75,9 @@ class CTaskModelListManager:
                     if len(parts) == 3:
                         name, st_str, et_str = parts
                         try:
-                            st = int(st_str)
-                            et = int(et_str)
-                            self.add_child(CTaskModel(name, st, et))
+                            start_time = int(st_str)
+                            end_time = int(et_str)
+                            self.add_child(CTaskModel(name, start_time, end_time))
                         except ValueError:
                             print(f"Invalid numbers in line: {line.strip()}")
                     else:
