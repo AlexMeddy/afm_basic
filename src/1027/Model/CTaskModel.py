@@ -71,11 +71,17 @@ class CTaskModelListManager:
         try:
             with open(file_path, "r") as file:
                 for line in file:
-                    print('printing line: ', line)
-                    names = [name.strip() for name in line.strip().split(",")]
-                    for name in names:
-                        if name:  # Skip empty names
-                            self.add_child(CTaskModel(name))
+                    parts = [part.strip() for part in line.strip().split(",")]
+                    if len(parts) == 3:
+                        name, st_str, et_str = parts
+                        try:
+                            st = int(st_str)
+                            et = int(et_str)
+                            self.add_child(CTaskModel(name, st, et))
+                        except ValueError:
+                            print(f"Invalid numbers in line: {line.strip()}")
+                    else:
+                        print(f"Invalid line format: {line.strip()}")
             print(f"Tasks successfully loaded from '{file_path}'.")
         except FileNotFoundError:
             print(f"File '{file_path}' not found.")
@@ -85,7 +91,7 @@ if __name__ == "__main__":
     manager = CTaskModelListManager()
 
     # Path to the flat file
-    file_path = "example.txt"
+    file_path = "tasks.txt"
 
     # Instantiate tasks from the flat file
     manager.instantiate_tasks_from_flat_file(file_path)
