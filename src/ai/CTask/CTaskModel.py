@@ -61,7 +61,8 @@ class CTaskModelListManager:
             print("No tasks available.")
         else:
             for idx, task in enumerate(self.tasks):
-                print(f"{idx}: {task}")
+                duration = task.end_time - task.start_time
+                print(" "*task.start_time + "_"*duration + "      " + task.name)
 
     def instantiate_tasks_from_flat_file(self, file_path: str):
         """
