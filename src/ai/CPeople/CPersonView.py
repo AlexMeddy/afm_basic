@@ -102,10 +102,3 @@ if __name__ == "__main__":
     for root in people_roots:
         root.print_recursive()
 
-    # Example of finding a person at position (260, 210)
-    mouse_x, mouse_y = 260, 210
-    for root in people_roots:
-        found = root.find_by_mouse_pos_recursive(mouse_x, mouse_y)
-        if found:
-            print(f"Person found at ({mouse_x}, {mouse_y}): {found}")
-            break
