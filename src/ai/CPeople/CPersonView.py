@@ -53,7 +53,7 @@ class CPersonView:
         Each line format: guid, x, y, w, h, parent
         """
         nodes = {}
-        roots = []
+        parents = []
 
         try:
             with open(file_path, "r") as file:
@@ -85,9 +85,9 @@ class CPersonView:
                     else:
                         print(f"Warning: Parent '{node.parent}' not found for {node.guid}")
                 else:
-                    roots.append(node)
+                    parents.append(node)
 
-            return roots
+            return parents
 
         except FileNotFoundError:
             print(f"File '{file_path}' not found.")
@@ -96,9 +96,8 @@ class CPersonView:
 
 if __name__ == "__main__":
     # Sample usage
-    people_roots = CPersonView.instantiate_people_from_flat_file("people.txt")
+    root_obj = CPersonView.instantiate_people_from_flat_file("people.txt")
 
     print("People Tree:")
-    for root in people_roots:
-        root.print_recursive()
+    root_obj.print_recursive()
 
