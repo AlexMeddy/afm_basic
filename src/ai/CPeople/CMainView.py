@@ -13,16 +13,15 @@ class CMainView:
         pygame.display.set_caption("CMainView Pygame App")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 30)  # Default font, size 30
-        self.person = CPersonView('root',10,10,10,10,None)
         file_path = "people.txt"
-        self.person.instantiate_people_from_flat_file(file_path)
-        self.person.print_recursive()
+        self.root_obj = CPersonView.instantiate_people_from_flat_file(file_path)
+        self.root_obj.print_recursive()
         
     def handle_event(self, event):
         def handle_collision2():
-            if self.person:
+            if self.root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                chosen_person = self.person.find_by_mouse_pos_recursive(mouse_x = mouse_x, mouse_y = mouse_y)
+                chosen_person = self.root_obj.find_by_mouse_pos_recursive(mouse_x = mouse_x, mouse_y = mouse_y)
                 if chosen_person:
                     print(chosen_person.guid)
                 else:
@@ -61,7 +60,7 @@ class CMainView:
 
             # Draw UI elements
             self.draw_mouse_coordinates()
-            self.person.draw_recursive(self.screen, (0,255,0))
+            self.root_obj.draw_recursive(self.screen, (0,255,0))
 
             pygame.display.flip()  # Update the display
             self.clock.tick(60)  # Cap the frame rate at 60 FPS
