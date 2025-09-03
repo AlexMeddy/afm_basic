@@ -42,10 +42,13 @@ class CPersonView:
                 return found
         return None
 
-    def draw_tree(self, surface, pygame_p):
-        # Draw rectangle for this node
+    def draw(self, surface, pygame_p):
         rect = pygame_p.Rect(self.x, self.y, self.w, self.h)
         pygame_p.draw.rect(surface, (255, 0, 0), rect, 2)
+        
+    def draw_tree(self, surface, pygame_p):
+        # Draw rectangle for this node
+        self.draw(surface, pygame_p)
         for child in self.children_list:
             child.draw_tree(surface, pygame_p)
 
