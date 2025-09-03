@@ -60,7 +60,7 @@ class CMainView:
 
             # Draw UI elements
             self.draw_mouse_coordinates()
-            self.root_obj.draw_tree(self.screen)
+            self.root_obj.draw_tree(self.screen, pygame)
 
             pygame.display.flip()  # Update the display
             self.clock.tick(60)  # Cap the frame rate at 60 FPS
