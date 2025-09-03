@@ -43,6 +43,7 @@ class CPersonView:
         return None
 
     def draw_tree(self, surface):
+        import pygame
         # Draw rectangle for this node
         rect = pygame.Rect(self.x, self.y, self.w, self.h)
         pygame.draw.rect(surface, (255, 0, 0), rect, 2)
