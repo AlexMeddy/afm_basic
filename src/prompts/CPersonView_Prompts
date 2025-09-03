@@ -1,0 +1,40 @@
+Create a recursive python class that represents a person called CPersonView
+
+
+------------------------ attrbiutes ------------------------
+for the class CPersonView add the following attributes:
+-guid as a str type
+-x,y,w,h as an int type
+-parent as a CPersonView type
+-children_list as a list of CPersonView type
+-p_x as an int type, initialzied as -1
+-p_y as an int type, initialzied as -1
+-r_w as an int type, initialzied as -1
+-r_h as an int type, initialzied as -1
+
+
+------------------------ methods ------------------------
+for the class CPersonView add the following methods:
+-print_tree including parent details
+-find_by_mouse_pos_tree
+-draw_tree
+-calc_p_x (as mockup)
+-calc_p_y (as mockup)
+-calc_r_w (as mockup)
+-calc_r_h (as mockup)
+
+------------------------ instantiation ------------------------
+for the class CPersonView add the following methods:
+-instantiate_from_flat_file that instantiates the class
+CPersonView  using a comma delimited text flat file (PersonView.txt)
+
+provide a sample file of PersonView.txt
+
+------------------------ pygame app ------------------------
+create a pygame app encapsulated in a class named CMainView.
+In CMainView, add a method to draw coordinates of
+the mouse into the top right corner of the pygame window.
+In CMainView, add a method to draw a blue rectangle middle of the pygame window.
+
+
+Add __name__ == "__main__".

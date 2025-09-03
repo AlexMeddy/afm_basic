@@ -8,22 +8,53 @@ class CCharacterView:
         self.h = h
         self.p_x = -1  # Previous x position
         self.p_y = -1  # Previous y position
+        self.color = ''
 
     def __repr__(self):
         """Return a string representation of the character."""
         return (f"CCharacterView(guid='{self.guid}', x={self.x}, y={self.y}, "
                 f"w={self.w}, h={self.h}, p_x={self.p_x}, p_y={self.p_y})")
+                
+    def calc_p_x(self):
+        self.p_x = self.x
+        
+    def calc_p_y(self):
+        self.p_y = self.y
+
+    def calc_bla(self):
+        self.bla =+1
+
+    def calc_color(self):
+        self.colour = (0, 0, 255*self.x)
 
     def draw(self, screen_p, pygame_p):
         rect_width, rect_height = self.w, self.h
-        self.p_x = self.x
-        self.p_y = self.y
-        pygame_p.draw.rect(screen_p, (0, 0, 255), (self.p_x, self.p_y, rect_width, rect_height))
+        pygame_p.draw.rect(screen_p, self.colour, (self.p_x, self.p_y, rect_width, rect_height))
 
 class CCharacterViewListManager:
     def __init__(self):
         """Initialize an empty list of characters."""
         self.characters = []
+        
+    def calc_bla_list(self):
+        for child in self.characters:
+            child.calc_bla()
+            
+    def calc_colour_list(self):
+        for child in self.characters:
+            child.calc_color()
+            
+    def calc_bla_list(self):
+        for child in self.characters:
+            child.calc_bla()
+            
+    def calc_p_x_list(self):
+        for child in self.characters:
+            child.calc_p_x()
+            
+    def calc_p_y_list(self):
+        for child in self.characters:
+            child.calc_p_y()
 
     def find_by_mouse_pos_list(self, mouse_x_p, mouse_y_p):      
         found=None
@@ -80,7 +111,9 @@ if __name__ == "__main__":
 
     # Load characters from file
     manager.instantiate_chars_from_flat_file(file_path)
-    
+    manager.calc_p_x_list()
+    manager.calc_p_y_list()
+    manager.calc_colour_list()
     manager.draw_list()
 
     # Print loaded characters

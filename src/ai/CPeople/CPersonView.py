@@ -1,103 +1,83 @@
+import sys
+from typing import List, Optional
+
+
 class CPersonView:
-    def __init__(self, guid: str, x: int, y: int, w: int, h: int, parent: str):
-        """Initialize a person with position, size, and optional parent."""
+    def __init__(self, guid: str, x: int, y: int, w: int, h: int, parent: 'CPersonView' = None):
         self.guid = guid
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.parent = parent
+        self.children_list: List[CPersonView] = []
         self.p_x = -1
         self.p_y = -1
-        self.children_list = []  # List of child CPersonView objects
 
-    def __repr__(self):
-        """Readable string representation of the object."""
-        return (f"CPersonView(guid='{self.guid}', x={self.x}, y={self.y}, "
-                f"w={self.w}, h={self.h}, parent='{self.parent}')")
+    # ---------------- Mockup Calculation Methods ----------------
+    def calc_p_x(self):
+        # Placeholder calculation logic for p_x
+        self.p_x = self.x + 5
+        return self.p_x
 
-    def print_recursive(self, level=0):
-        """Recursively print this node and its children."""
-        indent = "  " * level
-        print(f"{indent}{self}")
+    def calc_p_y(self):
+        # Placeholder calculation logic for p_y
+        self.p_y = self.y + 5
+        return self.p_y
+
+    # ---------------- Recursive Methods ----------------
+    def print_tree(self, indent: int = 0):
+        parent_id = self.parent.guid if self.parent else "None"
+        print(" " * indent + f"GUID: {self.guid}, Parent: {parent_id}, Pos: ({self.x},{self.y}), Size: ({self.w}x{self.h})")
         for child in self.children_list:
-            child.print_recursive(level + 1)
+            child.print_tree(indent + 4)
 
-    def find_by_mouse_pos_recursive(self, mouse_x: int, mouse_y: int):
-        """
-        Recursively search for a person under the mouse position.
-        Returns the CPersonView if found, else None.
-        """
-        if (self.x <= mouse_x <= self.x + self.w) and (self.y <= mouse_y <= self.y + self.h):
+    def find_by_mouse_pos_tree(self, mouse_x: int, mouse_y: int) -> Optional['CPersonView']:
+        # Check if mouse is inside this node's rect
+        if self.x <= mouse_x <= self.x + self.w and self.y <= mouse_y <= self.y + self.h:
             return self
         for child in self.children_list:
-            found = child.find_by_mouse_pos_recursive(mouse_x, mouse_y)
+            found = child.find_by_mouse_pos_tree(mouse_x, mouse_y)
             if found:
                 return found
         return None
 
-    def draw_recursive(self, screen, color=(255, 0, 0)):
-        """
-        Recursively draw rectangles for this person and its children.
-        Requires a pygame screen surface.
-        """
-        import pygame
-        pygame.draw.rect(screen, color, (self.x, self.y, self.w, self.h), 2)
+    def draw_tree(self, surface):
+        # Draw rectangle for this node
+        rect = pygame.Rect(self.x, self.y, self.w, self.h)
+        pygame.draw.rect(surface, (255, 0, 0), rect, 2)
         for child in self.children_list:
-            child.draw_recursive(screen, color)
+            child.draw_tree(surface)
 
+    # ---------------- Instantiation from Flat File ----------------
     @staticmethod
-    def instantiate_people_from_flat_file(file_path: str):
-        """
-        Instantiate a tree of CPersonView objects from a comma-delimited file.
-        Each line format: guid, x, y, w, h, parent
-        """
+    def instantiate_from_flat_file(filename: str) -> 'CPersonView':
         nodes = {}
-        parents = []
+        parent_map = {}
 
-        try:
-            with open(file_path, "r") as file:
-                for line in file:
-                    parts = [p.strip() for p in line.strip().split(",")]
-                    if len(parts) != 6:
-                        print(f"Invalid line format: {line.strip()}")
-                        continue
+        with open(filename, "r") as f:
+            lines = f.readlines()[1:]  # Skip header
+            for line in lines:
+                guid, x, y, w, h, parent_guid = line.strip().split(",")
+                x, y, w, h = int(x), int(y), int(w), int(h)
+                node = CPersonView(guid, x, y, w, h)
+                nodes[guid] = node
+                parent_map[guid] = parent_guid if parent_guid != "None" else None
 
-                    guid, x_str, y_str, w_str, h_str, parent = parts
-                    try:
-                        x = int(x_str)
-                        y = int(y_str)
-                        w = int(w_str)
-                        h = int(h_str)
-                    except ValueError:
-                        print(f"Invalid numeric values: {line.strip()}")
-                        continue
+        root = None
+        for guid, node in nodes.items():
+            parent_guid = parent_map[guid]
+            if parent_guid:
+                node.parent = nodes[parent_guid]
+                nodes[parent_guid].children_list.append(node)
+            else:
+                root = node
 
-                    node = CPersonView(guid, x, y, w, h, parent)
-                    nodes[guid] = node
-
-            # Link parents and children
-            for node in nodes.values():
-                if node.parent.lower() != "none":
-                    parent_node = nodes.get(node.parent)
-                    if parent_node:
-                        parent_node.children_list.append(node)
-                    else:
-                        print(f"Warning: Parent '{node.parent}' not found for {node.guid}")
-                else:
-                    parents.append(node)
-
-            return parents
-
-        except FileNotFoundError:
-            print(f"File '{file_path}' not found.")
-            return []
-
-
+        return root
 if __name__ == "__main__":
     # Sample usage
-    root_obj = CPersonView.instantiate_people_from_flat_file("people.txt")
+    root_obj = CPersonView.instantiate_from_flat_file("PersonView.txt")
 
     print("People Tree:")
-    root_obj.print_recursive()
+    root_obj.print_tree()
 
