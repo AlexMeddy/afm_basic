@@ -1,0 +1,79 @@
+#########################
+Pattern MVR1
+#########################
+------------------------ core class  ------------------------
+Create a python class that represents a r called CResistorModel
+------------------------ attrbiutes ------------------------
+for the class CResistorModel add the following attributes:
+-guid as a str type
+-resistance an int type initialzied as -1
+-current an int type initialzied as -1
+-voltage an int type initialzied as -1
+
+
+------------------------ methods ------------------------
+For the class CResistorModel add the following methods:
+-calc_voltage() as a mockup only
+
+
+------------------------ list manager class ------------------------
+Create a list of CResistorModel encapsulated in a class CResistorModelListManager.
+
+------------------------ list manager methods ------------------------
+For the class CResistorModelListManager add the following methods:
+-print_list
+-find_by_name_list
+
+
+------------------------ instantiation ------------------------
+For the class CResistorModelListManager add the following methods:
+-instantiate_from_flat_file that instantiates the class
+CResistorModel using a comma delimited text flat file (ResistorModel.txt)
+
+provide a sample file of ResistorModel.txt
+
+Add __name__ == "__main__".
+
+#########################
+Pattern MVR2
+#########################
+------------------------ core class  ------------------------
+Create a python class that represents a resistor called CResistorView
+
+
+------------------------ attrbiutes ------------------------
+for the class CResistorView add the following attributes:
+-guid as a str type
+-x,y,w,h as an int type
+-p_x as an int type, initialzied as -1
+-p_x as an int type, initialzied as -1
+
+
+------------------------ methods ------------------------
+For the class CResistorView add the following methods:
+-calc_p_x() as a mockup only
+-calc_p_y() as a mockup only
+
+------------------------ list manager class ------------------------
+Create a list of CResistorView encapsulated in a class CResistorViewListManager.
+
+------------------------ list manager methods ------------------------
+For the class CResistorViewListManager add the following methods:
+-print_list
+-find_by_mouse_pos_list
+-draw_list
+
+------------------------ instantiation ------------------------
+For the class CResistorViewListManager add the following methods:
+-instantiate_list_from_flat_file that instantiates the class
+CResistorView using a comma delimited text flat file (ResistorView.txt)
+
+provide a sample file of ResistorView.txt
+
+------------------------ pygame app ------------------------
+create a pygame app encapsulated in a class named CMainView.
+In CMainView, add a method to draw coordinates of
+the mouse into the top right corner of the pygame window.
+In CMainView, add a method to draw a blue rectangle middle of the pygame window.
+
+Add __name__ == "__main__".

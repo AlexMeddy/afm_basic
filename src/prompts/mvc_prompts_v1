@@ -114,3 +114,4 @@ For the class CCharModelListManager add the following methods:
 provide a sample file of CharModel.txt
 
 Add __name__ == "__main__".
+

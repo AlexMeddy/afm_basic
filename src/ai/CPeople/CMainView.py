@@ -15,7 +15,8 @@ class CMainView:
         self.font = pygame.font.SysFont(None, 30)  # Default font, size 30
         file_path = "PersonView.txt"
         self.root_obj = CPersonView.instantiate_from_flat_file(file_path)
-        self.root_obj.print_tree()
+        if self.root_obj != None:
+            self.root_obj.print_tree()
         
     def handle_event(self, event):
         def handle_collision2():

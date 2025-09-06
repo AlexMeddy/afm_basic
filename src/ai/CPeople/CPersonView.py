@@ -82,5 +82,6 @@ if __name__ == "__main__":
     root_obj = CPersonView.instantiate_from_flat_file("PersonView.txt")
 
     print("People Tree:")
-    root_obj.print_tree()
+    if root_obj != None:
+        root_obj.print_tree()
 
