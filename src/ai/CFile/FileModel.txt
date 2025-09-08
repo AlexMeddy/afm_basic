@@ -1,0 +1,12 @@
+root{
+    folder1{
+        fileA
+        fileB
+    }
+    folder2{
+        fileC
+        folder3{
+            fileD
+        }
+    }
+}

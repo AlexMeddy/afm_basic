@@ -25,6 +25,7 @@ class CMainView:
                 chosen_resistor = self.manager.find_by_mouse_pos_list(mouse_x = mouse_x, mouse_y = mouse_y)
                 if chosen_resistor:
                     print(chosen_resistor.guid)
+                    #print(chosen_resistor.model.voltage)
                 else:
                     print('chosen_resistor not found')
 

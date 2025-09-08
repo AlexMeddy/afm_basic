@@ -9,6 +9,7 @@ class CResistorView:
         self.h: int = h
         self.p_x: int = -1
         self.p_y: int = -1
+        #self.model = model_p
 
     # ------------------------ methods ------------------------
     def calc_p_x(self):
