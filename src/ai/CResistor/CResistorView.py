@@ -1,4 +1,4 @@
-
+from CResistorModel import CResistorModelListManager
 # ------------------------ core class ------------------------
 class CResistorView:
     def __init__(self, guid: str, x: int, y: int, w: int, h: int):
@@ -74,6 +74,7 @@ class CResistorViewListManager:
                     self.resistor_list.append(resistor)
         except FileNotFoundError:
             print(f"File {filename} not found.")
+            
 
 if __name__ == "__main__":
     manager = CResistorViewListManager()

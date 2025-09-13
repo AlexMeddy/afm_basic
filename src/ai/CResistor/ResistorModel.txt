@@ -1,4 +1,4 @@
 # guid,resistance,current,voltage
-R1,100,2
-R2,220,1
-R3,330,3
+RM1,100,10
+RM2,220,22
+RM3,330,33
