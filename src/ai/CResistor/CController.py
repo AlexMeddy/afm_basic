@@ -20,7 +20,7 @@ class CController:
                         continue
                     guid, w, h = line.split(",")
                     resistor = CResistorView(guid, -1, -1, int(w), int(h))
-                    resistor_view_list.append(resistor)
+                    resistor_view_list.append(resistor) #view_lm_p.add_child()
         except FileNotFoundError:
             print(f"File {filename} not found.")
         return resistor_view_list
