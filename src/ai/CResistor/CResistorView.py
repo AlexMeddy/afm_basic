@@ -42,6 +42,9 @@ class CResistorViewListManager:
         # Placeholder calculation logic for p_x
         for child in self.resistor_list:
             child.calc_p_y()
+            
+    def add_child(self, child_p):
+        self.resistor_list.append(child_p)
 
     # ------------------------ list manager methods ------------------------
     def print_list(self):

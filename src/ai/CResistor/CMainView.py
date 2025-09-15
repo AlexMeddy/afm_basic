@@ -14,28 +14,23 @@ class CMainView:
         self.clock = pygame.time.Clock()
         self.running = True
         self.font = pygame.font.SysFont("Arial", 20)
-
         
-
-        # Load resistor views from file
-        self.view_manager = CResistorViewListManager()
-        if self.view_manager:
-            #self.view_manager.instantiate_list_from_flat_file("ResistorView.txt")
-            self.view_manager.resistor_list = CController.instantiate_list_from_model("ResistorModel.txt")
-            if self.view_manager.resistor_list:
-                self.view_manager.print_list()
-            
-        self.manager_model = CResistorModelListManager()
-        if self.manager_model:
-            self.manager_model.instantiate_from_flat_file("ResistorModel.txt")
-            self.manager_model.print_list()
+        self.resistor_view_manager = None    
+        self.resistor_manager_model = CResistorModelListManager()
+        if self.resistor_manager_model:
+            self.resistor_manager_model.instantiate_from_flat_file("ResistorModel.txt")
+            self.resistor_manager_model.print_list()        
+            self.resistor_view_manager = CController.instantiate_resistor_view_lm_from_model(self.resistor_manager_model)
+        
+        if self.resistor_view_manager.resistor_list:
+            self.resistor_view_manager.print_list()
 
 
     def handle_event(self, event):
         def handle_collision2():
-            if self.view_manager:
+            if self.resistor_view_manager:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                chosen_resistor = self.view_manager.find_by_mouse_pos_list(mouse_x = mouse_x, mouse_y = mouse_y)
+                chosen_resistor = self.resistor_view_manager.find_by_mouse_pos_list(mouse_x = mouse_x, mouse_y = mouse_y)
                 if chosen_resistor:
                     print(chosen_resistor.guid)
                     #print(chosen_resistor.model.voltage)
@@ -67,11 +62,11 @@ class CMainView:
 
             self.screen.fill((255, 255, 255))
 
-            if self.view_manager:
-                self.view_manager.calc_p_x_list()
-                self.view_manager.calc_p_y_list()
+            if self.resistor_view_manager:
+                self.resistor_view_manager.calc_p_x_list()
+                self.resistor_view_manager.calc_p_y_list()
                 # Draw all resistor views
-                self.view_manager.draw_list(self.screen, pygame)
+                self.resistor_view_manager.draw_list(self.screen, pygame)
 
             # Draw mouse coordinates
             self.draw_mouse_coords()
