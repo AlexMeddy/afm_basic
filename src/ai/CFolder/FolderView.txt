@@ -1,0 +1,5 @@
+# guid,parent_guid,x,y,w,h
+root,None,0,0,200,200
+child1,root,10,10,50,50
+child2,root,70,70,60,60
+subchild1,child1,15,15,20,20
