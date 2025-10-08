@@ -40,7 +40,7 @@ class CFolderModel:
 
     # ----------------- file instantiation -----------------
     @staticmethod
-    def instantiate_from_flat_file(file_path: str) -> "CFolderModel":
+    def instantiate_from_flat_file(file_path: str) -> "CFolderModel.txt":
         """
         Instantiates CFolderModel tree from a flat comma-delimited file.
         Format: child_guid,parent_guid

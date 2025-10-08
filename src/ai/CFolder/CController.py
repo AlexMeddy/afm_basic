@@ -19,15 +19,18 @@ class CController:
         
     @staticmethod
     def map_from_model_to_view_tree(model_p):
-        pass
+        model = CController.map_from_model_to_view(model_p)
+        for child in model.children_list:
+            model = CController.map_from_model_to_view_tree(child)
+        return model
 
 
 # ------------------------ main ------------------------
 if __name__ == "__main__":
     file_path = "CFolderModel.txt"
-    folder_model = CFolderModel('r', None)
-    folder_model.instantiate_from_flat_file(file_path)   
-    folder_model = CController.map_from_model_to_view(folder_model)
-    if folder_model:
-        CController.print_tree(folder_model)
+    root_obj = CFolderModel.instantiate_from_flat_file(file_path)   
+    print(root_obj.parent.guid)
+    folder_model2 = CController.map_from_model_to_view_tree(root_obj)
+    #if folder_model2:
+    #   CController.print_tree(root_obj)
 
