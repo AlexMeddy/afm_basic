@@ -1,104 +1,103 @@
 import uuid
+from typing import List, Optional
 
 
 class CFolderModel:
-    def __init__(self, guid: str = None, parent=None):
+    def __init__(self, guid: Optional[str] = None, parent: "CFolderModel" = None):
         self.guid: str = guid if guid else str(uuid.uuid4())
-        self.parent: "CFolderModel" = parent
-        self.children_list: list["CFolderModel"] = []
+        self.parent: Optional[CFolderModel] = parent
+        self.children_list: List[CFolderModel] = []
 
-    # ----------------- mockup methods -----------------
+    # ------------------------
+    # methods
+    # ------------------------
+
     def calc_number_of_folders(self) -> int:
         """
-        Mockup only: count the number of folders in the tree (including self).
+        Mockup: counts total folders including self and children recursively.
         """
         count = 1  # count self
         for child in self.children_list:
             count += child.calc_number_of_folders()
         return count
 
-    # ----------------- child management -----------------
-    def add_child(self, child: "CFolderModel"):
-        """
-        Adds a child folder to this folder.
-        """
+    def add_child(self, child: "CFolderModel") -> None:
+        """Adds a child folder to this folder."""
         child.parent = self
         self.children_list.append(child)
 
-    # ----------------- search -----------------
-    def find_by_guid_tree(self, guid: str) -> "CFolderModel":
+    def print_tree(self, level: int = 0) -> None:
         """
-        Recursively search for a folder by GUID.
+        Prints the folder tree, including parent details.
+        """
+        indent = "    " * level
+        parent_guid = self.parent.guid if self.parent else "None"
+        print(f"{indent}- Folder GUID: {self.guid} (Parent: {parent_guid})")
+        for child in self.children_list:
+            child.print_tree(level + 1)
+
+    def find_by_guid_tree(self, guid: str) -> Optional["CFolderModel"]:
+        """
+        Recursively searches the tree for a folder with the given guid.
         """
         if self.guid == guid:
             return self
         for child in self.children_list:
-            result = child.find_by_guid_tree(guid)
-            if result:
-                return result
+            found = child.find_by_guid_tree(guid)
+            if found:
+                return found
         return None
 
-    # ----------------- file instantiation -----------------
+    # ------------------------
+    # instantiation
+    # ------------------------
+
     @staticmethod
-    def instantiate_from_flat_file(file_path: str) -> "CFolderModel.txt":
+    def instantiate_from_flat_file(filename: str) -> "CFolderModel":
         """
-        Instantiates CFolderModel tree from a flat comma-delimited file.
-        Format: child_guid,parent_guid
-        parent_guid can be empty string for the root.
+        Instantiates a folder tree from a flat file.
+        Expected format: guid,parent_guid
+        The root has parent_guid as 'None'.
         """
-        nodes = {}
-        parent_map = {}
+        folder_dict = {}
 
-        with open(file_path, "r") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                parts = line.split(",")
-                child_guid = parts[0].strip()
-                parent_guid = parts[1].strip() if len(parts) > 1 else ""
+        # Step 1: Read file and create all folder objects
+        with open(filename, "r") as f:
+            lines = f.read().strip().splitlines()
+            for line in lines:
+                guid, parent_guid = line.split(",")
+                folder_dict[guid] = {
+                    "folder": CFolderModel(guid=guid),
+                    "parent_guid": parent_guid if parent_guid != "None" else None,
+                }
 
-                # Create node if not exists
-                if child_guid not in nodes:
-                    nodes[child_guid] = CFolderModel(guid=child_guid)
-
-                # Track parent relationship
-                if parent_guid:
-                    parent_map[child_guid] = parent_guid
-
-        # Link parent-child relationships
+        # Step 2: Link parent-child relationships
         root = None
-        for child_guid, parent_guid in parent_map.items():
-            parent_node = nodes.get(parent_guid)
-            child_node = nodes.get(child_guid)
-            if parent_node and child_node:
-                parent_node.add_child(child_node)
-
-        # Root = node without parent
-        for guid, node in nodes.items():
-            if guid not in parent_map.values():
-                root = node
-                break
+        for guid, entry in folder_dict.items():
+            folder = entry["folder"]
+            parent_guid = entry["parent_guid"]
+            if parent_guid:
+                parent_folder = folder_dict[parent_guid]["folder"]
+                parent_folder.add_child(folder)
+            else:
+                root = folder
 
         return root
 
-    # ----------------- helper print -----------------
-    def print_tree(self, indent=0):
-        print(" " * indent + f"Folder({self.guid})")
-        for child in self.children_list:
-            child.print_tree(indent + 2)
 
-
-# ----------------- usage -----------------
+# ------------------------
+# Example usage
+# ------------------------
 if __name__ == "__main__":
-    # Sample instantiation from file
-    root = CFolderModel.instantiate_from_flat_file("FolderModel.txt")
-    print("Tree structure:")
+    # Example: instantiate from sample file
+    root = CFolderModel.instantiate_from_flat_file("CFolderModel.txt")
+
+    print("Folder Tree:")
     root.print_tree()
 
-    print(f"\nTotal folders in tree: {root.calc_number_of_folders()}")
+    print(f"\nTotal number of folders: {root.calc_number_of_folders()}")
 
-    # Example search
-    some_guid = root.children_list[0].guid if root.children_list else root.guid
-    found = root.find_by_guid_tree(some_guid)
-    print(f"\nSearch for {some_guid}: {'Found' if found else 'Not Found'}")
+    # Test lookup
+    search_guid = "child1_guid"
+    found = root.find_by_guid_tree(search_guid)
+    print(f"\nLookup: Folder with GUID '{search_guid}' was {'found' if found else 'not found'}.")

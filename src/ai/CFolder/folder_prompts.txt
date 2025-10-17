@@ -5,7 +5,7 @@ Pattern MVF1
 Create a recursive python class that represents a generic folder called CFolderView
 
 
------------------------- attrbiutes ------------------------
+------------------------ attributes ------------------------
 for the class CFolderView add the following attributes:
 -guid as a str type
 -x,y,w,h as an int type
@@ -21,7 +21,7 @@ for the class CFolderView add the following methods:
 -find_by_mouse_pos_tree
 -draw_tree
 -add_child()
-
+-find_by_guid_tree()
 
 ------------------------ instantiation ------------------------
 for the class CFolderView add the following methods:
@@ -50,6 +50,7 @@ for the class CFolderModel add the following attributes:
 for the class CFolderModel add the following methods:
 -calc_number_of_folders() as a mockup only
 -add_child()
+-print_tree including parent details
 -find_by_guid_tree()
 
 
