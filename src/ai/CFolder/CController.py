@@ -147,10 +147,24 @@ class CController:
     
     #summary:go through model tree and add child to linear list and then recursive
     @staticmethod
-    def map_from_model_to_view_linear(model_p, linear_list_p):
+    def map_from_model_to_view_linearv2(model_p, linear_list_p):
         linear_list = linear_list_p
         for child in model_p.children_list:
             linear_list.append(child)
+            linear_list = CController.map_from_model_to_view_linearv2(child, linear_list)
+        return linear_list
+        
+    @staticmethod
+    def map_from_model_to_view(model_p, linear_list_p):
+        linear_list = linear_list_p
+        linear_list.append(model_p)
+        return linear_list
+        
+    @staticmethod
+    def map_from_model_to_view_linear(model_p, linear_list_p):
+        linear_list = linear_list_p
+        for child in model_p.children_list:
+            linear_list = CController.map_from_model_to_view(child, linear_list)
             linear_list = CController.map_from_model_to_view_linear(child, linear_list)
         return linear_list
 
