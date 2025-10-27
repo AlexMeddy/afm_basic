@@ -144,6 +144,15 @@ class CController:
                 new_model_child = CFolderModel(child.guid, model_parent)
                 model_parent.add_child(child=new_model_child)
         return model_root
+    
+    #summary:go through model tree and add child to linear list and then recursive
+    @staticmethod
+    def map_from_model_to_view_linear(model_p, linear_list_p):
+        linear_list = linear_list_p
+        for child in model_p.children_list:
+            linear_list.append(child)
+            linear_list = CController.map_from_model_to_view_linear(child, linear_list)
+        return linear_list
 
 # ------------------------ main ------------------------
 if __name__ == "__main__":
@@ -155,11 +164,14 @@ if __name__ == "__main__":
     print("printing model tree------------------------")
     CController.print_tree_model(model_p = root_model)
     
-    '''
-    view_list_global = []
-    view_list_global = CController.map_from_model_tree_to_view_tree(root_model, view_list_global)
-    for child in view_list_global:
+    print("printing tree to linear----------------------------")
+    
+    view_list = []
+    view_list = CController.map_from_model_to_view_linear(root_model, view_list)
+    for child in view_list:
         print(child.guid)
+        
+    '''
         
     view_obj = CFolderView("test", -1, -1, -1, -1, None)
     print("testing map_from_view_to_model_linear")
