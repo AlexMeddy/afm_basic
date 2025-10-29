@@ -184,6 +184,10 @@ if __name__ == "__main__":
     view_list = CController.map_from_model_to_view_linear(root_model, view_list)
     for child in view_list:
         print(child.guid)
+    
+    new_model = CFolderModel("e", root_model)
+    root_model.add_child(new_model)
+    root_model.write_to_flat_file_tree("FolderModel2.txt")   
         
     '''
         

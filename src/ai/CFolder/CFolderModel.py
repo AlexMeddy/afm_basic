@@ -83,7 +83,21 @@ class CFolderModel:
                 root = folder
 
         return root
-
+        
+    def write_to_flat_file(self, filename_p):
+        file_name = filename_p
+        line = ""
+        with open(file_name, "a") as file:
+            if self.parent == None:
+                line = self.guid + "," + "None"
+            else:    
+                line = self.guid + "," + self.parent.guid
+            file.write(line + "\n")
+            
+    def write_to_flat_file_tree(self, filename_p):
+        self.write_to_flat_file(filename_p)
+        for child in self.children_list:
+            child.write_to_flat_file_tree(filename_p)
 
 # ------------------------
 # Example usage
