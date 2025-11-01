@@ -98,20 +98,48 @@ class CFolderModel:
         self.write_to_flat_file(filename_p)
         for child in self.children_list:
             child.write_to_flat_file_tree(filename_p)
+    
+    #1 contract
+    #2 test contract
+    #3 add dummy
+    #4 test dummy
+    #5 go through linear list and print each
+    #6 test step 5
+    #7 add check if tree doesnt exist
+    #8 test step 7
+    #9 add check if tree does exist
+    #10 test step 9
+    #11 dont copy the whole line
+    #12 put the paramater names
+    # summary:go through the tree and check if the tree doesnt exist and if it doesnt then create root... 
+    @staticmethod
+    def my_instantiate_from_flat_file(filename):
+        root = None
+        with open(filename, "r") as f:
+            lines = f.read().strip().splitlines()
+            for line in lines:
+                guid, parent_guid = line.split(",")
+                print(guid, parent_guid)
+                if root == None:
+                    root = CFolderModel(guid = guid, parent=None)
+                else:
+                    parent = root.find_by_guid_tree(parent_guid)
+                    new_child = CFolderModel(guid = guid, parent=parent)
+                    parent.add_child(new_child)
+        return root
 
 # ------------------------
 # Example usage
 # ------------------------
 if __name__ == "__main__":
     # Example: instantiate from sample file
-    root = CFolderModel.instantiate_from_flat_file("CFolderModel.txt")
+    #root = CFolderModel.instantiate_from_flat_file("CFolderModel.txt")
+    root = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
+    
+    #print("Folder Tree:")
+    if root != None:
+        root.print_tree()
+    else:
+        print("no root")
 
-    print("Folder Tree:")
-    root.print_tree()
 
-    print(f"\nTotal number of folders: {root.calc_number_of_folders()}")
-
-    # Test lookup
-    search_guid = "child1_guid"
-    found = root.find_by_guid_tree(search_guid)
-    print(f"\nLookup: Folder with GUID '{search_guid}' was {'found' if found else 'not found'}.")
