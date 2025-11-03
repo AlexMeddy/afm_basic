@@ -120,13 +120,28 @@ class CFolderModel:
             for line in lines:
                 guid, parent_guid = line.split(",")
                 print(guid, parent_guid)
+                '''
                 if root == None:
                     root = CFolderModel(guid = guid, parent=None)
                 else:
                     parent = root.find_by_guid_tree(parent_guid)
                     new_child = CFolderModel(guid = guid, parent=parent)
                     parent.add_child(new_child)
+                '''
+                root = CFolderModel.tree_append(root_p=root, guid_p=guid, guid_parent_p=parent_guid)
         return root
+        
+    @staticmethod   
+    def tree_append(root_p, guid_p, guid_parent_p):
+        root = root_p
+        if root == None:
+            root = CFolderModel(guid = guid_p, parent=None)
+        else:
+            parent = root.find_by_guid_tree(guid_parent_p)
+            new_child = CFolderModel(guid = guid_p, parent=parent)
+            parent.add_child(new_child)
+        return root
+        
 
 # ------------------------
 # Example usage

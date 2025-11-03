@@ -144,6 +144,16 @@ class CController:
                 new_model_child = CFolderModel(child.guid, model_parent)
                 model_parent.add_child(child=new_model_child)
         return model_root
+        
+    @staticmethod
+    def map_from_view_to_model_linearv2(linear_list_p):
+        model_root = None
+        for child in linear_list_p: #go through the list
+            if child.parent == None:
+                model_root = CFolderModel.tree_append(model_root, child.guid, "None")
+            else:
+                model_root = CFolderModel.tree_append(model_root, child.guid, child.parent.guid)
+        return model_root
     
     #summary:go through model tree and add child to linear list and then recursive
     @staticmethod
@@ -189,10 +199,11 @@ if __name__ == "__main__":
     root_model.add_child(new_model)
     root_model.write_to_flat_file_tree("FolderModel2.txt")   
         
-    '''
+    view_list_global = []
+    view_list_global = CController.map_from_model_tree_to_view_tree(root_model, view_list_global)
         
     view_obj = CFolderView("test", -1, -1, -1, -1, None)
     print("testing map_from_view_to_model_linear")
-    model_root = CController.map_from_view_to_model_linear(linear_list_p = view_list_global)
+    model_root = CController.map_from_view_to_model_linearv2(linear_list_p = view_list_global)
     CController.print_tree_model(model_p = model_root)
-    '''
+    
