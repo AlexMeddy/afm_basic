@@ -1,0 +1,4 @@
+root_guid,None,0,0,200,150
+child1_guid,root_guid,10,10,80,60
+child2_guid,root_guid,100,20,60,50
+subchild1_guid,child1_guid,15,15,40,30

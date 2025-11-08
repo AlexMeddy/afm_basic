@@ -132,6 +132,25 @@ class CFolderModel:
         return root
         
     @staticmethod   
+    def list_append(linear_list_p, guid_p, guid_parent_p):
+        linear_list = linear_list_p
+        if linear_list == None:
+            root = CFolderModel(guid_p, "None")
+            linear_list = []
+            linear_list.append(root)
+        else:
+            new_child = CFolderModel(guid_p, guid_parent_p)
+            linear_list.append(new_child)
+        return linear_list
+        
+    @staticmethod   
+    def swap(obj1_p, obj2_p):
+        obj1 = obj1_p
+        obj2 = obj2_p
+        obj1 = obj2
+        return obj1
+        
+    @staticmethod   
     def tree_append(root_p, guid_p, guid_parent_p):
         root = root_p
         if root == None:
@@ -142,6 +161,15 @@ class CFolderModel:
             parent.add_child(new_child)
         return root
         
+        
+    def event_handler_bla(root_p):
+        ...
+        ...
+        root = root_p
+        input_text = "r,none"
+        guid = "r"
+        parent_guid = "none"
+        root = CFolderModel.tree_append(root_p=root, guid_p=guid, guid_parent_p=parent_guid)
 
 # ------------------------
 # Example usage
@@ -150,7 +178,9 @@ if __name__ == "__main__":
     # Example: instantiate from sample file
     #root = CFolderModel.instantiate_from_flat_file("CFolderModel.txt")
     root = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
-    
+    a = CFolderModel(guid = "a", parent=root)
+    swapped_obj = CFolderModel.swap(root, a)
+    print(swapped_obj.guid)
     #print("Folder Tree:")
     if root != None:
         root.print_tree()

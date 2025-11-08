@@ -1,0 +1,89 @@
+#########################
+Pattern MVF1
+#########################
+------------------------ core class  ------------------------
+Create a recursive python class that represents a generic folder called CFolderView
+
+
+------------------------ attributes ------------------------
+for the class CFolderView add the following attributes:
+-guid as a str type
+-x,y,w,h as an int type
+-parent as a CFolderView type
+-children_list as a list of CFolderView type
+-p_x as an int type, initialzied as -1
+-p_x as an int type, initialzied as -1
+
+
+------------------------ methods ------------------------
+for the class CFolderView add the following methods:
+-print_tree including parent details
+-find_by_mouse_pos_tree
+-draw_tree
+-add_child()
+-find_by_guid_tree()
+
+------------------------ instantiation ------------------------
+for the class CFolderView add the following methods:
+-instantiate_from_flat_file that instantiates the class
+CFolderView  using a comma delimited text flat file (FolderView.txt)
+
+provide a sample file of FolderView.txt
+
+Add __name__ == "__main__".
+
+
+#########################
+Pattern MVF2
+#########################
+------------------------ core class  ------------------------
+Create a recursive python class that represents a generic folder called CFolderModel
+
+
+------------------------ attrbiutes ------------------------
+for the class CFolderModel add the following attributes:
+-guid as a str type
+-parent as a CFolderModel type
+-children_list as a list of CFolderModel type
+
+------------------------ methods ------------------------
+for the class CFolderModel add the following methods:
+-calc_number_of_folders() as a mockup only
+-add_child()
+-print_tree including parent details
+-find_by_guid_tree()
+
+
+------------------------ instantiation ------------------------
+for the class CFolderModel add the following methods:
+-instantiate_from_flat_file that instantiates the class
+CFolderModel  using a comma delimited text flat file (FolderModel.txt)
+
+provide a sample file of FolderModel.txt
+
+Add __name__ == "__main__".
+
+#########################
+Pattern controller
+#########################
+------------------------ controller ------------------------
+create a python class called CController with no attributes.
+------------------------ methods ------------------------
+for the class CController add the following methods:
+-print_tree mockup
+-map_from_model_to_view as static mockup method
+-map_from_model_to_view_tree as static mockup method
+
+Add __name__ == "__main__".
+
+
+#########################
+Pattern pygame app
+#########################
+------------------------ pygame app ------------------------
+create a pygame app encapsulated in a class named CMainView.
+In CMainView, add a method to draw coordinates of
+the mouse into the top right corner of the pygame window.
+In CMainView, add a method to draw a blue rectangle middle of the pygame window.
+
+Add __name__ == "__main__".

@@ -1,6 +1,5 @@
 import pygame
 import sys
-from CFolderView import CFolderView
 
 class CMainView:
     def __init__(self, width=800, height=600):
@@ -8,29 +7,12 @@ class CMainView:
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("CMainView Example")
+        pygame.display.set_caption("CMainView - Pygame Example")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
-        self.root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
-        if self.root_obj != None:
-            self.root_obj.print_tree()
-
-    def handle_event(self, event):
-        def handle_collision2():
-            if self.root_obj:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
-                if folder:
-                    print(folder.guid)
-                else:
-                    print('folder not found')
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # Toggle active state if clicked inside the input box
-            handle_collision2()
 
     def draw_mouse_coordinates(self):
-        """Draws mouse coordinates in the top-right corner."""
+        """Draw mouse coordinates in the top-right corner."""
         mouse_x, mouse_y = pygame.mouse.get_pos()
         coord_text = f"({mouse_x}, {mouse_y})"
         text_surface = self.font.render(coord_text, True, (255, 255, 255))
@@ -38,8 +20,8 @@ class CMainView:
         self.screen.blit(text_surface, text_rect)
 
     def draw_center_rectangle(self):
-        """Draws a blue rectangle in the middle of the screen."""
-        rect_width, rect_height = 200, 100
+        """Draw a blue rectangle in the center of the screen."""
+        rect_width, rect_height = 200, 150
         rect_x = (self.width - rect_width) // 2
         rect_y = (self.height - rect_height) // 2
         pygame.draw.rect(self.screen, (0, 0, 255), (rect_x, rect_y, rect_width, rect_height))
@@ -51,12 +33,12 @@ class CMainView:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                self.handle_event(event)
 
-            self.screen.fill((0, 0, 0))  # Clear screen
+            self.screen.fill((30, 30, 30))  # dark background
+            self.draw_tree
             self.draw_center_rectangle()
             self.draw_mouse_coordinates()
-            self.root_obj.draw_tree(self.screen, pygame)
+
             pygame.display.flip()
             self.clock.tick(60)
 

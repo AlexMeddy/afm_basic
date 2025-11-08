@@ -173,7 +173,11 @@ class CController:
     @staticmethod
     def map_from_model_to_view_linear(model_p, linear_list_p):
         linear_list = linear_list_p
-        linear_list = CController.map_from_model_to_view(model_p, linear_list)
+        #linear_list = CController.map_from_model_to_view(model_p, linear_list)
+        if model_p.parent == None:
+            linear_list = CFolderModel.list_append(linear_list, model_p.guid, "None")
+        else:
+            linear_list = CFolderModel.list_append(linear_list, model_p.guid, model_p.parent.guid)
         for child in model_p.children_list:
             linear_list = CController.map_from_model_to_view_linear(child, linear_list)
         return linear_list
