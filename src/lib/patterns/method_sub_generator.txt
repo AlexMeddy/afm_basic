@@ -1,0 +1,73 @@
+create a console python code to generate stub methods.
+user selects one the following numbered method patterns: CALC, FIND, FINDBY, COUNT_NUMBER_OF, DO_SOMETHING, MAPPING
+Rule #1
+if CALC pattern is selected:
+	user enters only 1 attribute name (attribute_name), 
+	script generates 2 mock up methods like this: 
+	def CALC_attribute_name(self):
+		self.attribute_name = attribute_name
+	def CALC_attribute_name_TREE(self):
+		self.CALC_attribute_name():
+		for child in self.children:
+			self.CALC_attribute_name_TREE()
+			
+			
+Rule #2			
+if DO_SOMETHING pattern is selected:
+	user enters ACTION_NAME (e.g. draw) 
+	optionally, user enters comma separated attribute names (attribute_name), 
+	script generates 2 mock up methods like this: 
+	def DO_SOMETHING_ACTION_NAME(self):
+		print each attribute_name entered
+	def DO_SOMETHING_ACTION_NAME_TREE(self):
+		self.DO_SOMETHING_ACTION_NAME()
+		for child in self.children:
+			self.DO_SOMETHING_ACTION_NAME_TREE()
+
+	for each entered attribute name, script generates CALC methots as per Rule #1
+	
+
+
+Rule #3			
+if FIND pattern is selected:
+	optionally, user enters only 1 adjective name (ADJECTIVE) (e.g. 'HIGHEST')
+	user enters only 1 attribute name (attribute_name), 
+
+	
+	script generates 2 mock up methods like this: 
+	def FIND_HIGHEST_attribute_name_TREE(self, HIGHEST_attribute_name_p):
+		HIGHEST_attribute_name = HIGHEST_attribute_name_p
+		#FIND_HIGHEST_attribute_name logic 
+		for child in self.children:
+			self.FIND_HIGHEST_attribute_name_TREE(HIGHEST_attribute_name)
+
+	for each entered attribute name, script generates CALC methots as per Rule #1
+	
+Rule #4	
+if FINDBY pattern is selected:
+	user enters only 1 attribute name (attribute_name), 
+
+	
+	script generates 1 mock up methods like this: 
+	def FINDBY_attribute_name(self, attribute_name_p):
+		attribute_name = attribute_name_p
+		#FINDBY_attribute_name logic 
+		for child in self.children:
+			self.FINDBY_attribute_name(attribute_name)
+
+Rule #5		
+if MAPPING pattern is selected:
+	user selects one the following numbered options: LINEAR_TO_LINEAR, LINEAR_TREE, TREE_TO_LINEAR, TREE_TREE
+	user selects the source obj (SOURCE_OBJ)
+	user selects the target obj (TARGET_OBJ)
+	if LINEAR_TO_LINEAR option is selected:
+		def map_LINEAR_TO_LINEAR_SOURCE_OBJ_TARGET_OBJ_LINEAR(self, src_linear_list_p):
+			src_linear_list = src_linear_list_p
+			for child in src_linear_list:
+				#map_LINEAR_TO_LINEAR_LINEAR logic 
+	if TREE_TO_LINEAR option is selected:
+		def map_TREE_TO_LINEAR_TREE(self, src_root_p):
+			src_root = src_root_p
+			for child in src_root.children_list:
+				src_root = self.map_TREE_TO_LINEAR_TREE(child)
+				#map_TREE_TO_LINEAR logic 

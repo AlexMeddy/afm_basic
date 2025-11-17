@@ -25,7 +25,7 @@ class CController:
         view_root_global = view_root_global_p
         if view_root_global == None: #if this tree exists
             view_root_global = CFolderView(model_p.guid, -1, -1, -1, -1, model_p.parent)
-        else:
+        else:          
             view_parent = view_root_global.find_by_guid_tree(model_p.parent.guid)
             new_view_node = CFolderView(model_p.guid, -1, -1, -1, -1, view_parent)
             view_parent.add_child(new_view_node)

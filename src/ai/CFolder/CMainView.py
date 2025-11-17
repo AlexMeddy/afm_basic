@@ -1,6 +1,8 @@
 import pygame
 import sys
 from CFolderView import CFolderView
+from CFolderModel import CFolderModel
+from CController import CController
 
 class CMainView:
     def __init__(self, width=800, height=600):
@@ -11,15 +13,17 @@ class CMainView:
         pygame.display.set_caption("CMainView Example")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
-        self.root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
-        if self.root_obj != None:
-            self.root_obj.print_tree()
+        self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
+        self.view_root_obj = CController.map_from_model_to_view_tree(self.model_root_obj, None) #use CController.map_from_model_to_view_tree()
+
+        if self.view_root_obj != None:
+            self.view_root_obj.print_tree()
 
     def handle_event(self, event):
         def handle_collision2():
-            if self.root_obj:
+            if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
+                folder = self.view_root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
                 if folder:
                     print(folder.guid)
                 else:
@@ -54,9 +58,8 @@ class CMainView:
                 self.handle_event(event)
 
             self.screen.fill((0, 0, 0))  # Clear screen
-            self.draw_center_rectangle()
             self.draw_mouse_coordinates()
-            self.root_obj.draw_tree(self.screen, pygame)
+            self.view_root_obj.draw_tree(self.screen, pygame)
             pygame.display.flip()
             self.clock.tick(60)
 

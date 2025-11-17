@@ -66,7 +66,7 @@ class CFolderView:
     # -------------------------------------------------------------------------
     def draw(self, surface, pygame_p):
         rect = pygame_p.Rect(self.x, self.y, self.w, self.h)
-        pygame_p.draw.rect(surface, (255, self.x + 100, self.y * 2), rect, 0)
+        pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
         
     def draw_tree(self, surface, pygame_p):
         # Draw rectangle for this node
