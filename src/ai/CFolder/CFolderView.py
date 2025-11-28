@@ -108,10 +108,12 @@ class CFolderView:
             child.CALC_p_y_TREE(scale_p)
         
     def CALC_ps_TREE(self):
-        np_p = None
+        if self.parent == None:
+            self.ps = None
+        ps_for_next_node = None
         for child in self.children_list:
-            child.ps = np_p
-            np_p = child
+            child.ps = ps_for_next_node
+            ps_for_next_node = child
             child.CALC_ps_TREE()
 
     # -------------------------------------------------------------------------
