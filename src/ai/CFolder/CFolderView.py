@@ -30,12 +30,8 @@ class CFolderView:
     def print_tree(self, indent: int = 0):
         """Recursively prints the folder tree with parent details."""
         parent_guid = self.parent.guid if self.parent else "None"
-        if self.ps != None:
-            print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})\
-                ps:({self.ps.guid})")
-        else:
-            print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})\
-                ps:(None)")
+        print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})\
+            ps:({self.ps.guid if (self.ps != None)  else "None"})")
         for child in self.children_list:
             child.print_tree(indent + 4)
 
