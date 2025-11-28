@@ -60,13 +60,56 @@ class CFolderView:
                     return result
             return self
         return None
+        
+    def calc_x(self):
+        r1 = 0
+        if self.parent == None:
+            r1 = 1
+        if r1 == 1:
+            self.x = 0
+            
+    def calc_x_tree(self):
+        self.calc_x()
+        for child in self.children_list:
+            child.calc_x()
+            
+    def calc_y(self):
+        r1 = 0
+        if self.parent == None:
+            r1 = 1
+        if r1 == 1:
+            self.y = 0
+            
+    def calc_y_tree(self):
+        self.calc_y()
+        for child in self.children_list:
+            child.calc_y()
+            
+    def CALC_p_x(self, scale_p):
+        self.p_x = self.x * scale_p
+
+    def CALC_p_x_TREE(self, scale_p):
+        self.CALC_p_x(scale_p)
+        for child in self.children_list:
+            child.CALC_p_x_TREE(scale_p)
+
+    def CALC_p_y(self, scale_p):
+        self.p_y = self.y * scale_p
+
+    def CALC_p_y_TREE(self, scale_p):
+        self.CALC_p_y(scale_p)
+        for child in self.children_list:
+            child.CALC_p_y_TREE(scale_p)
+
 
     # -------------------------------------------------------------------------
     # Draw recursive structure (simulation)
     # -------------------------------------------------------------------------
     def draw(self, surface, pygame_p):
-        rect = pygame_p.Rect(self.x, self.y, self.w, self.h)
-        pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
+        print(self.guid, self.p_x, self.p_y)
+        if self.p_x != -1 and self.p_y != -1:
+            rect = pygame_p.Rect(self.p_x, self.p_y, self.w, self.h)
+            pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
         
     def draw_tree(self, surface, pygame_p):
         # Draw rectangle for this node

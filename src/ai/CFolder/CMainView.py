@@ -13,8 +13,13 @@ class CMainView:
         pygame.display.set_caption("CMainView Example")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
-        self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
-        self.view_root_obj = CController.map_from_model_to_view_tree(self.model_root_obj, None) #use CController.map_from_model_to_view_tree()
+        #self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
+        #self.view_root_obj = CController.map_from_model_to_view_tree(self.model_root_obj, None) #use CController.map_from_model_to_view_tree()
+        self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
+        self.view_root_obj.calc_x_tree()
+        self.view_root_obj.calc_y_tree()
+        self.view_root_obj.CALC_p_x_TREE(1)
+        self.view_root_obj.CALC_p_y_TREE(1)
 
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()

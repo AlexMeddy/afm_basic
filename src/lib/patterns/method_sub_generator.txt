@@ -64,10 +64,21 @@ if MAPPING pattern is selected:
 		def map_LINEAR_TO_LINEAR_SOURCE_OBJ_TARGET_OBJ_LINEAR(self, src_linear_list_p):
 			src_linear_list = src_linear_list_p
 			for child in src_linear_list:
-				#map_LINEAR_TO_LINEAR_LINEAR logic 
+				#map_LINEAR_TO_LINEAR_SOURCE_OBJ_TARGET_OBJ_LINEAR logic 
 	if TREE_TO_LINEAR option is selected:
 		def map_TREE_TO_LINEAR_TREE(self, src_root_p):
 			src_root = src_root_p
 			for child in src_root.children_list:
 				src_root = self.map_TREE_TO_LINEAR_TREE(child)
 				#map_TREE_TO_LINEAR logic 
+	if LINEAR_TREE option is selected:
+		def map_LINEAR_TREE_SOURCE_OBJ_TARGET_OBJ_TREE(self, src_linear_list_p):
+			src_linear_list = src_linear_list_p
+			for child in src_linear_list:
+				#map_LINEAR_TREE_SOURCE_OBJ_TARGET_OBJ_TREE logic 
+	if TREE_TREE option is selected:
+		def map_TREE_TREE_SOURCE_OBJ_TARGET_OBJ_TREE(self, src_root_p):
+			src_root = src_root_p
+			for child in src_root.children_list:
+				src_root = self.map_TREE_TO_LINEAR_TREE(child)
+				#map_TREE_TREE_SOURCE_OBJ_TARGET_OBJ_TREE logic 

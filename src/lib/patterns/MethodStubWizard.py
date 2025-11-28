@@ -1,103 +1,154 @@
-def generate_calc_methods(attribute_name):
-    calc_method = f"""def CALC_{attribute_name}(self):
-    self.{attribute_name} = {attribute_name}
-"""
-    calc_tree_method = f"""def CALC_{attribute_name}_TREE(self):
-    self.CALC_{attribute_name}()
-    for child in self.children:
-        child.CALC_{attribute_name}_TREE()
-"""
-    return calc_method + "\n" + calc_tree_method
+import textwrap
 
-def generate_do_something_methods(action_name, attributes):
-    attr_list = [attr.strip() for attr in attributes.split(",")] if attributes else []
-    do_method_body = "\n    ".join([f"print(self.{attr})" for attr in attr_list]) or "pass"
-    do_method = f"""def DO_SOMETHING_{action_name}(self):
-    {do_method_body}
-"""
-    do_tree_method = f"""def DO_SOMETHING_{action_name}_TREE(self):
-    self.DO_SOMETHING_{action_name}()
-    for child in self.children:
-        child.DO_SOMETHING_{action_name}_TREE()
-"""
-    # Also generate CALC methods for each attribute
-    calc_methods = "\n".join([generate_calc_methods(attr) for attr in attr_list])
-    return do_method + "\n" + do_tree_method + "\n" + calc_methods
+def gen_calc(attribute):
+    return textwrap.dedent(f"""
+    def CALC_{attribute}(self):
+        self.{attribute} = {attribute}
 
-def generate_find_methods(adjective, attribute_name):
+    def CALC_{attribute}_TREE(self):
+        self.CALC_{attribute}()
+        for child in self.children:
+            self.CALC_{attribute}_TREE()
+    """).strip("\n")
+
+
+def gen_do_something(action, attributes):
+    printed = "\n        ".join([f"print('{attr} =', self.{attr})" for attr in attributes]) if attributes else "pass"
+    return textwrap.dedent(f"""
+    def DO_SOMETHING_{action}(self):
+        {printed}
+
+    def DO_SOMETHING_{action}_TREE(self):
+        self.DO_SOMETHING_{action}()
+        for child in self.children:
+            self.DO_SOMETHING_{action}_TREE()
+    """).strip("\n")
+
+
+def gen_find(adjective, attribute):
     adj_prefix = f"{adjective}_" if adjective else ""
-    find_tree_method = f"""def FIND_{adj_prefix}{attribute_name}_TREE(self, {adj_prefix}{attribute_name}_p):
-    {adj_prefix}{attribute_name} = {adj_prefix}{attribute_name}_p
-    # FIND_{adj_prefix}{attribute_name} logic
-    for child in self.children:
-        child.FIND_{adj_prefix}{attribute_name}_TREE({adj_prefix}{attribute_name})
-"""
-    calc_methods = generate_calc_methods(attribute_name)
-    return find_tree_method + "\n" + calc_methods
+    param = f"{adj_prefix}{attribute}_p"
 
-def generate_findby_method(attribute_name):
-    return f"""def FINDBY_{attribute_name}(self, {attribute_name}_p):
-    {attribute_name} = {attribute_name}_p
-    # FINDBY_{attribute_name} logic
-    for child in self.children:
-        child.FINDBY_{attribute_name}({attribute_name})
-"""
+    return textwrap.dedent(f"""
+    def FIND_{adj_prefix}{attribute}_TREE(self, {param}):
+        {adj_prefix}{attribute} = {param}
+        #FIND_{adj_prefix}{attribute} logic 
+        for child in self.children:
+            self.FIND_{adj_prefix}{attribute}_TREE({adj_prefix}{attribute})
+    """).strip("\n")
 
-def generate_mapping_method(option, source_obj, target_obj):
-    if option == "LINEAR_TO_LINEAR":
-        return f"""def map_LINEAR_TO_LINEAR_{source_obj}_{target_obj}_LINEAR(self, src_linear_list_p):
-    src_linear_list = src_linear_list_p
-    for child in src_linear_list:
-        # map_LINEAR_TO_LINEAR_LINEAR logic
-"""
-    elif option == "TREE_TO_LINEAR":
-        return f"""def map_TREE_TO_LINEAR_TREE(self, src_root_p):
-    src_root = src_root_p
-    for child in src_root.children_list:
-        src_root = self.map_TREE_TO_LINEAR_TREE(child)
-        # map_TREE_TO_LINEAR logic
-"""
-    elif option == "LINEAR_TREE":
-        return f"""def map_LINEAR_TREE_{source_obj}_{target_obj}(self):
-    # map_LINEAR_TREE logic
-"""
-    elif option == "TREE_TREE":
-        return f"""def map_TREE_TREE_{source_obj}_{target_obj}(self):
-    # map_TREE_TREE logic
-"""
+
+def gen_findby(attribute):
+    return textwrap.dedent(f"""
+    def FINDBY_{attribute}(self, {attribute}_p):
+        {attribute} = {attribute}_p
+        #FINDBY_{attribute} logic 
+        for child in self.children:
+            self.FINDBY_{attribute}({attribute})
+    """).strip("\n")
+
+
+def gen_mapping(option, src, tgt):
+    if option == "1":  # LINEAR_TO_LINEAR
+        return textwrap.dedent(f"""
+        def map_LINEAR_TO_LINEAR_{src}_{tgt}_LINEAR(self, src_linear_list_p):
+            src_linear_list = src_linear_list_p
+            for child in src_linear_list:
+                #map_LINEAR_TO_LINEAR_{src}_{tgt}_LINEAR logic 
+        """).strip("\n")
+
+    elif option == "2":  # LINEAR_TREE
+        return textwrap.dedent(f"""
+        def map_LINEAR_TREE_{src}_{tgt}_TREE(self, src_linear_list_p):
+            src_linear_list = src_linear_list_p
+            for child in src_linear_list:
+                #map_LINEAR_TREE_{src}_{tgt}_TREE logic 
+        """).strip("\n")
+
+    elif option == "3":  # TREE_TO_LINEAR
+        return textwrap.dedent(f"""
+        def map_TREE_TO_LINEAR_TREE(self, src_root_p):
+            src_root = src_root_p
+            for child in src_root.children_list:
+                src_root = self.map_TREE_TO_LINEAR_TREE(child)
+                #map_TREE_TO_LINEAR logic 
+        """).strip("\n")
+
+    elif option == "4":  # TREE_TREE
+        return textwrap.dedent(f"""
+        def map_TREE_TREE_{src}_{tgt}_TREE(self, src_root_p):
+            src_root = src_root_p
+            for child in src_root.children_list:
+                src_root = self.map_TREE_TO_LINEAR_TREE(child)
+                #map_TREE_TREE_{src}_{tgt}_TREE logic 
+        """).strip("\n")
+
     else:
         return "# Invalid mapping option"
 
+
 def main():
     print("Select method pattern:")
-    print("1. CALC\n2. DO_SOMETHING\n3. FIND\n4. FINDBY\n5. MAPPING")
-    choice = input("Enter number: ").strip()
+    print("1 = CALC")
+    print("2 = DO_SOMETHING")
+    print("3 = FIND")
+    print("4 = FINDBY")
+    print("5 = MAPPING")
 
-    if choice == "1":
+    pattern = input("Enter choice: ").strip()
+
+    output = ""
+
+    if pattern == "1":  # CALC
         attr = input("Enter attribute name: ").strip()
-        print(generate_calc_methods(attr))
-    elif choice == "2":
+        output += gen_calc(attr)
+
+    elif pattern == "2":  # DO_SOMETHING
         action = input("Enter ACTION_NAME: ").strip()
         attrs = input("Enter comma-separated attribute names (optional): ").strip()
-        print(generate_do_something_methods(action, attrs))
-    elif choice == "3":
-        adjective = input("Enter adjective (optional, e.g., HIGHEST): ").strip()
+        attr_list = [a.strip() for a in attrs.split(",") if a.strip()] if attrs else []
+
+        output += gen_do_something(action, attr_list)
+
+        # Generate CALC methods for each attribute
+        for a in attr_list:
+            output += "\n\n" + gen_calc(a)
+
+    elif pattern == "3":  # FIND
+        adj = input("Enter adjective (optional, e.g. HIGHEST): ").strip()
+        adj = adj.upper() if adj else ""
         attr = input("Enter attribute name: ").strip()
-        print(generate_find_methods(adjective, attr))
-    elif choice == "4":
+
+        output += gen_find(adj, attr)
+
+        # CALC method for this attribute
+        output += "\n\n" + gen_calc(attr)
+
+    elif pattern == "4":  # FINDBY
         attr = input("Enter attribute name: ").strip()
-        print(generate_findby_method(attr))
-    elif choice == "5":
-        print("Select mapping option:")
-        print("1. LINEAR_TO_LINEAR\n2. LINEAR_TREE\n3. TREE_TO_LINEAR\n4. TREE_TREE")
-        opt_map = input("Enter option: ").strip()
-        options_dict = {"1": "LINEAR_TO_LINEAR", "2": "LINEAR_TREE", "3": "TREE_TO_LINEAR", "4": "TREE_TREE"}
-        option = options_dict.get(opt_map, "")
-        source_obj = input("Enter SOURCE_OBJ: ").strip()
-        target_obj = input("Enter TARGET_OBJ: ").strip()
-        print(generate_mapping_method(option, source_obj, target_obj))
+        output += gen_findby(attr)
+
+    elif pattern == "5":  # MAPPING
+        print("Select mapping type:")
+        print("1 = LINEAR_TO_LINEAR")
+        print("2 = LINEAR_TREE")
+        print("3 = TREE_TO_LINEAR")
+        print("4 = TREE_TREE")
+        option = input("Enter mapping option number: ").strip()
+
+        src = input("Enter SOURCE_OBJ: ").strip()
+        tgt = input("Enter TARGET_OBJ: ").strip()
+
+        output += gen_mapping(option, src, tgt)
+
     else:
-        print("Invalid choice")
+        print("Invalid selection.")
+        return
+
+    print("\n======= GENERATED METHODS =======\n")
+    print(output)
+    print("\n=================================\n")
+
 
 if __name__ == "__main__":
     main()
