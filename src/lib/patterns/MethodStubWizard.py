@@ -7,8 +7,8 @@ def gen_calc(attribute):
 
     def CALC_{attribute}_TREE(self):
         self.CALC_{attribute}()
-        for child in self.children:
-            self.CALC_{attribute}_TREE()
+        for child in self.children_list:
+            child.CALC_{attribute}_TREE()
     """).strip("\n")
 
 
@@ -21,7 +21,7 @@ def gen_do_something(action, attributes):
     def DO_SOMETHING_{action}_TREE(self):
         self.DO_SOMETHING_{action}()
         for child in self.children:
-            self.DO_SOMETHING_{action}_TREE()
+            child.DO_SOMETHING_{action}_TREE()
     """).strip("\n")
 
 
@@ -34,7 +34,7 @@ def gen_find(adjective, attribute):
         {adj_prefix}{attribute} = {param}
         #FIND_{adj_prefix}{attribute} logic 
         for child in self.children:
-            self.FIND_{adj_prefix}{attribute}_TREE({adj_prefix}{attribute})
+            child.FIND_{adj_prefix}{attribute}_TREE({adj_prefix}{attribute})
     """).strip("\n")
 
 
@@ -44,7 +44,7 @@ def gen_findby(attribute):
         {attribute} = {attribute}_p
         #FINDBY_{attribute} logic 
         for child in self.children:
-            self.FINDBY_{attribute}({attribute})
+            child.FINDBY_{attribute}({attribute})
     """).strip("\n")
 
 

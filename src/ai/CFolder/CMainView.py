@@ -20,6 +20,7 @@ class CMainView:
         self.view_root_obj.calc_y_tree()
         self.view_root_obj.CALC_p_x_TREE(1)
         self.view_root_obj.CALC_p_y_TREE(1)
+        self.view_root_obj.CALC_ps_TREE()
 
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()

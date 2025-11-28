@@ -14,6 +14,7 @@ class CFolderView:
         # Additional positional placeholders
         self.p_x: int = -1
         self.p_y: int = -1
+        self.ps = None
 
     # -------------------------------------------------------------------------
     # Add child to current folder
@@ -29,7 +30,12 @@ class CFolderView:
     def print_tree(self, indent: int = 0):
         """Recursively prints the folder tree with parent details."""
         parent_guid = self.parent.guid if self.parent else "None"
-        print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})")
+        if self.ps != None:
+            print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})\
+                ps:({self.ps.guid})")
+        else:
+            print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})\
+                ps:(None)")
         for child in self.children_list:
             child.print_tree(indent + 4)
 
@@ -60,31 +66,31 @@ class CFolderView:
                     return result
             return self
         return None
-        
+
     def calc_x(self):
         r1 = 0
         if self.parent == None:
             r1 = 1
         if r1 == 1:
             self.x = 0
-            
+
     def calc_x_tree(self):
         self.calc_x()
         for child in self.children_list:
             child.calc_x()
-            
+
     def calc_y(self):
         r1 = 0
         if self.parent == None:
             r1 = 1
         if r1 == 1:
             self.y = 0
-            
+
     def calc_y_tree(self):
         self.calc_y()
         for child in self.children_list:
             child.calc_y()
-            
+
     def CALC_p_x(self, scale_p):
         self.p_x = self.x * scale_p
 
@@ -100,17 +106,23 @@ class CFolderView:
         self.CALC_p_y(scale_p)
         for child in self.children_list:
             child.CALC_p_y_TREE(scale_p)
-
+        
+    def CALC_ps_TREE(self):
+        np_p = None
+        for child in self.children_list:
+            child.ps = np_p
+            np_p = child
+            child.CALC_ps_TREE()
 
     # -------------------------------------------------------------------------
     # Draw recursive structure (simulation)
     # -------------------------------------------------------------------------
     def draw(self, surface, pygame_p):
-        print(self.guid, self.p_x, self.p_y)
-        if self.p_x != -1 and self.p_y != -1:
+        #print(self.guid, self.p_x, self.p_y)
+        if self.p_x != -1 and self.p_y != -1: 
             rect = pygame_p.Rect(self.p_x, self.p_y, self.w, self.h)
             pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
-        
+
     def draw_tree(self, surface, pygame_p):
         # Draw rectangle for this node
         self.draw(surface, pygame_p)
