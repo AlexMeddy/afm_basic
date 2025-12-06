@@ -16,12 +16,19 @@ class CMainView:
         #self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
         #self.view_root_obj = CController.map_from_model_to_view_tree(self.model_root_obj, None) #use CController.map_from_model_to_view_tree()
         self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
+        print('----------------print tree before calculation-----------------')
+        if self.view_root_obj != None:
+            self.view_root_obj.print_tree()
+        self.view_root_obj.CALC_ps_TREE()
+        self.view_root_obj.CALC_p_w_TREE(1)
+        self.view_root_obj.CALC_p_h_TREE(1)
+        self.view_root_obj.CALC_space_x_TREE()
+        self.view_root_obj.CALC_space_y_TREE()
         self.view_root_obj.calc_x_tree()
         self.view_root_obj.calc_y_tree()
         self.view_root_obj.CALC_p_x_TREE(1)
         self.view_root_obj.CALC_p_y_TREE(1)
-        self.view_root_obj.CALC_ps_TREE()
-
+        print('----------------print tree after calculation-----------------')
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
 

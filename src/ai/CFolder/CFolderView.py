@@ -2,7 +2,7 @@ import uuid
 
 
 class CFolderView:
-    def __init__(self, guid: str = None, x: int = 0, y: int = 0, w: int = 0, h: int = 0, parent=None):
+    def __init__(self, guid: str = None, x: int = -1, y: int = -1, w: int = -1, h: int = -1, parent=None):
         self.guid: str = guid if guid else str(uuid.uuid4())
         self.x: int = x
         self.y: int = y
@@ -14,6 +14,10 @@ class CFolderView:
         # Additional positional placeholders
         self.p_x: int = -1
         self.p_y: int = -1
+        self.p_w: int = -1
+        self.p_h: int = -1
+        self.space_x: int = 0
+        self.space_y: int = 0
         self.ps = None
 
     # -------------------------------------------------------------------------
@@ -30,8 +34,10 @@ class CFolderView:
     def print_tree(self, indent: int = 0):
         """Recursively prints the folder tree with parent details."""
         parent_guid = self.parent.guid if self.parent else "None"
-        print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, Pos:({self.x},{self.y}), Size:({self.w},{self.h})\
-            ps:({self.ps.guid if (self.ps != None)  else "None"})")
+        print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, \
+        self.x:{self.x}, self.y:{self.y}, self.w:{self.w}, self.h:{self.h}, \
+        self.p_x:{self.p_x}, self.p_y:{self.p_y},\
+        self.p_w:{self.p_w}, self.p_h:{self.p_h}, ps:({self.ps.guid if (self.ps != None)  else "None"})")
         for child in self.children_list:
             child.print_tree(indent + 4)
 
@@ -51,41 +57,69 @@ class CFolderView:
     # -------------------------------------------------------------------------
     # Find folder by mouse coordinates (recursive)
     # -------------------------------------------------------------------------
-    def find_by_mouse_pos_tree(self, mx: int, my: int) -> 'CFolderView | None':
-        """Recursively find the folder containing the mouse position."""
-        # Check if mouse is inside this folder’s bounding box
-        if self.x <= mx <= self.x + self.w and self.y <= my <= self.y + self.h:
-            # Check deeper children first (front-most)
+        
+    def find_by_mouse_pos_tree(self, mx: int, my: int):
+        result = None
+        if mx >= self.p_x and mx <= (self.p_x + self.p_w) and my >= self.p_y and my <= (self.p_y + self.p_h):#found
+            result = self
+        else:  #keep going
             for child in self.children_list:
                 result = child.find_by_mouse_pos_tree(mx, my)
-                if result:
-                    return result
-            return self
-        return None
+                if result: #found
+                    break
+        return result
 
+    def CALC_p_w(self, scale_p):
+        self.p_w = self.w * scale_p
+
+    def CALC_p_w_TREE(self, scale_p):
+        self.CALC_p_w(scale_p)
+        for child in self.children_list:
+            child.CALC_p_w_TREE(scale_p)
+            
+    def CALC_p_h(self, scale_p):
+        self.p_h = self.h * scale_p
+
+    def CALC_p_h_TREE(self, scale_p):
+        self.CALC_p_h(scale_p)
+        for child in self.children_list:
+            child.CALC_p_h_TREE(scale_p)
+    
     def calc_x(self):
+        print(self.guid)
         r1 = 0
+        r2 = 0
         if self.parent == None:
             r1 = 1
+        if self.ps == None:
+            r2 = 1
         if r1 == 1:
             self.x = 0
+        elif r2 == 1:
+            self.x = self.parent.x
 
     def calc_x_tree(self):
         self.calc_x()
         for child in self.children_list:
-            child.calc_x()
+            child.calc_x_tree()
 
     def calc_y(self):
+        print(self.guid)
         r1 = 0
+        r2 = 0
         if self.parent == None:
             r1 = 1
+        if self.parent != None:
+            r2 = 1
         if r1 == 1:
             self.y = 0
+        if r2 == 1:
+            self.y = self.parent.h + self.parent.y + self.space_y
 
     def calc_y_tree(self):
         self.calc_y()
         for child in self.children_list:
-            child.calc_y()
+            child.calc_y_tree()
 
     def CALC_p_x(self, scale_p):
         self.p_x = self.x * scale_p
@@ -111,6 +145,34 @@ class CFolderView:
             child.ps = ps_for_next_node
             ps_for_next_node = child
             child.CALC_ps_TREE()
+
+    def CALC_ps2(self, prior_node_p):
+        self.ps = prior_node_p
+
+    def CALC_ps_TREE2(self, prior_node_p):
+        prior_node = prior_node_p
+        self.CALC_ps2(prior_node) 
+        #care about siblings
+        sibling_prior_node = None 
+        for child in self.children_list:   
+            child.CALC_ps_TREE2(sibling_prior_node) #1
+            sibling_prior_node = child  #save for next node #2  
+
+    def CALC_space_x(self):
+        self.space_x = 10
+
+    def CALC_space_x_TREE(self):
+        self.CALC_space_x()
+        for child in self.children_list:
+            child.CALC_space_x_TREE()
+            
+    def CALC_space_y(self):
+        self.space_y = 10
+
+    def CALC_space_y_TREE(self):
+        self.CALC_space_y()
+        for child in self.children_list:
+            child.CALC_space_y_TREE()
 
     # -------------------------------------------------------------------------
     # Draw recursive structure (simulation)
@@ -166,14 +228,6 @@ class CFolderView:
 # -------------------------------------------------------------------------
 if __name__ == "__main__":
     # Create sample file for demonstration
-    sample_data = """guid,parent_guid,x,y,w,h
-root_guid,,0,0,400,400
-child_1,root_guid,10,10,100,100
-child_2,root_guid,150,50,120,120
-subchild_1,child_1,20,20,60,60
-"""
-    with open("FolderView.txt", "w") as f:
-        f.write(sample_data)
 
     # Instantiate from flat file
     root_folder = CFolderView.instantiate_from_flat_file("FolderView.txt")
@@ -190,3 +244,7 @@ subchild_1,child_1,20,20,60,60
     mx, my = 25, 25
     hit = root_folder.find_by_mouse_pos_tree(mx, my)
     print(f"Mouse ({mx},{my}) inside folder: {hit.guid if hit else 'None'}")
+    
+    print("------------------------------------------")
+    root_folder.CALC_ps_TREE2(None)
+    root_folder.print_tree(0)
