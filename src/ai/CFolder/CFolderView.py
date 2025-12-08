@@ -89,14 +89,19 @@ class CFolderView:
         print(self.guid)
         r1 = 0
         r2 = 0
+        r3 = 0
         if self.parent == None:
             r1 = 1
         if self.ps == None:
             r2 = 1
+        if self.ps != None:
+            r3 = 1
         if r1 == 1:
-            self.x = 0
+            self.x = 0 #root anchor to 0, should be anchored to left margain
         elif r2 == 1:
-            self.x = self.parent.x
+            self.x = self.parent.x #self left corner anchor to parent left corner
+        elif r3 == 1:
+            self.x = self.ps.x + self.ps.w + self.space_x #self left corner anchor to ps right corner
 
     def calc_x_tree(self):
         self.calc_x()
@@ -108,13 +113,13 @@ class CFolderView:
         r1 = 0
         r2 = 0
         if self.parent == None:
-            r1 = 1
+            r1 = 1 
         if self.parent != None:
             r2 = 1
         if r1 == 1:
-            self.y = 0
+            self.y = 0 #root anchor to 0, should be anchored to top margain
         if r2 == 1:
-            self.y = self.parent.h + self.parent.y + self.space_y
+            self.y = self.parent.h + self.parent.y + self.space_y #self left top corner anchor to parent left bottom corner
 
     def calc_y_tree(self):
         self.calc_y()
