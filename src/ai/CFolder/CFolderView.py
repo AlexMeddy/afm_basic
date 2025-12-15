@@ -18,6 +18,8 @@ class CFolderView:
         self.p_h: int = -1
         self.space_x: int = 0
         self.space_y: int = 0
+        self.left_margain: int = 10
+        self.top_margain: int = 20
         self.ps = None
 
     # -------------------------------------------------------------------------
@@ -90,19 +92,26 @@ class CFolderView:
         r1 = 0
         r2 = 0
         r3 = 0
+        r4 = 0
         if self.parent == None:
             r1 = 1
         if self.ps == None:
             r2 = 1
         if self.ps != None:
             r3 = 1
-        if r1 == 1:
-            self.x = 0 #root anchor to 0, should be anchored to left margain
-        elif r2 == 1:
-            self.x = self.parent.x #self left corner anchor to parent left corner
-        elif r3 == 1:
-            self.x = self.ps.x + self.ps.w + self.space_x #self left corner anchor to ps right corner
-
+        if self.parent != None and self.parent.ps != None and self.parent.ps.children_list != []:
+            r4 = 1
+        #applying rules
+        if r1 == 1: #if root
+            self.x = 0 + self.left_margain #root anchor to 0, should be anchored to left margain
+        elif r4 == 1: #if last cousin
+            last_cousin = self.parent.ps.children_list[len(self.parent.ps.children_list)-1]
+            print("----------------last cousin of ", self.guid, " is ", last_cousin.guid)
+        elif r2 == 1: #if no ps
+            self.x = self.parent.x #a left corner anchor to parent left corner
+        elif r3 == 1: #if ps
+            self.x = self.ps.x + self.ps.w + self.space_x #b left corner anchor to ps right corner
+        
     def calc_x_tree(self):
         self.calc_x()
         for child in self.children_list:
@@ -117,7 +126,7 @@ class CFolderView:
         if self.parent != None:
             r2 = 1
         if r1 == 1:
-            self.y = 0 #root anchor to 0, should be anchored to top margain
+            self.y = 0 + self.top_margain #root anchor to 0, should be anchored to top margain
         if r2 == 1:
             self.y = self.parent.h + self.parent.y + self.space_y #self left top corner anchor to parent left bottom corner
 

@@ -31,10 +31,17 @@ def gen_find(adjective, attribute):
 
     return textwrap.dedent(f"""
     def FIND_{adj_prefix}{attribute}_TREE(self, {param}):
+        result = None
         {adj_prefix}{attribute} = {param}
         #FIND_{adj_prefix}{attribute} logic 
-        for child in self.children:
-            child.FIND_{adj_prefix}{attribute}_TREE({adj_prefix}{attribute})
+        if logic:
+            result = ...
+        else:
+            for child in self.children:
+                result = child.FIND_{adj_prefix}{attribute}_TREE({adj_prefix}{attribute})
+                if result:
+                    break
+        return result
     """).strip("\n")
 
 
