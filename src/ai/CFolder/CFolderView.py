@@ -21,6 +21,7 @@ class CFolderView:
         self.left_margain: int = 10
         self.top_margain: int = 20
         self.ps = None
+        self.cousin = None
 
     # -------------------------------------------------------------------------
     # Add child to current folder
@@ -86,6 +87,57 @@ class CFolderView:
         self.CALC_p_h(scale_p)
         for child in self.children_list:
             child.CALC_p_h_TREE(scale_p)
+            
+    def calc_cousin(self):
+        if self.parent != None and self.parent.ps != None and self.parent.ps.children_list != []:
+            self.cousin = self.parent.ps.children_list[len(self.parent.ps.children_list)-1]
+            
+    def CALC_cousin_TREE(self):
+        self.calc_cousin()
+        for child in self.children_list:
+            child.CALC_cousin_TREE()
+            
+    def calc_scale_x(self, available_screen_width_p, longest_x_p):
+        scale_x = available_screen_width_p / longest_x_p
+        return scale_x
+    
+    def find_longest_width_x(self, longest_x_so_far_p):
+        longest_x = longest_x_so_far_p
+        if self.x + self.w + self.space_x > longest_x:
+            longest_x = self.x + self.w + self.space_x
+        return longest_x
+    
+    def find_longest_width_x_tree(self, longest_x_so_far_p):
+        longest_x = longest_x_so_far_p
+        longest_x = self.find_longest_width_x(longest_x)
+        for child in self.children_list:
+            longest_x = child.find_longest_width_x_tree(longest_x) 
+        return longest_x
+        
+    def find_available_screen_width(self, screen_width_p):
+        available_screen_width = screen_width_p - self.left_margain
+        return available_screen_width
+        
+    def calc_scale_y(self, available_screen_height_p, longest_y_p):
+        scale_y = available_screen_height_p / longest_y_p
+        return scale_y
+        
+    def find_longest_width_y(self, longest_y_so_far_p):
+        longest_y = longest_y_so_far_p
+        if self.y + self.h + self.space_y > longest_y:
+            longest_y = self.y + self.h + self.space_y
+        return longest_y
+    
+    def find_longest_width_y_tree(self, longest_y_so_far_p):
+        longest_y = longest_y_so_far_p
+        longest_y = self.find_longest_width_y(longest_y)
+        for child in self.children_list:
+            longest_y = child.find_longest_width_y_tree(longest_y) 
+        return longest_y
+        
+    def find_available_screen_height(self, screen_height_p):
+        available_screen_height = screen_height_p - self.top_margain
+        return available_screen_height
     
     def calc_x(self):
         print(self.guid)
@@ -99,14 +151,20 @@ class CFolderView:
             r2 = 1
         if self.ps != None:
             r3 = 1
-        if self.parent != None and self.parent.ps != None and self.parent.ps.children_list != []:
+        #if self.parent != None and self.parent.ps != None and self.parent.ps.children_list != []:
+        if self.cousin != None:
             r4 = 1
         #applying rules
         if r1 == 1: #if root
             self.x = 0 + self.left_margain #root anchor to 0, should be anchored to left margain
         elif r4 == 1: #if last cousin
+            """
             last_cousin = self.parent.ps.children_list[len(self.parent.ps.children_list)-1]
             print("----------------last cousin of ", self.guid, " is ", last_cousin.guid)
+            self.x = last_cousin.x + last_cousin.w + self.space_x
+            """
+            print("----------------last cousin of ", self.guid, " is ", self.cousin.guid)
+            self.x = self.cousin.x + self.cousin.w + self.space_x
         elif r2 == 1: #if no ps
             self.x = self.parent.x #a left corner anchor to parent left corner
         elif r3 == 1: #if ps
@@ -191,17 +249,27 @@ class CFolderView:
     # -------------------------------------------------------------------------
     # Draw recursive structure (simulation)
     # -------------------------------------------------------------------------
-    def draw(self, surface, pygame_p):
+    def draw(self, surface, pygame_p, font_p):
         #print(self.guid, self.p_x, self.p_y)
         if self.p_x != -1 and self.p_y != -1: 
-            rect = pygame_p.Rect(self.p_x, self.p_y, self.w, self.h)
+            rect = pygame_p.Rect(self.p_x, self.p_y, self.p_w, self.p_h)
             pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
+            
+            text = font_p.render(self.guid, True, (255,255,255))
+            text_xy = (self.p_x, self.p_y+self.p_h/2+self.top_margain)
+            surface.blit(text, text_xy)
+            """
+            if self.parent != None:
+                line_xy_start = (self.parent.p_x+self.parent.p_w/2, self.parent.p_y+self.parent.p_h)
+                line_xy_end = (self.p_x+self.p_w/2, self.p_y+self.top_margain)
+                pygame_p.draw.line(surface, (255,255,255), line_xy_start, line_xy_end)
+            """
 
-    def draw_tree(self, surface, pygame_p):
+    def draw_tree(self, surface, pygame_p, font_p):
         # Draw rectangle for this node
-        self.draw(surface, pygame_p)
+        self.draw(surface, pygame_p, font_p)
         for child in self.children_list:
-            child.draw_tree(surface, pygame_p)
+            child.draw_tree(surface, pygame_p, font_p)
 
     # -------------------------------------------------------------------------
     # Instantiate from flat file

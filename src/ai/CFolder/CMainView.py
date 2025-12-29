@@ -20,14 +20,21 @@ class CMainView:
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
         self.view_root_obj.CALC_ps_TREE()
-        self.view_root_obj.CALC_p_w_TREE(1)
-        self.view_root_obj.CALC_p_h_TREE(1)
+        self.view_root_obj.CALC_cousin_TREE()
         self.view_root_obj.CALC_space_x_TREE()
         self.view_root_obj.CALC_space_y_TREE()
         self.view_root_obj.calc_x_tree()
         self.view_root_obj.calc_y_tree()
-        self.view_root_obj.CALC_p_x_TREE(1)
-        self.view_root_obj.CALC_p_y_TREE(1)
+        longest_x = self.view_root_obj.find_longest_width_x_tree(0)
+        available_screen_width = self.view_root_obj.find_available_screen_width(self.width)
+        longest_y = self.view_root_obj.find_longest_width_y_tree(0)
+        available_screen_height = self.view_root_obj.find_available_screen_height(self.height)
+        scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
+        scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
+        self.view_root_obj.CALC_p_w_TREE(scale_x)
+        self.view_root_obj.CALC_p_h_TREE(scale_y)
+        self.view_root_obj.CALC_p_x_TREE(scale_x)
+        self.view_root_obj.CALC_p_y_TREE(scale_y)
         print('----------------print tree after calculation-----------------')
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
@@ -72,7 +79,7 @@ class CMainView:
 
             self.screen.fill((0, 0, 0))  # Clear screen
             self.draw_mouse_coordinates()
-            self.view_root_obj.draw_tree(self.screen, pygame)
+            self.view_root_obj.draw_tree(self.screen, pygame, self.font)
             pygame.display.flip()
             self.clock.tick(60)
 
