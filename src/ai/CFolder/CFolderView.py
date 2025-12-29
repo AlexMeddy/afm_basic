@@ -154,21 +154,24 @@ class CFolderView:
         #if self.parent != None and self.parent.ps != None and self.parent.ps.children_list != []:
         if self.cousin != None:
             r4 = 1
+        print("----------printing rules-------------",r1,r2,r3,r4,self.guid)
         #applying rules
         if r1 == 1: #if root
             self.x = 0 + self.left_margain #root anchor to 0, should be anchored to left margain
-        elif r4 == 1: #if last cousin
-            """
-            last_cousin = self.parent.ps.children_list[len(self.parent.ps.children_list)-1]
-            print("----------------last cousin of ", self.guid, " is ", last_cousin.guid)
-            self.x = last_cousin.x + last_cousin.w + self.space_x
-            """
-            print("----------------last cousin of ", self.guid, " is ", self.cousin.guid)
-            self.x = self.cousin.x + self.cousin.w + self.space_x
         elif r2 == 1: #if no ps
+            print("----------------------------entering r2--------------------------" + self.guid)
             self.x = self.parent.x #a left corner anchor to parent left corner
         elif r3 == 1: #if ps
-            self.x = self.ps.x + self.ps.w + self.space_x #b left corner anchor to ps right corner
+            #self.x = self.ps.x + self.ps.w + self.space_x #b left corner anchor to ps right corner
+            longest_x = self.ps.find_longest_width_x_tree(0)
+            self.x = longest_x #b left corner anchor to longest x ps subtree
+        """
+        elif r4 == 1: #if last cousin
+            print("----------------last cousin of ", self.guid, " is ", self.cousin.guid)
+            self.x = self.cousin.x + self.cousin.w + self.space_x
+        """
+        
+
         
     def calc_x_tree(self):
         self.calc_x()
@@ -254,22 +257,35 @@ class CFolderView:
         if self.p_x != -1 and self.p_y != -1: 
             rect = pygame_p.Rect(self.p_x, self.p_y, self.p_w, self.p_h)
             pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
-            
-            text = font_p.render(self.guid, True, (255,255,255))
-            text_xy = (self.p_x, self.p_y+self.p_h/2+self.top_margain)
-            surface.blit(text, text_xy)
-            """
-            if self.parent != None:
-                line_xy_start = (self.parent.p_x+self.parent.p_w/2, self.parent.p_y+self.parent.p_h)
-                line_xy_end = (self.p_x+self.p_w/2, self.p_y+self.top_margain)
-                pygame_p.draw.line(surface, (255,255,255), line_xy_start, line_xy_end)
-            """
 
     def draw_tree(self, surface, pygame_p, font_p):
         # Draw rectangle for this node
         self.draw(surface, pygame_p, font_p)
         for child in self.children_list:
             child.draw_tree(surface, pygame_p, font_p)
+            
+    def draw_line(self, surface, pygame_p):
+        if self.parent != None:
+            line_xy_start = (self.parent.p_x+self.parent.p_w/2, self.parent.p_y+self.parent.p_h)
+            line_xy_end = (self.p_x+self.p_w/2, self.p_y)
+            pygame_p.draw.line(surface, (255,255,255), line_xy_start, line_xy_end)
+    
+    def draw_line_tree(self, surface, pygame_p):
+        # Draw rectangle for this node
+        self.draw_line(surface, pygame_p)
+        for child in self.children_list:
+            child.draw_line_tree(surface, pygame_p)
+            
+    def draw_guid(self, surface, font_p):
+        text = font_p.render(self.guid, True, (255,255,255))
+        text_xy = (self.p_x, self.p_y)
+        surface.blit(text, text_xy)
+    
+    def draw_guid_tree(self, surface, font_p):
+        # Draw rectangle for this node
+        self.draw_guid(surface, font_p)
+        for child in self.children_list:
+            child.draw_guid_tree(surface, font_p)
 
     # -------------------------------------------------------------------------
     # Instantiate from flat file

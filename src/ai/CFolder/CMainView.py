@@ -80,6 +80,8 @@ class CMainView:
             self.screen.fill((0, 0, 0))  # Clear screen
             self.draw_mouse_coordinates()
             self.view_root_obj.draw_tree(self.screen, pygame, self.font)
+            self.view_root_obj.draw_line_tree(self.screen, pygame)
+            self.view_root_obj.draw_guid_tree(self.screen, self.font)
             pygame.display.flip()
             self.clock.tick(60)
 
