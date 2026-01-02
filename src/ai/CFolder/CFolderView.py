@@ -22,6 +22,7 @@ class CFolderView:
         self.top_margain: int = 20
         self.ps = None
         self.cousin = None
+        self.selected = 0
 
     # -------------------------------------------------------------------------
     # Add child to current folder
@@ -71,6 +72,17 @@ class CFolderView:
                 if result: #found
                     break
         return result
+
+    def find_by_selection_tree(self):
+        found_folder = None
+        if self.selected == 1:
+            found_folder = self
+        else:
+            for child in self.children_list:
+                found_folder = child.find_by_selection_tree()
+                if found_folder:
+                    break
+        return found_folder
 
     def CALC_p_w(self, scale_p):
         self.p_w = self.w * scale_p
@@ -254,9 +266,14 @@ class CFolderView:
     # -------------------------------------------------------------------------
     def draw(self, surface, pygame_p, font_p):
         #print(self.guid, self.p_x, self.p_y)
+        line_thickness = 1
         if self.p_x != -1 and self.p_y != -1: 
             rect = pygame_p.Rect(self.p_x, self.p_y, self.p_w, self.p_h)
-            pygame_p.draw.rect(surface, (255, 255, 255), rect, 1)
+            if self.selected == 0:
+                line_thickness = 1
+            else: 
+                line_thickness = 3
+            pygame_p.draw.rect(surface, (255, 255, 255), rect, line_thickness)
 
     def draw_tree(self, surface, pygame_p, font_p):
         # Draw rectangle for this node

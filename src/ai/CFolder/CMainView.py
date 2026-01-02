@@ -14,9 +14,11 @@ class CMainView:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
         #self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
+        #self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
         #self.view_root_obj = CController.map_from_model_to_view_tree(self.model_root_obj, None) #use CController.map_from_model_to_view_tree()
-        self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
         print('----------------print tree before calculation-----------------')
+        self.view_root_obj = None
+        '''
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
         self.view_root_obj.CALC_ps_TREE()
@@ -35,10 +37,35 @@ class CMainView:
         self.view_root_obj.CALC_p_h_TREE(scale_y)
         self.view_root_obj.CALC_p_x_TREE(scale_x)
         self.view_root_obj.CALC_p_y_TREE(scale_y)
+        '''
+        self.rect_width = 50
+        self.rect_height = 50
+        self.rect_x = 10
+        self.rect_y = self.height - 60
         print('----------------print tree after calculation-----------------')
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
 
+    def build_tree(self):
+        if self.view_root_obj != None:
+            self.view_root_obj.print_tree()
+        self.view_root_obj.CALC_ps_TREE()
+        self.view_root_obj.CALC_cousin_TREE()
+        self.view_root_obj.CALC_space_x_TREE()
+        self.view_root_obj.CALC_space_y_TREE()
+        self.view_root_obj.calc_x_tree()
+        self.view_root_obj.calc_y_tree()
+        longest_x = self.view_root_obj.find_longest_width_x_tree(0)
+        available_screen_width = self.view_root_obj.find_available_screen_width(self.width)
+        longest_y = self.view_root_obj.find_longest_width_y_tree(0)
+        available_screen_height = self.view_root_obj.find_available_screen_height(self.height)
+        scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
+        scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
+        self.view_root_obj.CALC_p_w_TREE(scale_x)
+        self.view_root_obj.CALC_p_h_TREE(scale_y)
+        self.view_root_obj.CALC_p_x_TREE(scale_x)
+        self.view_root_obj.CALC_p_y_TREE(scale_y)
+        
     def handle_event(self, event):
         def handle_collision2():
             if self.view_root_obj:
@@ -48,10 +75,70 @@ class CMainView:
                     print(folder.guid)
                 else:
                     print('folder not found')
-
+        def handle_collision3():
+            if self.view_root_obj:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                folder = self.view_root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
+                if folder:
+                    print(folder.guid)
+                    if folder.selected == 0:
+                        folder.selected = 1
+                    else:
+                        folder.selected = 0
+                else:
+                    print('folder not found')
+        def handle_collision4():
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            button_pressed = self.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
+            if button_pressed == 1:
+                self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
+                self.build_tree()
+                
+        def handle_collision5():    
+            if self.view_root_obj != None:
+                folder = self.view_root_obj.find_by_selection_tree()
+                if folder != None:
+                    print("---------", folder.guid)
+                if folder.p_x != 0:                   
+                    folder.p_x -= 3
+                    
+        def handle_collision6():    
+            if self.view_root_obj != None:
+                folder = self.view_root_obj.find_by_selection_tree()
+                if folder != None:
+                    print("---------", folder.guid)
+                if folder.p_x != self.width:                   
+                    folder.p_x += 3
+                    
+        def handle_collision7():    
+            if self.view_root_obj != None:
+                folder = self.view_root_obj.find_by_selection_tree()
+                if folder != None:
+                    print("---------", folder.guid)
+                if folder.p_y != self.height:                   
+                    folder.p_y += 3
+                    
+        def handle_collision8():    
+            if self.view_root_obj != None:
+                folder = self.view_root_obj.find_by_selection_tree()
+                if folder != None:
+                    print("---------", folder.guid)
+                if folder.p_y != self.height:                   
+                    folder.p_y -= 3
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
-            handle_collision2()
+            handle_collision3()
+            handle_collision4()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                handle_collision8()
+            if event.key == pygame.K_DOWN:
+                handle_collision7()
+            if event.key == pygame.K_RIGHT:
+                handle_collision6()
+            if event.key == pygame.K_LEFT:
+                handle_collision5()
 
     def draw_mouse_coordinates(self):
         """Draws mouse coordinates in the top-right corner."""
@@ -61,12 +148,15 @@ class CMainView:
         text_rect = text_surface.get_rect(topright=(self.width - 10, 10))
         self.screen.blit(text_surface, text_rect)
 
-    def draw_center_rectangle(self):
-        """Draws a blue rectangle in the middle of the screen."""
-        rect_width, rect_height = 200, 100
-        rect_x = (self.width - rect_width) // 2
-        rect_y = (self.height - rect_height) // 2
-        pygame.draw.rect(self.screen, (0, 0, 255), (rect_x, rect_y, rect_width, rect_height))
+    def draw_button(self, rect_x, rect_y, rect_width, rect_height):
+        pygame.draw.rect(self.screen, (0, 0, 255), (rect_x, rect_y, rect_width, rect_height), 0)
+        
+    def find_by_mouse_pos_button(self, mx, my, bx, by, bw, bh):
+        button_pressed = 0
+        if mx >= bx and mx <= (bx + bw) and my >= by and my <= (by + bh):#found
+            button_pressed = 1
+            print("button pressed")
+        return button_pressed
 
     def run(self):
         """Main application loop."""
@@ -79,9 +169,11 @@ class CMainView:
 
             self.screen.fill((0, 0, 0))  # Clear screen
             self.draw_mouse_coordinates()
-            self.view_root_obj.draw_tree(self.screen, pygame, self.font)
-            self.view_root_obj.draw_line_tree(self.screen, pygame)
-            self.view_root_obj.draw_guid_tree(self.screen, self.font)
+            self.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height)
+            if self.view_root_obj != None:
+                self.view_root_obj.draw_tree(self.screen, pygame, self.font)
+                self.view_root_obj.draw_line_tree(self.screen, pygame)
+                self.view_root_obj.draw_guid_tree(self.screen, self.font)
             pygame.display.flip()
             self.clock.tick(60)
 
