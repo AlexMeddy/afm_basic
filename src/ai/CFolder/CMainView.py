@@ -86,6 +86,19 @@ class CMainView:
         self.view_root_obj.CALC_p_x_TREE(scale_x)
         self.view_root_obj.CALC_p_y_TREE(scale_y)
         
+    def handle_network_message(self, msg_p):
+        parts = msg_p.split(",")
+        if len(parts) < 2:
+            print("Invalid message:", msg_p)
+            
+        guid = parts[0].strip()
+        action = parts[1].strip()
+        print(f"Received: guid: {guid}, action: {action}")
+        if self.view_root_obj:
+            folder = self.view_root_obj.find_by_guid_tree(guid)
+            if folder and action == "select":
+                folder.selected = 1
+        
     def handle_event(self, event):
         def handle_collision2():
             if self.view_root_obj:
@@ -103,7 +116,7 @@ class CMainView:
                     print(folder.guid)
                     if folder.selected == 0:
                         folder.selected = 1
-                        msg = f"{folder.guid}, select"
+                        msg = f"{folder.guid},select"
                         if self.mode == "server" and self.conn:
                             self.conn.sendall(msg.encode())
                         elif self.mode == "client":
@@ -196,13 +209,14 @@ class CMainView:
                     else:
                         data = self.conn.recv(self.buffer_size)
                         if data:
-                            print(data.decode())
+                            msg = data.decode()
+                            self.handle_network_message(msg)
 
                 elif self.mode == "client":
                     data = self.sock.recv(self.buffer_size)
                     if data:
-                        print(data.decode())
-
+                        msg = data.decode()
+                        self.handle_network_message(msg)
             except BlockingIOError:
                 pass
             for event in pygame.event.get():
