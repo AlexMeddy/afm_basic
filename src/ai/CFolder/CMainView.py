@@ -1,11 +1,13 @@
 import pygame
 import sys
+import argparse
+import socket
 from CFolderView import CFolderView
 from CFolderModel import CFolderModel
 from CController import CController
 
 class CMainView:
-    def __init__(self, width=800, height=600):
+    def __init__(self, mode_p, width=800, height=600):
         pygame.init()
         self.width = width
         self.height = height
@@ -45,6 +47,24 @@ class CMainView:
         print('----------------print tree after calculation-----------------')
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
+        self.sock = None
+        self.conn = None   
+        self.buffer_size = 1024
+
+        self.mode = mode_p
+        if self.mode == "server":
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.bind(("0.0.0.0", 5000))
+            self.sock.listen(1)
+            self.sock.setblocking(False)            
+            print("Server started")
+            
+        if self.mode == "client":
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect(("127.0.0.1", 5000))
+            self.sock.setblocking(False)
+
+            print("Client connected to server")
 
     def build_tree(self):
         if self.view_root_obj != None:
@@ -83,6 +103,11 @@ class CMainView:
                     print(folder.guid)
                     if folder.selected == 0:
                         folder.selected = 1
+                        msg = f"{folder.guid}, select"
+                        if self.mode == "server" and self.conn:
+                            self.conn.sendall(msg.encode())
+                        elif self.mode == "client":
+                            self.sock.sendall(msg.encode())
                     else:
                         folder.selected = 0
                 else:
@@ -162,6 +187,24 @@ class CMainView:
         """Main application loop."""
         running = True
         while running:
+            try:
+                if self.mode == "server":
+                    if self.conn is None:
+                        self.conn, addr = self.sock.accept()
+                        self.conn.setblocking(False)
+                        print("Client connected:", addr)
+                    else:
+                        data = self.conn.recv(self.buffer_size)
+                        if data:
+                            print(data.decode())
+
+                elif self.mode == "client":
+                    data = self.sock.recv(self.buffer_size)
+                    if data:
+                        print(data.decode())
+
+            except BlockingIOError:
+                pass
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -180,7 +223,21 @@ class CMainView:
         pygame.quit()
         sys.exit()
 
+    
 
 if __name__ == "__main__":
-    app = CMainView()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--mode",
+        choices=["server", "client"],
+        required=True,
+        help="Run as socket server or client"
+    )
+    
+    args = parser.parse_args()
+    
+    app = CMainView(mode_p=args.mode)
+    
+        
     app.run()
