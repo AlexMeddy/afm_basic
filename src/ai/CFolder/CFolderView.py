@@ -83,6 +83,14 @@ class CFolderView:
                 if found_folder:
                     break
         return found_folder
+        
+    def find_list_by_selection_tree(self, found_folders_p):
+        found_folders = found_folders_p
+        if self.selected == 1:
+            found_folders.append(self)
+        for child in self.children_list:
+            found_folders = child.find_list_by_selection_tree(found_folders)
+        return found_folders
 
     def CALC_p_w(self, scale_p):
         self.p_w = self.w * scale_p

@@ -54,14 +54,14 @@ class CMainView:
         self.mode = mode_p
         if self.mode == "server":
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.bind(("0.0.0.0", 5000))
+            self.sock.bind(("10.89.61.71", 5000))
             self.sock.listen(1)
             self.sock.setblocking(False)            
             print("Server started")
             
         if self.mode == "client":
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.connect(("127.0.0.1", 5000))
+            self.sock.connect(("10.89.61.71", 5000))
             self.sock.setblocking(False)
 
             print("Client connected to server")
@@ -98,6 +98,11 @@ class CMainView:
             folder = self.view_root_obj.find_by_guid_tree(guid)
             if folder and action == "select":
                 folder.selected = 1
+            elif action == "move" and len(parts) == 4:
+                x = int(parts[2])
+                y = int(parts[3])
+                folder.p_x += x
+                folder.p_y += y
         
     def handle_event(self, event):
         def handle_collision2():
@@ -113,9 +118,9 @@ class CMainView:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 folder = self.view_root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
                 if folder:
-                    print(folder.guid)
                     if folder.selected == 0:
                         folder.selected = 1
+                        #print("select ",folder.guid)
                         msg = f"{folder.guid},select"
                         if self.mode == "server" and self.conn:
                             self.conn.sendall(msg.encode())
@@ -134,35 +139,67 @@ class CMainView:
                 
         def handle_collision5():    
             if self.view_root_obj != None:
-                folder = self.view_root_obj.find_by_selection_tree()
-                if folder != None:
-                    print("---------", folder.guid)
-                if folder.p_x != 0:                   
-                    folder.p_x -= 3
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    print("----------", folder.guid)
+                    if folder.p_x != self.height:                   
+                        folder.p_x -= 3 #move local
+                        msg = f"{folder.guid},move,-3,0\n"
+                        if self.mode == "server" and self.conn:
+                            print(msg)
+                            self.conn.sendall(msg.encode())
+                        elif self.mode == "client":
+                            print(msg)
+                            self.sock.sendall(msg.encode())
                     
         def handle_collision6():    
             if self.view_root_obj != None:
-                folder = self.view_root_obj.find_by_selection_tree()
-                if folder != None:
-                    print("---------", folder.guid)
-                if folder.p_x != self.width:                   
-                    folder.p_x += 3
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    print("----------", folder.guid)
+                    if folder.p_x != self.height:                   
+                        folder.p_x += 3 #move local
+                        msg = f"{folder.guid},move,3,0\n"
+                        if self.mode == "server" and self.conn:
+                            print(msg)
+                            self.conn.sendall(msg.encode())
+                        elif self.mode == "client":
+                            print(msg)
+                            self.sock.sendall(msg.encode())
                     
         def handle_collision7():    
             if self.view_root_obj != None:
-                folder = self.view_root_obj.find_by_selection_tree()
-                if folder != None:
-                    print("---------", folder.guid)
-                if folder.p_y != self.height:                   
-                    folder.p_y += 3
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    print("----------", folder.guid)
+                    if folder.p_y != self.height:                   
+                        folder.p_y += 3 #move local
+                        msg = f"{folder.guid},move,0,3\n"
+                        if self.mode == "server" and self.conn:
+                            print(msg)
+                            self.conn.sendall(msg.encode())
+                        elif self.mode == "client":
+                            print(msg)
+                            self.sock.sendall(msg.encode())
                     
         def handle_collision8():    
             if self.view_root_obj != None:
-                folder = self.view_root_obj.find_by_selection_tree()
-                if folder != None:
-                    print("---------", folder.guid)
-                if folder.p_y != self.height:                   
-                    folder.p_y -= 3
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    print("----------", folder.guid)
+                    if folder.p_y != self.height:                   
+                        folder.p_y -= 3 #move local
+                        msg = f"{folder.guid},move,0,-3\n"
+                        if self.mode == "server" and self.conn:
+                            print(msg)
+                            self.conn.sendall(msg.encode())
+                        elif self.mode == "client":
+                            print(msg)
+                            self.sock.sendall(msg.encode())
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
@@ -209,14 +246,24 @@ class CMainView:
                     else:
                         data = self.conn.recv(self.buffer_size)
                         if data:
-                            msg = data.decode()
-                            self.handle_network_message(msg)
+                            raw_msg = data.decode()
+                            print(f"start---------raw msg: {raw_msg}--------end")
+                            message_list = raw_msg.split("\n")
+                            for msg in message_list:
+                                print("new msg: ", msg)
+                                if msg != "":
+                                    self.handle_network_message(msg)
 
                 elif self.mode == "client":
                     data = self.sock.recv(self.buffer_size)
                     if data:
-                        msg = data.decode()
-                        self.handle_network_message(msg)
+                        raw_msg = data.decode()
+                        print(f"start---------raw msg: {raw_msg}--------end")
+                        message_list = raw_msg.split("\n")
+                        for msg in message_list:
+                            print("new msg: ", msg)
+                            if msg != "":
+                                self.handle_network_message(msg)
             except BlockingIOError:
                 pass
             for event in pygame.event.get():
