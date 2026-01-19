@@ -73,21 +73,25 @@ class CFolderView:
                     break
         return result
 
-    def find_by_selection_tree(self):
+    def find_by_selection(self):
         found_folder = None
         if self.selected == 1:
             found_folder = self
-        else:
-            for child in self.children_list:
-                found_folder = child.find_by_selection_tree()
-                if found_folder:
-                    break
         return found_folder
         
-    def find_list_by_selection_tree(self, found_folders_p):
+    def find_list_by_selection_treev2(self, found_folders_p):
         found_folders = found_folders_p
         if self.selected == 1:
             found_folders.append(self)
+        for child in self.children_list:
+            found_folders = child.find_list_by_selection_tree(found_folders)
+        return found_folders
+        
+    def find_list_by_selection_tree(self, found_folders_p):
+        found_folders = found_folders_p
+        folder = self.find_by_selection()
+        if folder != None:
+            found_folders.append(folder)
         for child in self.children_list:
             found_folders = child.find_list_by_selection_tree(found_folders)
         return found_folders
