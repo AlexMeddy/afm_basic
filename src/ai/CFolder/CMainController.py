@@ -1,17 +1,17 @@
-import pygame
 import sys
 import argparse
 import socket
 from CFolderView import CFolderView
 from CFolderModel import CFolderModel
 from CController import CController
+from CWindow import CWindow
+import pygame
 
 class CMainController:
-    def __init__(self, mode_p, width=800, height=600):
+    def __init__(self, mode_p):
         pygame.init()
-        self.width = width
-        self.height = height
-        self.screen = pygame.display.set_mode((width, height))
+        self.window = CWindow(width=800, height=600)
+        self.screen = pygame.display.set_mode((self.window.width, self.window.height))
         pygame.display.set_caption("CMainController Example")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
@@ -30,9 +30,9 @@ class CMainController:
         self.view_root_obj.calc_x_tree()
         self.view_root_obj.calc_y_tree()
         longest_x = self.view_root_obj.find_longest_width_x_tree(0)
-        available_screen_width = self.view_root_obj.find_available_screen_width(self.width)
+        available_screen_width = self.view_root_obj.find_available_screen_width(window.width)
         longest_y = self.view_root_obj.find_longest_width_y_tree(0)
-        available_screen_height = self.view_root_obj.find_available_screen_height(self.height)
+        available_screen_height = self.view_root_obj.find_available_screen_height(window.height)
         scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
         scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
         self.view_root_obj.CALC_p_w_TREE(scale_x)
@@ -43,7 +43,7 @@ class CMainController:
         self.rect_width = 50
         self.rect_height = 50
         self.rect_x = 10
-        self.rect_y = self.height - 60
+        self.rect_y = self.window.height - 60
         self.toggle_activate_lines = 0
         print('----------------print tree after calculation-----------------')
         if self.view_root_obj != None:
@@ -77,9 +77,9 @@ class CMainController:
         self.view_root_obj.calc_x_tree()
         self.view_root_obj.calc_y_tree()
         longest_x = self.view_root_obj.find_longest_width_x_tree(0)
-        available_screen_width = self.view_root_obj.find_available_screen_width(self.width)
+        available_screen_width = self.view_root_obj.find_available_screen_width(self.window.width)
         longest_y = self.view_root_obj.find_longest_width_y_tree(0)
-        available_screen_height = self.view_root_obj.find_available_screen_height(self.height)
+        available_screen_height = self.view_root_obj.find_available_screen_height(self.window.height)
         scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
         scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
         self.view_root_obj.CALC_p_w_TREE(scale_x)
@@ -135,18 +135,18 @@ class CMainController:
                     print('folder not found')
         def handle_collision4():
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            button_pressed = self.find_by_mouse_pos_line_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
+            button_pressed = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
             if button_pressed == 1:
                 self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
                 self.build_tree()
            
         def handle_collision9():
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.toggle_activate_lines = self.find_by_mouse_pos_line_button(mouse_x, mouse_y, self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height)
-            if self.toggle_activate_lines == 0:                
-                self.toggle_activate_lines = 1
+            self.window.toggle_activate_lines = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height)
+            if self.window.toggle_activate_lines == 0:                
+                self.window.toggle_activate_lines = 1
             else:
-                self.toggle_activate_lines = 0
+                self.window.toggle_activate_lines = 0
                 
         def handle_collision5():    
             if self.view_root_obj != None:
@@ -154,7 +154,7 @@ class CMainController:
                 folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
                 for folder in folders_list:
                     print("----------", folder.guid)
-                    if folder.p_x != self.height:                   
+                    if folder.p_x != self.window.height:                   
                         folder.p_x -= 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
                         if self.mode == "server" and self.conn:
@@ -170,7 +170,7 @@ class CMainController:
                 folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
                 for folder in folders_list:
                     print("----------", folder.guid)
-                    if folder.p_x != self.height:                   
+                    if folder.p_x != self.window.height:                   
                         folder.p_x += 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
                         if self.mode == "server" and self.conn:
@@ -186,7 +186,7 @@ class CMainController:
                 folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
                 for folder in folders_list:
                     print("----------", folder.guid)
-                    if folder.p_y != self.height:                   
+                    if folder.p_y != self.window.height:                   
                         folder.p_y += 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
                         if self.mode == "server" and self.conn:
@@ -202,7 +202,7 @@ class CMainController:
                 folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
                 for folder in folders_list:
                     print("----------", folder.guid)
-                    if folder.p_y != self.height:                   
+                    if folder.p_y != self.window.height:                   
                         folder.p_y -= 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
                         if self.mode == "server" and self.conn:
@@ -227,33 +227,6 @@ class CMainController:
             if event.key == pygame.K_LEFT:
                 handle_collision5()
 
-    def draw_mouse_coordinates(self):
-        """Draws mouse coordinates in the top-right corner."""
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        coord_text = f"({mouse_x}, {mouse_y})"
-        text_surface = self.font.render(coord_text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(topright=(self.width - 10, 10))
-        self.screen.blit(text_surface, text_rect)
-
-    def draw_button(self, rect_x, rect_y, rect_width, rect_height):
-        pygame.draw.rect(self.screen, (0, 0, 255), (rect_x, rect_y, rect_width, rect_height), 0)
-        
-    def find_by_mouse_pos_button(self, mx, my, bx, by, bw, bh):
-        button_pressed = 0
-        if mx >= bx and mx <= (bx + bw) and my >= by and my <= (by + bh):#found
-            button_pressed = 1            
-        return button_pressed
-        
-    def draw_line_button(self, rect_x, rect_y, rect_width, rect_height):
-        pygame.draw.rect(self.screen, (0, 255, 0), (rect_x, rect_y, rect_width, rect_height), 0)
-        
-    def find_by_mouse_pos_line_button(self, mx, my, bx, by, bw, bh):
-        button_pressed = 0
-        if mx >= bx and mx <= (bx + bw) and my >= by and my <= (by + bh):#found
-            if self.toggle_activate_lines == 1:
-                button_pressed = 1
-            print("button pressed")
-        return button_pressed
 
     def run(self):
         """Main application loop."""
@@ -294,12 +267,12 @@ class CMainController:
                 self.handle_event(event)
 
             self.screen.fill((0, 0, 0))  # Clear screen
-            self.draw_mouse_coordinates()
-            self.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height)
-            self.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height)
+            self.window.draw_mouse_coordinates(pygame)
+            self.window.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height, pygame)
+            self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
             if self.view_root_obj != None:
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
-                if self.toggle_activate_lines == 1:
+                if self.window.toggle_activate_lines == 1:
                     self.view_root_obj.draw_line_tree(self.screen, pygame)
                 self.view_root_obj.draw_guid_tree(self.screen, self.font)
             pygame.display.flip()
