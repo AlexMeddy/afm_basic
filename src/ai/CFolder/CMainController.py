@@ -131,7 +131,7 @@ class CMainController:
                     print(folder.guid)
                 else:
                     print('folder not found')
-        def handle_collision3():
+        def select():
             if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 folder = self.view_root_obj.find_by_mouse_pos_tree(mx=mouse_x, my=mouse_y)
@@ -144,14 +144,14 @@ class CMainController:
                         self.broadcast(msg)
                     elif self.mode == "client":
                         self.my_socket.server_conn.sendall(msg.encode())
-        def handle_collision4():
+        def initiate_tree():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             button_pressed = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
             if button_pressed == 1:
                 self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
                 self.build_tree()
            
-        def handle_collision9():
+        def toggle_lines():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.window.toggle_activate_lines = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height)
             if self.window.toggle_activate_lines == 0:                
@@ -218,21 +218,39 @@ class CMainController:
                         elif self.mode == "client":
                             print(msg)
                             self.my_socket.server_conn.sendall(msg.encode())
+                            
+        def move(vertical_direction_p, horizontal_direction_p):    
+            if self.view_root_obj != None:
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    print("----------", folder.guid)
+                    if folder.p_y != self.window.height:       
+                        folder.p_y = folder.p_y + vertical_direction_p #move local
+                    if folder.p_x != self.window.width:                       
+                        folder.p_x = folder.p_x + horizontal_direction_p #move local
+                    msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
+                    if self.mode == "server":
+                        self.broadcast(msg)
+                    elif self.mode == "client":
+                        print(msg)
+                        self.my_socket.server_conn.sendall(msg.encode())
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
-            handle_collision3()
-            handle_collision4()
-            handle_collision9()
+            select()
+            initiate_tree()
+            toggle_lines()
         if event.type == pygame.KEYDOWN:
+            speed = 5
             if event.key == pygame.K_UP:
-                handle_collision8()
+                move(vertical_direction_p = speed *(-1), horizontal_direction_p = 0)
             if event.key == pygame.K_DOWN:
-                handle_collision7()
+                move(vertical_direction_p = speed *(1), horizontal_direction_p = 0)
             if event.key == pygame.K_RIGHT:
-                handle_collision6()
+                move(vertical_direction_p = 0, horizontal_direction_p = speed *(1))
             if event.key == pygame.K_LEFT:
-                handle_collision5()
+                move(vertical_direction_p = 0, horizontal_direction_p = speed *(-1))
 
 
     def run(self):
