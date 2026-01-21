@@ -5,12 +5,15 @@ from CFolderView import CFolderView
 from CFolderModel import CFolderModel
 from CController import CController
 from CWindow import CWindow
+from CSocket import CSocket
 import pygame
+import socket
 
 class CMainController:
     def __init__(self, mode_p):
         pygame.init()
         self.window = CWindow(width=800, height=600)
+        self.my_socket = CSocket()
         self.screen = pygame.display.set_mode((self.window.width, self.window.height))
         pygame.display.set_caption("CMainController Example")
         self.clock = pygame.time.Clock()
@@ -48,22 +51,20 @@ class CMainController:
         print('----------------print tree after calculation-----------------')
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
-        self.sock = None
-        self.conn = None   
         self.buffer_size = 1024
 
         self.mode = mode_p
         if self.mode == "server":
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.bind(("0.0.0.0", 2012))
-            self.sock.listen(1)
-            self.sock.setblocking(False)            
+            self.my_socket.server_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.my_socket.server_conn.bind(("0.0.0.0", 2012))
+            self.my_socket.server_conn.listen()
+            self.my_socket.server_conn.setblocking(False)            
             print("Server started")
             
         if self.mode == "client":
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.connect(("10.89.61.71", 2012))
-            self.sock.setblocking(False)
+            self.my_socket.server_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.my_socket.server_conn.connect(("10.89.61.71", 2012))
+            self.my_socket.server_conn.setblocking(False)
 
             print("Client connected to server")
 
@@ -90,22 +91,36 @@ class CMainController:
     def handle_network_message(self, msg_p):
         parts = msg_p.split(",")
         if len(parts) < 2:
-            print("Invalid message:", msg_p)
-            
+            return
+
         guid = parts[0].strip()
         action = parts[1].strip()
-        print(f"Received: guid: {guid}, action: {action}")
-        if self.view_root_obj:
-            folder = self.view_root_obj.find_by_guid_tree(guid)
-            if folder and action == "select":
-                folder.selected = 1
-            elif action == "move" and len(parts) == 4:
-                print(msg_p)
-                x = int(parts[2])
-                y = int(parts[3])
-                print("------------------------", x)
-                folder.p_x = x
-                folder.p_y = y
+
+        if not self.view_root_obj:
+            return
+
+        folder = self.view_root_obj.find_by_guid_tree(guid)
+        if not folder:
+            return
+
+        if action == "select":
+            folder.selected = 1
+
+        elif action == "deselect":
+            folder.selected = 0
+
+        elif action == "move" and len(parts) == 4:
+            folder.p_x = int(parts[2])
+            folder.p_y = int(parts[3])
+                
+    def broadcast(self, msg, sender=None):
+        for client in self.my_socket.clients:
+            if client != sender:
+                try:
+                    client.sendall(msg.encode())
+                except:
+                    client.close()
+                    self.my_socket.clients.remove(client)
         
     def handle_event(self, event):
         def handle_collision2():
@@ -119,20 +134,16 @@ class CMainController:
         def handle_collision3():
             if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.view_root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
+                folder = self.view_root_obj.find_by_mouse_pos_tree(mx=mouse_x, my=mouse_y)
                 if folder:
-                    if folder.selected == 0:
-                        folder.selected = 1
-                        #print("select ",folder.guid)
-                        msg = f"{folder.guid},select"
-                        if self.mode == "server" and self.conn:
-                            self.conn.sendall(msg.encode())
-                        elif self.mode == "client":
-                            self.sock.sendall(msg.encode())
-                    else:
-                        folder.selected = 0
-                else:
-                    print('folder not found')
+                    folder.selected = 0 if folder.selected else 1
+                    action = "select" if folder.selected else "deselect"
+                    msg = f"{folder.guid},{action}\n"
+
+                    if self.mode == "server":
+                        self.broadcast(msg)
+                    elif self.mode == "client":
+                        self.my_socket.server_conn.sendall(msg.encode())
         def handle_collision4():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             button_pressed = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
@@ -157,12 +168,11 @@ class CMainController:
                     if folder.p_x != self.window.height:                   
                         folder.p_x -= 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server" and self.conn:
-                            print(msg)
-                            self.conn.sendall(msg.encode())
+                        if self.mode == "server":
+                            self.broadcast(msg)
                         elif self.mode == "client":
                             print(msg)
-                            self.sock.sendall(msg.encode())
+                            self.my_socket.server_conn.sendall(msg.encode())
                     
         def handle_collision6():    
             if self.view_root_obj != None:
@@ -173,12 +183,11 @@ class CMainController:
                     if folder.p_x != self.window.height:                   
                         folder.p_x += 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server" and self.conn:
-                            print(msg)
-                            self.conn.sendall(msg.encode())
+                        if self.mode == "server":
+                            self.broadcast(msg)
                         elif self.mode == "client":
                             print(msg)
-                            self.sock.sendall(msg.encode())
+                            self.my_socket.server_conn.sendall(msg.encode())
                     
         def handle_collision7():    
             if self.view_root_obj != None:
@@ -189,12 +198,11 @@ class CMainController:
                     if folder.p_y != self.window.height:                   
                         folder.p_y += 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server" and self.conn:
-                            print(msg)
-                            self.conn.sendall(msg.encode())
+                        if self.mode == "server":
+                            self.broadcast(msg)
                         elif self.mode == "client":
                             print(msg)
-                            self.sock.sendall(msg.encode())
+                            self.my_socket.server_conn.sendall(msg.encode())
                     
         def handle_collision8():    
             if self.view_root_obj != None:
@@ -205,12 +213,11 @@ class CMainController:
                     if folder.p_y != self.window.height:                   
                         folder.p_y -= 3 #move local
                         msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server" and self.conn:
-                            print(msg)
-                            self.conn.sendall(msg.encode())
+                        if self.mode == "server":
+                            self.broadcast(msg)
                         elif self.mode == "client":
                             print(msg)
-                            self.sock.sendall(msg.encode())
+                            self.my_socket.server_conn.sendall(msg.encode())
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Toggle active state if clicked inside the input box
@@ -234,23 +241,32 @@ class CMainController:
         while running:
             try:
                 if self.mode == "server":
-                    if self.conn is None:
-                        self.conn, addr = self.sock.accept()
-                        self.conn.setblocking(False)
+                    try:
+                        conn, addr = self.my_socket.server_conn.accept()
+                        conn.setblocking(False)
+                        self.my_socket.clients.append(conn)
                         print("Client connected:", addr)
-                    else:
-                        data = self.conn.recv(self.buffer_size)
-                        if data:
-                            raw_msg = data.decode()
-                            print(f"start---------raw msg: {raw_msg}--------end")
-                            message_list = raw_msg.split("\n")
-                            for msg in message_list:
-                                print("new msg: ", msg)
-                                if msg != "":
-                                    self.handle_network_message(msg)
+                    except BlockingIOError:
+                        pass
+
+                    for conn in self.my_socket.clients[:]:
+                        try:
+                            data = conn.recv(self.buffer_size)
+                            if data:
+                                raw_msg = data.decode()
+                                message_list = raw_msg.split("\n")
+                                for msg in message_list:
+                                    if msg:
+                                        self.handle_network_message(msg)
+                                        self.broadcast(msg + "\n", sender=conn)
+                        except BlockingIOError:
+                            pass
+                        except ConnectionResetError:
+                            self.my_socket.clients.remove(conn)
+                            conn.close()
 
                 elif self.mode == "client":
-                    data = self.sock.recv(self.buffer_size)
+                    data = self.my_socket.server_conn.recv(self.buffer_size)
                     if data:
                         raw_msg = data.decode()
                         print(f"start---------raw msg: {raw_msg}--------end")
