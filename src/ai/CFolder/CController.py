@@ -1,5 +1,5 @@
 from CFolderModel import CFolderModel
-from CFolderView import CFolderView
+from CTreeView import CTreeView
 
 class CController:
     def __init__(self):

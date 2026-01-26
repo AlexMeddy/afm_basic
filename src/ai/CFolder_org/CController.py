@@ -78,7 +78,7 @@ class CController:
         return view_list_global_p
         
     @staticmethod
-    def map_from_model_tree_to_view_tree(model_p, view_list_global_p):
+    def map_from_model_tree_to_view_tree(model_p, view_list_global_p):#tree to list
         view_list_global = view_list_global_p
         view_list_global = CController.map_from_model_tree_to_view(view_list_global, model_p)
         for child in model_p.children_list:
@@ -101,7 +101,7 @@ class CController:
         return level
 
     @staticmethod
-    def map_from_view_to_model(model_obj_p):
+    def map_from_view_to_model(model_obj_p): #linear to tree
         model_obj = model_obj_p
         if model_obj == None:
             model_obj = CFolderModel("root", None)
@@ -146,7 +146,7 @@ class CController:
         return model_root
         
     @staticmethod
-    def map_from_view_to_model_linearv2(linear_list_p):
+    def map_from_view_to_model_linearv2(linear_list_p): #list to tree
         model_root = None
         for child in linear_list_p: #go through the list
             if child.parent == None:

@@ -1,9 +1,9 @@
 import sys
 import argparse
 import socket
-from CFolderView import CFolderView
+from CTreeView import CTreeView
 from CFolderModel import CFolderModel
-from CController import CController
+#from CController import CController
 from CWindow import CWindow
 from CSocket import CSocket
 import pygame
@@ -18,31 +18,14 @@ class CMainController:
         pygame.display.set_caption("CMainController Example")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
-        #self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
-        #self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
-        #self.view_root_obj = CController.map_from_model_to_view_tree(self.model_root_obj, None) #use CController.map_from_model_to_view_tree()
-        print('----------------print tree before calculation-----------------')
         self.view_root_obj = None
-        '''
+        self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
+        
+        self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None) #use CMainController.map_from_model_to_view_tree()
         if self.view_root_obj != None:
-            self.view_root_obj.print_tree()
-        self.view_root_obj.CALC_ps_TREE()
-        self.view_root_obj.CALC_cousin_TREE()
-        self.view_root_obj.CALC_space_x_TREE()
-        self.view_root_obj.CALC_space_y_TREE()
-        self.view_root_obj.calc_x_tree()
-        self.view_root_obj.calc_y_tree()
-        longest_x = self.view_root_obj.find_longest_width_x_tree(0)
-        available_screen_width = self.view_root_obj.find_available_screen_width(window.width)
-        longest_y = self.view_root_obj.find_longest_width_y_tree(0)
-        available_screen_height = self.view_root_obj.find_available_screen_height(window.height)
-        scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
-        scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
-        self.view_root_obj.CALC_p_w_TREE(scale_x)
-        self.view_root_obj.CALC_p_h_TREE(scale_y)
-        self.view_root_obj.CALC_p_x_TREE(scale_x)
-        self.view_root_obj.CALC_p_y_TREE(scale_y)
-        '''
+            self.align_tree_view()
+
+        print('----------------print tree before calculation-----------------')
         self.rect_width = 50
         self.rect_height = 50
         self.rect_x = 10
@@ -67,8 +50,27 @@ class CMainController:
             self.my_socket.server_conn.setblocking(False)
 
             print("Client connected to server")
+    
+    @staticmethod
+    def map_from_model_to_view(model_p):
+        view_obj = None
+        view_obj = CTreeView(model_p.guid, x = -1, y = -1, w = 100 * model_p.size, h = 100 * model_p.size, parent = None)
+        return view_obj
+    
+    @staticmethod
+    def map_from_model_to_view_tree(model_p, view_root_global_p):
+        view_root_global = view_root_global_p
+        if view_root_global == None: #if this tree exists
+            view_root_global = CMainController.map_from_model_to_view(model_p)
+        else:
+            view_parent = view_root_global.find_by_guid_tree(model_p.parent.guid)
+            new_view_node = CTreeView(model_p.guid, x = -1, y = -1, w = 100 * model_p.size, h = 100 * model_p.size, parent = view_parent)
+            view_parent.add_child(new_view_node)
+        for child in model_p.children_list:
+            view_root_global = CMainController.map_from_model_to_view_tree(child, view_root_global)
+        return view_root_global
 
-    def build_tree(self):
+    def align_tree_view(self):
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
         self.view_root_obj.CALC_ps_TREE()
@@ -87,6 +89,15 @@ class CMainController:
         self.view_root_obj.CALC_p_h_TREE(scale_y)
         self.view_root_obj.CALC_p_x_TREE(scale_x)
         self.view_root_obj.CALC_p_y_TREE(scale_y)
+        
+    def map_from_model_to_view_linear(self, linear_list_p): #list to tree
+        view_root = None
+        for child in linear_list_p: #go through the list
+            if child.parent == None:
+                view_root = CTreeView.tree_append(view_root, child.guid, "None")
+            else:
+                view_root = CTreeView.tree_append(view_root, child.guid, child.parent.guid)
+        return view_root
         
     def handle_network_message(self, msg_p):
         parts = msg_p.split(",")
@@ -148,8 +159,8 @@ class CMainController:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             button_pressed = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
             if button_pressed == 1:
-                self.view_root_obj = CFolderView.instantiate_from_flat_file("FolderView.txt")
-                self.build_tree()
+                self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
+                self.align_tree_view()
            
         def toggle_lines():
             mouse_x, mouse_y = pygame.mouse.get_pos()

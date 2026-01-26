@@ -1,15 +1,15 @@
 import uuid
 
 
-class CFolderView:
+class CTreeView:
     def __init__(self, guid: str = None, x: int = -1, y: int = -1, w: int = -1, h: int = -1, parent=None):
         self.guid: str = guid if guid else str(uuid.uuid4())
         self.x: int = x
         self.y: int = y
         self.w: int = w
         self.h: int = h
-        self.parent: 'CFolderView' = parent
-        self.children_list: list['CFolderView'] = []
+        self.parent: 'CTreeView' = parent
+        self.children_list: list['CTreeView'] = []
 
         # Additional positional placeholders
         self.p_x: int = -1
@@ -27,7 +27,7 @@ class CFolderView:
     # -------------------------------------------------------------------------
     # Add child to current folder
     # -------------------------------------------------------------------------
-    def add_child(self, child: 'CFolderView'):
+    def add_child(self, child: 'CTreeView'):
         """Adds a child folder to this folder."""
         child.parent = self
         self.children_list.append(child)
@@ -48,7 +48,7 @@ class CFolderView:
     # -------------------------------------------------------------------------
     # Find a folder by GUID recursively
     # -------------------------------------------------------------------------
-    def find_by_guid_tree(self, search_guid: str) -> 'CFolderView | None':
+    def find_by_guid_tree(self, search_guid: str) -> 'CTreeView | None':
         """Recursively search for a folder by its GUID."""
         if self.guid == search_guid:
             return self
@@ -315,12 +315,22 @@ class CFolderView:
         self.draw_guid(surface, font_p)
         for child in self.children_list:
             child.draw_guid_tree(surface, font_p)
-
+            
+    @staticmethod
+    def tree_append(root_p, guid_p, guid_parent_p):
+        root = root_p
+        if root == None:
+            root = CTreeView(guid = guid_p, x= -1, y = -1, w= 150, h=150, parent=None)
+        else:
+            parent = root.find_by_guid_tree(guid_parent_p)
+            new_child = CTreeView(guid = guid_p, x= -1, y = -1, w= 150, h=150, parent=parent)
+            parent.add_child(new_child)
+        return root
     # -------------------------------------------------------------------------
     # Instantiate from flat file
     # -------------------------------------------------------------------------
     @classmethod
-    def instantiate_from_flat_file(cls, filename: str) -> 'CFolderView':
+    def instantiate_from_flat_file(cls, filename: str) -> 'CTreeView':
         """
         Instantiate the folder tree from a flat CSV-like text file.
         Expected format per line:
@@ -357,7 +367,7 @@ if __name__ == "__main__":
     # Create sample file for demonstration
 
     # Instantiate from flat file
-    root_folder = CFolderView.instantiate_from_flat_file("FolderView.txt")
+    root_folder = CTreeView.instantiate_from_flat_file("TreeView.txt")
 
     print("=== Folder Structure ===")
     root_folder.print_tree()

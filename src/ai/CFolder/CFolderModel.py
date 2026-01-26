@@ -1,12 +1,13 @@
 import uuid
 from typing import List, Optional
-
+import random
 
 class CFolderModel:
     def __init__(self, guid: Optional[str] = None, parent: "CFolderModel" = None):
         self.guid: str = guid if guid else str(uuid.uuid4())
         self.parent: Optional[CFolderModel] = parent
         self.children_list: List[CFolderModel] = []
+        self.size = random.randint(1, 10)
 
     # ------------------------
     # methods
