@@ -121,6 +121,7 @@ class CFolderModel:
             for line in lines:
                 guid, parent_guid = line.split(",")
                 print(guid, parent_guid)
+                
                 '''
                 if root == None:
                     root = CFolderModel(guid = guid, parent=None)
@@ -187,5 +188,3 @@ if __name__ == "__main__":
         root.print_tree()
     else:
         print("no root")
-
-

@@ -317,13 +317,13 @@ class CTreeView:
             child.draw_guid_tree(surface, font_p)
             
     @staticmethod
-    def tree_append(root_p, guid_p, guid_parent_p):
+    def tree_append(root_p, guid_p, guid_parent_p, w_p=10, h_p=10):
         root = root_p
         if root == None:
-            root = CTreeView(guid = guid_p, x= -1, y = -1, w= 150, h=150, parent=None)
+            root = CTreeView(guid = guid_p, x= -1, y = -1, w= w_p, h=h_p, parent=None)
         else:
             parent = root.find_by_guid_tree(guid_parent_p)
-            new_child = CTreeView(guid = guid_p, x= -1, y = -1, w= 150, h=150, parent=parent)
+            new_child = CTreeView(guid = guid_p, x= -1, y = -1, w=w_p, h=h_p, parent=parent)
             parent.add_child(new_child)
         return root
     # -------------------------------------------------------------------------

@@ -1,8 +1,11 @@
 import sys
+sys.path.append("C:\\Users\\alexf\\afm_basic\\src\\ai\\CResistor")
 import argparse
 import socket
 from CTreeView import CTreeView
 from CFolderModel import CFolderModel
+from CResistorModel import CResistorModel
+from CResistorModel import CResistorModelListManager
 #from CController import CController
 from CWindow import CWindow
 from CSocket import CSocket
@@ -19,9 +22,15 @@ class CMainController:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
         self.view_root_obj = None
-        self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
-        
-        self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None) #use CMainController.map_from_model_to_view_tree()
+        self.resistor_manager = CResistorModelListManager()
+        self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
+        self.resistor_manager.print_list()
+        self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
+        self.model_root_obj = None
+        #self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt") #C:\\Users\\alexf\\afm_basic\\src\\ai\\CFolder\\CFolderModel.txt
+        if self.model_root_obj != None:
+            self.model_root_obj.print_list()
+        #self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None) #use CMainController.map_from_model_to_view_tree()
         if self.view_root_obj != None:
             self.align_tree_view()
 
@@ -90,13 +99,11 @@ class CMainController:
         self.view_root_obj.CALC_p_x_TREE(scale_x)
         self.view_root_obj.CALC_p_y_TREE(scale_y)
         
-    def map_from_model_to_view_linear(self, linear_list_p): #list to tree
+    def map_from_resistor_model_to_view_linear(self, resistor_list_p): #list to tree
         view_root = None
-        for child in linear_list_p: #go through the list
-            if child.parent == None:
-                view_root = CTreeView.tree_append(view_root, child.guid, "None")
-            else:
-                view_root = CTreeView.tree_append(view_root, child.guid, child.parent.guid)
+        view_root = CTreeView.tree_append(view_root, "d_root", "None")
+        for child in resistor_list_p: #go through the list
+            view_root = CTreeView.tree_append(view_root, child.guid, view_root.guid, w_p = child.current, h_p = child.current)
         return view_root
         
     def handle_network_message(self, msg_p):
