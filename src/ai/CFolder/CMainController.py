@@ -13,7 +13,7 @@ import pygame
 import socket
 
 class CMainController:
-    def __init__(self, mode_p):
+    def __init__(self, mode_p, file_src_p):
         pygame.init()
         self.window = CWindow(width=800, height=600)
         self.my_socket = CSocket()
@@ -23,9 +23,8 @@ class CMainController:
         self.font = pygame.font.SysFont(None, 24)
         self.view_root_obj = None
         self.resistor_manager = CResistorModelListManager()
-        self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
-        self.resistor_manager.print_list()
-        self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
+        #self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
+        #self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
         self.model_root_obj = None
         #self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt") #C:\\Users\\alexf\\afm_basic\\src\\ai\\CFolder\\CFolderModel.txt
         if self.model_root_obj != None:
@@ -44,7 +43,7 @@ class CMainController:
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
         self.buffer_size = 1024
-
+        self.model_src = file_src_p
         self.mode = mode_p
         if self.mode == "server":
             self.my_socket.server_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -166,8 +165,37 @@ class CMainController:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             button_pressed = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
             if button_pressed == 1:
-                self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
+                if self.model_src == "v":
+                    self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
+                elif self.model_src == "r":
+                    self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
+                    self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
+                elif self.model_src == "m":
+                    self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
+                    self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None)
+                self.view_root_obj.calc_i_self_tree(0)
+                #self.view_root_obj.delete()
                 self.align_tree_view()
+                
+        def delete():    
+            if self.view_root_obj != None:
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    print("----------", folder.guid)
+                    if folder.parent != None:
+                        folder.delete(folder.i_self)
+                    
+                    '''
+                    if folder.p_x != self.window.height:                   
+                        folder.p_x -= 3 #move local
+                        msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
+                        if self.mode == "server":
+                            self.broadcast(msg)
+                        elif self.mode == "client":
+                            print(msg)
+                            self.my_socket.server_conn.sendall(msg.encode())
+                    '''
            
         def toggle_lines():
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -269,6 +297,9 @@ class CMainController:
                 move(vertical_direction_p = 0, horizontal_direction_p = speed *(1))
             if event.key == pygame.K_LEFT:
                 move(vertical_direction_p = 0, horizontal_direction_p = speed *(-1))
+            if event.key == pygame.K_DELETE:
+                delete()
+                
 
 
     def run(self):
@@ -346,8 +377,9 @@ if __name__ == "__main__":
     )
     
     args = parser.parse_args()
+    model_src = input("enter source flat file (r,m,v): ")
     
-    app = CMainController(mode_p=args.mode)
+    app = CMainController(mode_p=args.mode, file_src_p = model_src)
     
         
     app.run()

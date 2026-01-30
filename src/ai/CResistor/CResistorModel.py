@@ -29,6 +29,7 @@ class CResistorModelListManager:
 
     # ------------------------ instantiation ------------------------
     def instantiate_from_flat_file(self, filename: str = "ResistorModel.txt"):
+        self.resistor_list = []
         try:
             with open(filename, "r") as f:
                 lines = f.readlines()

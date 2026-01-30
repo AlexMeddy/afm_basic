@@ -23,6 +23,7 @@ class CTreeView:
         self.ps = None
         self.cousin = None
         self.selected = 0
+        self.i_self = -1
 
     # -------------------------------------------------------------------------
     # Add child to current folder
@@ -315,6 +316,19 @@ class CTreeView:
         self.draw_guid(surface, font_p)
         for child in self.children_list:
             child.draw_guid_tree(surface, font_p)
+            
+    def calc_i_self(self, i_self_p):
+        self.i_self = i_self_p
+
+    def calc_i_self_tree(self, i_self_p):
+        self.calc_i_self(i_self_p)
+        for i_child in range(len(self.children_list)):
+            self.children_list[i_child].calc_i_self_tree(i_child)
+            
+    def delete(self, index_employee_p):
+        if self.parent:
+            if self in self.parent.children_list:
+                self.parent.children_list.remove(self)
             
     @staticmethod
     def tree_append(root_p, guid_p, guid_parent_p, w_p=10, h_p=10):
