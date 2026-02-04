@@ -53,8 +53,12 @@ class CMainController:
             print("Server started")
             
         if self.mode == "client":
+            server_ip = args.ip
+            if not server_ip:
+                raise ValueError("Client requires --ip")
+
             self.my_socket.server_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.my_socket.server_conn.connect(("10.89.61.71", 2012))
+            self.my_socket.server_conn.connect((server_ip, 2012))
             self.my_socket.server_conn.setblocking(False)
 
             print("Client connected to server")
@@ -129,6 +133,9 @@ class CMainController:
         elif action == "move" and len(parts) == 4:
             folder.p_x = int(parts[2])
             folder.p_y = int(parts[3])
+        elif action == "delete":
+            folder.delete()
+            self.view_root_obj.calc_i_self_tree(0)
                 
     def broadcast(self, msg, sender=None):
         for client in self.my_socket.clients:
@@ -174,7 +181,7 @@ class CMainController:
                     self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
                     self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None)
                 self.view_root_obj.calc_i_self_tree(0)
-                #self.view_root_obj.delete()
+                self.view_root_obj.print_tree(0)
                 self.align_tree_view()
                 
         def delete():    
@@ -183,19 +190,28 @@ class CMainController:
                 folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
                 for folder in folders_list:
                     print("----------", folder.guid)
-                    if folder.parent != None:
-                        folder.delete(folder.i_self)
-                    
-                    '''
-                    if folder.p_x != self.window.height:                   
-                        folder.p_x -= 3 #move local
-                        msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server":
-                            self.broadcast(msg)
-                        elif self.mode == "client":
-                            print(msg)
-                            self.my_socket.server_conn.sendall(msg.encode())
-                    '''
+                    folder.delete()
+                    self.align_tree_view()
+                    self.view_root_obj.calc_i_self_tree(0)
+                    self.view_root_obj.print_tree(0)                    
+                    msg = f"{folder.guid},delete\n"
+                    if self.mode == "server":
+                        self.broadcast(msg)
+                    elif self.mode == "client":
+                        self.my_socket.server_conn.sendall(msg.encode())
+        
+        def add_child():    
+            count = 0
+            if self.view_root_obj != None:
+                folders_list = []
+                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+                for folder in folders_list:
+                    for child in folder.children_list:
+                        if child.guid.startswith(folder.guid):
+                            count += 1
+                    new_child = CTreeView(f"{folder.guid}{count + 1}", -1, -1, 100, 100)
+                    folder.add_child(new_child)
+                    self.align_tree_view()
            
         def toggle_lines():
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -299,6 +315,8 @@ class CMainController:
                 move(vertical_direction_p = 0, horizontal_direction_p = speed *(-1))
             if event.key == pygame.K_DELETE:
                 delete()
+            if event.key == pygame.K_a and (event.mod & pygame.KMOD_CTRL):
+                add_child()
                 
 
 
@@ -375,6 +393,7 @@ if __name__ == "__main__":
         required=True,
         help="Run as socket server or client"
     )
+    parser.add_argument("--ip", help="Server IP (client mode only)")
     
     args = parser.parse_args()
     model_src = input("enter source flat file (r,m,v): ")

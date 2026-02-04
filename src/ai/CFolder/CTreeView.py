@@ -42,7 +42,7 @@ class CTreeView:
         print(" " * indent + f"GUID: {self.guid}, Parent: {parent_guid}, \
         self.x:{self.x}, self.y:{self.y}, self.w:{self.w}, self.h:{self.h}, \
         self.p_x:{self.p_x}, self.p_y:{self.p_y},\
-        self.p_w:{self.p_w}, self.p_h:{self.p_h}, ps:({self.ps.guid if (self.ps != None)  else "None"})")
+        self.p_w:{self.p_w}, self.p_h:{self.p_h}, ps:({self.ps.guid if (self.ps != None)  else "None"}), self.i_self:{self.i_self}")
         for child in self.children_list:
             child.print_tree(indent + 4)
 
@@ -325,10 +325,11 @@ class CTreeView:
         for i_child in range(len(self.children_list)):
             self.children_list[i_child].calc_i_self_tree(i_child)
             
-    def delete(self, index_employee_p):
+    def delete(self, index_employee_p=None):
         if self.parent:
             if self in self.parent.children_list:
                 self.parent.children_list.remove(self)
+        
             
     @staticmethod
     def tree_append(root_p, guid_p, guid_parent_p, w_p=10, h_p=10):
