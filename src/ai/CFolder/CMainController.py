@@ -9,6 +9,7 @@ from CResistorModel import CResistorModelListManager
 #from CController import CController
 from CWindow import CWindow
 from CSocket import CSocket
+from CBotPlayer import CBotPlayer
 import pygame
 import socket
 
@@ -21,6 +22,8 @@ class CMainController:
         pygame.display.set_caption("CMainController Example")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
+        self.bot_player = None
+        self.bot_player = CBotPlayer("cpu1")
         self.view_root_obj = None
         self.resistor_manager = CResistorModelListManager()
         #self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
@@ -372,6 +375,7 @@ class CMainController:
             self.window.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height, pygame)
             self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
             if self.view_root_obj != None:
+                self.bot_player.play(self.view_root_obj)
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
                 if self.window.toggle_activate_lines == 1:
                     self.view_root_obj.draw_line_tree(self.screen, pygame)

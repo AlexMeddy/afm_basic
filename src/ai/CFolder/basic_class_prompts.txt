@@ -1,0 +1,14 @@
+------------------------ core class  ------------------------
+Create a python class that represents a bot called CBotPlayer
+
+
+------------------------ attributes ------------------------
+for the class CBotPlayer add the following attributes:
+-guid as a str type
+
+------------------------ methods ------------------------
+for the class CBotPlayer add the following methods:
+-play() with a parameter called root_p
+
+------------------------ instantiation ------------------------
+Add __name__ == "__main__". 
