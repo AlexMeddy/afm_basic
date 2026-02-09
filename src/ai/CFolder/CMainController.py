@@ -21,10 +21,9 @@ class CMainController:
         self.screen = pygame.display.set_mode((self.window.width, self.window.height))
         pygame.display.set_caption("CMainController Example")
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont(None, 24)
-        self.bot_player = None
-        self.bot_player = CBotPlayer("cpu1")
+        self.font = pygame.font.SysFont(None, 24)       
         self.view_root_obj = None
+        self.bot_player = None
         self.resistor_manager = CResistorModelListManager()
         #self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
         #self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
@@ -153,7 +152,7 @@ class CMainController:
         def handle_collision2():
             if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.view_root_obj.find_by_mouse_pos_tree(mx = mouse_x, my = mouse_y)
+                folder = self.view_root_obj.find_by_single_point_tree(pointer_x = mouse_x, pointer_y = mouse_y, filter_p = "")
                 if folder:
                     print(folder.guid)
                 else:
@@ -161,7 +160,7 @@ class CMainController:
         def select():
             if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.view_root_obj.find_by_mouse_pos_tree(mx=mouse_x, my=mouse_y)
+                folder = self.view_root_obj.find_by_single_point_tree(pointer_x=mouse_x, pointer_y=mouse_y, filter_p = "")
                 if folder:
                     folder.selected = 0 if folder.selected else 1
                     action = "select" if folder.selected else "deselect"
@@ -305,6 +304,9 @@ class CMainController:
             # Toggle active state if clicked inside the input box
             select()
             initiate_tree()
+            if self.view_root_obj != None:
+                ghost = self.view_root_obj.find_by_guid_tree("ghost")
+                self.bot_player = CBotPlayer(guid = "bot", ghost_p = ghost)  
             toggle_lines()
         if event.type == pygame.KEYDOWN:
             speed = 5
@@ -374,8 +376,12 @@ class CMainController:
             self.window.draw_mouse_coordinates(pygame)
             self.window.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height, pygame)
             self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
-            if self.view_root_obj != None:
-                self.bot_player.play(self.view_root_obj)
+            if self.view_root_obj != None:                               
+                colliding_node = self.view_root_obj.find_by_single_point_tree(self.bot_player.ghost.p_x+self.bot_player.ghost.p_w/2, self.bot_player.ghost.p_y+self.bot_player.ghost.p_h/2, "ghost")
+                if colliding_node != None:
+                    print("ghost collision", colliding_node.guid)
+                if self.bot_player != None:
+                    self.bot_player.play()                  
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
                 if self.window.toggle_activate_lines == 1:
                     self.view_root_obj.draw_line_tree(self.screen, pygame)
@@ -398,11 +404,15 @@ if __name__ == "__main__":
         help="Run as socket server or client"
     )
     parser.add_argument("--ip", help="Server IP (client mode only)")
-    
+    parser.add_argument(
+        "--model_src",
+        choices=["r", "m", "v"],
+        required=True,
+        help="Run as socket server or client"
+    )
     args = parser.parse_args()
-    model_src = input("enter source flat file (r,m,v): ")
     
-    app = CMainController(mode_p=args.mode, file_src_p = model_src)
+    app = CMainController(mode_p=args.mode, file_src_p=args.model_src)
     
         
     app.run()

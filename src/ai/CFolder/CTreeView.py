@@ -63,13 +63,13 @@ class CTreeView:
     # Find folder by mouse coordinates (recursive)
     # -------------------------------------------------------------------------
         
-    def find_by_mouse_pos_tree(self, mx: int, my: int):
+    def find_by_single_point_tree(self, pointer_x: int, pointer_y: int, filter_p: ""):
         result = None
-        if mx >= self.p_x and mx <= (self.p_x + self.p_w) and my >= self.p_y and my <= (self.p_y + self.p_h):#found
+        if pointer_x >= self.p_x and pointer_x <= (self.p_x + self.p_w) and pointer_y >= self.p_y and pointer_y <= (self.p_y + self.p_h) and self.guid != filter_p:#found
             result = self
         else:  #keep going
             for child in self.children_list:
-                result = child.find_by_mouse_pos_tree(mx, my)
+                result = child.find_by_single_point_tree(pointer_x, pointer_y, filter_p)
                 if result: #found
                     break
         return result
@@ -394,7 +394,7 @@ if __name__ == "__main__":
 
     print("\n=== Mouse Position Test ===")
     mx, my = 25, 25
-    hit = root_folder.find_by_mouse_pos_tree(mx, my)
+    hit = root_folder.find_by_object_x_y_tree(mx, my)
     print(f"Mouse ({mx},{my}) inside folder: {hit.guid if hit else 'None'}")
     
     print("------------------------------------------")
