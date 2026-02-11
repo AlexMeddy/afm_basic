@@ -380,6 +380,7 @@ class CMainController:
                 colliding_node = self.view_root_obj.find_by_single_point_tree(self.bot_player.ghost.p_x+self.bot_player.ghost.p_w/2, self.bot_player.ghost.p_y+self.bot_player.ghost.p_h/2, "ghost")
                 if colliding_node != None:
                     print("ghost collision", colliding_node.guid)
+                    colliding_node.delete()
                 if self.bot_player != None:
                     self.bot_player.play()                  
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
