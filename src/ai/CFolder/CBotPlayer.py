@@ -9,13 +9,13 @@ class CBotPlayer:
     def play(self):
         direction = random.randint(0, 3)
         if direction == 0: #up
-            self.ghost.p_y -=2
+            self.ghost.p_y -=3
         elif direction == 1: #down
-            self.ghost.p_y +=2
+            self.ghost.p_y +=3
         elif direction == 2: #left
-            self.ghost.p_x -=2
+            self.ghost.p_x -=3
         elif direction == 3: #right
-            self.ghost.p_x +=2
+            self.ghost.p_x +=3
             
     #check if colliding, move from ctv
     

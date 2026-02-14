@@ -1,0 +1,10 @@
+Program Files,None
+Adobe,Program Files
+Adobe Creative Cloud,Adobe
+ACC,Adobe Creative Cloud
+resources,ACC
+fonts,resources
+legacy,resources
+container,legacy
+core,legacy
+coreExtensions,legacy

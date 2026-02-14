@@ -1,17 +1,43 @@
 import uuid
 from typing import List, Optional
 import random
+import os
 
 class CFolderModel:
-    def __init__(self, guid: Optional[str] = None, parent: "CFolderModel" = None):
+    def __init__(self, guid: Optional[str] = None, parent: "CFolderModel" = None, size_p = -1):
         self.guid: str = guid if guid else str(uuid.uuid4())
         self.parent: Optional[CFolderModel] = parent
         self.children_list: List[CFolderModel] = []
-        self.size = random.randint(1, 10)
+        self.size = size_p #random.randint(1, 10)
 
     # ------------------------
     # methods
     # ------------------------
+
+    @classmethod
+    def instantiate_from_filesystem(cls, root_path, parent=None, depth=0, max_depth=2):
+        name = os.path.basename(root_path)
+        node = cls(guid=name if name else root_path, parent=parent)
+        if depth >= max_depth:
+            return node
+        try:
+            folder_count = 0
+
+            for entry in os.listdir(root_path):
+                if folder_count >= 2:
+                    break  # ONLY take 2 folders
+
+                full_path = os.path.join(root_path, entry)
+
+                if os.path.isdir(full_path):
+                    child = cls.instantiate_from_filesystem(full_path,parent=node,depth=depth + 1,max_depth=max_depth)
+                    node.add_child(child)
+                    folder_count += 1
+
+        except PermissionError:
+            pass
+
+        return node
 
     def calc_number_of_folders(self) -> int:
         """
@@ -33,7 +59,7 @@ class CFolderModel:
         """
         indent = "    " * level
         parent_guid = self.parent.guid if self.parent else "None"
-        print(f"{indent}- Folder GUID: {self.guid} (Parent: {parent_guid})")
+        print(f"{indent}- Folder GUID: {self.guid} (Parent: {parent_guid}) (size: {self.size})")
         for child in self.children_list:
             child.print_tree(level + 1)
 
@@ -119,8 +145,8 @@ class CFolderModel:
         with open(filename, "r") as f:
             lines = f.read().strip().splitlines()
             for line in lines:
-                guid, parent_guid = line.split(",")
-                print(guid, parent_guid)
+                guid, parent_guid, size = line.split(",")
+                size = int(size)
                 
                 '''
                 if root == None:
@@ -130,7 +156,7 @@ class CFolderModel:
                     new_child = CFolderModel(guid = guid, parent=parent)
                     parent.add_child(new_child)
                 '''
-                root = CFolderModel.tree_append(root_p=root, guid_p=guid, guid_parent_p=parent_guid)
+                root = CFolderModel.tree_append(root_p=root, guid_p=guid, guid_parent_p=parent_guid, size_p=size)
         return root
         
     @staticmethod   
@@ -153,13 +179,13 @@ class CFolderModel:
         return obj1
         
     @staticmethod   
-    def tree_append(root_p, guid_p, guid_parent_p):
+    def tree_append(root_p, guid_p, guid_parent_p, size_p):
         root = root_p
-        if root == None:
-            root = CFolderModel(guid = guid_p, parent=None)
-        else:
+        if root == None: #if tree doesnt exist then create it
+            root = CFolderModel(guid = guid_p, parent=None, size_p = size_p)
+        else: # if tree already exists then add to it
             parent = root.find_by_guid_tree(guid_parent_p)
-            new_child = CFolderModel(guid = guid_p, parent=parent)
+            new_child = CFolderModel(guid = guid_p, parent=parent, size_p=size_p)
             parent.add_child(new_child)
         return root
         
