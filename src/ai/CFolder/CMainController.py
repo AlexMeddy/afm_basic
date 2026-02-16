@@ -309,12 +309,12 @@ class CMainController:
             # Toggle active state if clicked inside the input box
             select()
             initiate_tree()
-            if self.view_root_obj != None:
+            if self.mode == "server" and self.view_root_obj != None:
                 ghost = self.view_root_obj.find_by_guid_tree("ghost")
                 self.bot_player = CBotPlayer(guid = "bot", ghost_p = ghost)  
             toggle_lines()
         if event.type == pygame.KEYDOWN:
-            speed = 5
+            speed = 9
             if event.key == pygame.K_UP:
                 move(vertical_direction_p = speed *(-1), horizontal_direction_p = 0)
             if event.key == pygame.K_DOWN:
@@ -382,13 +382,17 @@ class CMainController:
             self.window.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height, pygame)
             self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
             if self.view_root_obj != None:
-                if self.model_src == "g" and self.bot_player.ghost != None:
-                    colliding_node = self.view_root_obj.find_by_single_point_tree(self.bot_player.ghost.p_x+self.bot_player.ghost.p_w/2, self.bot_player.ghost.p_y+self.bot_player.ghost.p_h/2, "ghost")
-                    if colliding_node != None:
-                        print("ghost collision", colliding_node.guid)
-                        colliding_node.delete()
-                    if self.bot_player != None:
-                        self.bot_player.play()    
+                if self.mode == "server" and self.model_src == "g" and self.bot_player.ghost != None:
+                    if self.mode == "server" and self.bot_player != None:
+                        colliding_node = self.bot_player.play(self.view_root_obj)
+                        ghost = self.bot_player.ghost
+                        msg = f"{ghost.guid},move,{int(ghost.p_x)},{int(ghost.p_y)}\n"
+                        self.broadcast(msg)
+                        if colliding_node:
+                            print("ghost collision", colliding_node.guid)
+                            colliding_node.delete()
+                            msg = f"{colliding_node.guid},delete\n"
+                            self.broadcast(msg)
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
                 if self.window.toggle_activate_lines == 1:
                     self.view_root_obj.draw_line_tree(self.screen, pygame)
