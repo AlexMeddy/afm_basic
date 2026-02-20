@@ -74,6 +74,7 @@ class CFolderModel:
             if found:
                 return found
         return None
+        
 
     # ------------------------
     # instantiation
@@ -142,6 +143,9 @@ class CFolderModel:
     @staticmethod
     def my_instantiate_from_flat_file(filename):
         root = None
+        if not os.path.exists(filename):
+            print(f"Error: File '{filename}' does not exist.")
+            return root
         with open(filename, "r") as f:
             lines = f.read().strip().splitlines()
             for line in lines:

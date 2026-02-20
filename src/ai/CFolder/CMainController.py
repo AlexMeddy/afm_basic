@@ -65,10 +65,23 @@ class CMainController:
 
             print("Client connected to server")
     
+    def is_game_finished(self):
+        if self.view_root_obj is None:
+            return False
+        nodes = []
+        nodes = self.view_root_obj.collect_all_nodes_tree(nodes)
+        for node in nodes:
+            guid_value = node.guid
+            if guid_value != "root":
+                if guid_value != "ghost":
+                    return False
+        return True
+    
     @staticmethod
     def map_from_model_to_view(model_p):
         view_obj = None
-        view_obj = CTreeView(model_p.guid, x = -1, y = -1, w = 100 * model_p.size, h = 100 * model_p.size, parent = None)
+        view_obj = CTreeView(model_p.guid, x = -1, y = -1, w = 100, h = 100, parent = None)
+        view_obj.model_size = model_p.size
         return view_obj
     
     @staticmethod
@@ -78,7 +91,8 @@ class CMainController:
             view_root_global = CMainController.map_from_model_to_view(model_p)
         else:
             view_parent = view_root_global.find_by_guid_tree(model_p.parent.guid)
-            new_view_node = CTreeView(model_p.guid, x = -1, y = -1, w = 100 * model_p.size, h = 100 * model_p.size, parent = view_parent)
+            new_view_node = CTreeView(model_p.guid, x = -1, y = -1, w = 100, h = 100, parent = view_parent)
+            new_view_node.model_size = model_p.size
             view_parent.add_child(new_view_node)
         for child in model_p.children_list:
             view_root_global = CMainController.map_from_model_to_view_tree(child, view_root_global)
@@ -87,22 +101,22 @@ class CMainController:
     def align_tree_view(self):
         if self.view_root_obj != None:
             self.view_root_obj.print_tree()
-        self.view_root_obj.CALC_ps_TREE()
-        self.view_root_obj.CALC_cousin_TREE()
-        self.view_root_obj.CALC_space_x_TREE()
-        self.view_root_obj.CALC_space_y_TREE()
-        self.view_root_obj.calc_x_tree()
-        self.view_root_obj.calc_y_tree()
-        longest_x = self.view_root_obj.find_longest_width_x_tree(0)
-        available_screen_width = self.view_root_obj.find_available_screen_width(self.window.width)
-        longest_y = self.view_root_obj.find_longest_width_y_tree(0)
-        available_screen_height = self.view_root_obj.find_available_screen_height(self.window.height)
-        scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
-        scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
-        self.view_root_obj.CALC_p_w_TREE(scale_x)
-        self.view_root_obj.CALC_p_h_TREE(scale_y)
-        self.view_root_obj.CALC_p_x_TREE(scale_x)
-        self.view_root_obj.CALC_p_y_TREE(scale_y)
+            self.view_root_obj.CALC_ps_TREE()
+            self.view_root_obj.CALC_cousin_TREE()
+            self.view_root_obj.CALC_space_x_TREE()
+            self.view_root_obj.CALC_space_y_TREE()
+            self.view_root_obj.calc_x_tree()
+            self.view_root_obj.calc_y_tree()
+            longest_x = self.view_root_obj.find_longest_width_x_tree(0)
+            available_screen_width = self.view_root_obj.find_available_screen_width(self.window.width)
+            longest_y = self.view_root_obj.find_longest_width_y_tree(0)
+            available_screen_height = self.view_root_obj.find_available_screen_height(self.window.height)
+            scale_x = self.view_root_obj.calc_scale_x(available_screen_width, longest_x)
+            scale_y = self.view_root_obj.calc_scale_y(available_screen_height, longest_y)
+            self.view_root_obj.CALC_p_w_TREE(scale_x) #when game scale is 1
+            self.view_root_obj.CALC_p_h_TREE(scale_y) #when game scale is 1
+            self.view_root_obj.CALC_p_x_TREE(scale_x)
+            self.view_root_obj.CALC_p_y_TREE(scale_y)
         
     def map_from_resistor_model_to_view_linear(self, resistor_list_p): #list to tree
         view_root = None
@@ -180,14 +194,24 @@ class CMainController:
                     self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
                     self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
                 elif self.model_src == "m":
+                    self.view_root_obj = None # force refresh
                     self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
-                    self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj,None)
+                    print(self.model_root_obj)
+                    if self.model_root_obj:
+                        self.model_root_obj.size = 10
+                        self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj,None)
+                        biggest_node = self.view_root_obj.find_by_biggest_size_tree(self.view_root_obj)
+                        biggest_node.is_biggest = 1
                 elif self.model_src == "g":
                     #self.model_root_obj = CFolderModel.instantiate_from_filesystem("C:\\Program Files",max_depth=3)
                     self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
-                self.view_root_obj.calc_i_self_tree(0)
-                self.view_root_obj.print_tree(0)
+                if self.view_root_obj:
+                    self.view_root_obj.calc_i_self_tree(0)
+                    self.view_root_obj.print_tree(0)
                 self.align_tree_view()
+                self.window.score = 0
+                self.window.score_running = True
+                self.window.last_score_time = pygame.time.get_ticks()
                 
         def delete():    
             if self.view_root_obj != None:
@@ -311,7 +335,7 @@ class CMainController:
             initiate_tree()
             if self.mode == "server" and self.view_root_obj != None:
                 ghost = self.view_root_obj.find_by_guid_tree("ghost")
-                self.bot_player = CBotPlayer(guid = "bot", ghost_p = ghost)  
+                self.bot_player = CBotPlayer(guid = "bot", ghost_p = ghost, window_width = self.window.width, window_height = self.window.height)  
             toggle_lines()
         if event.type == pygame.KEYDOWN:
             speed = 9
@@ -372,13 +396,23 @@ class CMainController:
                                 self.handle_network_message(msg)
             except BlockingIOError:
                 pass
+            if self.window.score_running:
+                if self.view_root_obj:
+                    only_root_and_ghost_left = self.view_root_obj.is_only_root_and_ghost_left_tree()
+                    if only_root_and_ghost_left == True:
+                        self.window.score_running = False
+                    else:
+                        current_time = pygame.time.get_ticks()
+                        if current_time - self.window.last_score_time >= 1000:
+                            self.window.score += 5
+                            self.window.last_score_time = current_time
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 self.handle_event(event)
 
             self.screen.fill((0, 0, 0))  # Clear screen
-            self.window.draw_mouse_coordinates(pygame)
+            #self.window.draw_mouse_coordinates(pygame)
             self.window.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height, pygame)
             self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
             if self.view_root_obj != None:
@@ -397,6 +431,9 @@ class CMainController:
                 if self.window.toggle_activate_lines == 1:
                     self.view_root_obj.draw_line_tree(self.screen, pygame)
                 self.view_root_obj.draw_guid_tree(self.screen, self.font)
+            score_text = self.font.render(f"score: {self.window.score}", True, (255, 255, 255))
+            score_rect = score_text.get_rect(topright=(self.window.width - 10, 10))
+            self.screen.blit(score_text, score_rect)
             pygame.display.flip()
             self.clock.tick(60)
 

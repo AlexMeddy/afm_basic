@@ -24,6 +24,10 @@ class CTreeView:
         self.cousin = None
         self.selected = 0
         self.i_self = -1
+        self.is_biggest = -1
+        self.model_size = -1
+        
+
 
     # -------------------------------------------------------------------------
     # Add child to current folder
@@ -73,6 +77,19 @@ class CTreeView:
                 if result: #found
                     break
         return result
+        
+    def find_by_biggest_size(self, biggest_size_so_far_p):
+        biggest_size = biggest_size_so_far_p
+        if self.model_size > biggest_size.model_size:
+            biggest_size = self
+        return biggest_size
+    
+    def find_by_biggest_size_tree(self, biggest_size_so_far_p):
+        biggest_size = biggest_size_so_far_p
+        biggest_size = self.find_by_biggest_size(biggest_size)
+        for child in self.children_list:
+            biggest_size = child.find_by_biggest_size_tree(biggest_size) 
+        return biggest_size
 
     def find_by_selection(self):
         found_folder = None
@@ -196,6 +213,22 @@ class CTreeView:
             self.x = self.cousin.x + self.cousin.w + self.space_x
         """
         
+    def collect_all_nodes_tree(self, nodes_p):
+        nodes = nodes_p
+        nodes.append(self)
+        for child in self.children_list:
+            nodes = child.collect_all_nodes_tree(nodes)
+        return nodes
+
+    def is_only_root_and_ghost_left_tree(self):
+        if self.guid != "root":
+            if self.guid != "ghost":
+                return False
+        for child in self.children_list:
+            child_result = child.is_only_root_and_ghost_left_tree()
+            if child_result == False:
+                return False
+        return True
 
         
     def calc_x_tree(self):
@@ -280,13 +313,16 @@ class CTreeView:
     def draw(self, surface, pygame_p, font_p):
         #print(self.guid, self.p_x, self.p_y)
         line_thickness = 1
+        color = (255, 255, 255)
         if self.p_x != -1 and self.p_y != -1: 
             rect = pygame_p.Rect(self.p_x, self.p_y, self.p_w, self.p_h)
             if self.selected == 0:
                 line_thickness = 1
             else: 
                 line_thickness = 3
-            pygame_p.draw.rect(surface, (255, 255, 255), rect, line_thickness)
+            if self.is_biggest == 1:
+                color = (255, 0, 0)
+            pygame_p.draw.rect(surface, color, rect, line_thickness)
 
     def draw_tree(self, surface, pygame_p, font_p):
         # Draw rectangle for this node
