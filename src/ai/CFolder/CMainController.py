@@ -34,6 +34,9 @@ class CMainController:
         #self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None) #use CMainController.map_from_model_to_view_tree()
         if self.view_root_obj != None:
             self.align_tree_view()
+        
+        self.pending_tree_data = []
+        self.waiting_for_tree = False
 
         print('----------------print tree before calculation-----------------')
         self.rect_width = 50
@@ -42,8 +45,8 @@ class CMainController:
         self.rect_y = self.window.height - 60
         self.toggle_activate_lines = 0
         print('----------------print tree after calculation-----------------')
-        if self.view_root_obj != None:
-            self.view_root_obj.print_tree()
+        #if self.view_root_obj != None:
+            #self.view_root_obj.print_tree()
         self.buffer_size = 1024
         self.model_src = file_src_p
         self.mode = mode_p
@@ -100,7 +103,7 @@ class CMainController:
 
     def align_tree_view(self):
         if self.view_root_obj != None:
-            self.view_root_obj.print_tree()
+            #self.view_root_obj.print_tree()
             self.view_root_obj.CALC_ps_TREE()
             self.view_root_obj.CALC_cousin_TREE()
             self.view_root_obj.CALC_space_x_TREE()
@@ -126,6 +129,65 @@ class CMainController:
         return view_root
         
     def handle_network_message(self, msg_p):
+        if msg_p.startswith("tree_data_end"):
+            if self.mode == "client" and self.waiting_for_tree:
+                print("Finished receiving tree")
+                node_map = {}
+                parent_map = {}
+                for line in self.pending_tree_data:
+                    parts = line.split(",")
+                    if len(parts) >= 2:
+                        guid = parts[0]
+                        parent = parts[1]
+                        node_map[guid] = CTreeView(guid=guid, x=-1, y=-1, w=50, h=50)
+                        parent_map[guid] = parent
+                root = None
+                for guid, node in node_map.items():
+                    parent_guid = parent_map[guid]
+                    if parent_guid == "None":
+                        root = node
+                    else:
+                        parent_node = node_map.get(parent_guid)
+                        if parent_node:
+                            parent_node.add_child(node)
+                self.view_root_obj = root
+                if self.view_root_obj:
+                    self.view_root_obj.calc_i_self_tree(0)
+                    self.align_tree_view()
+                    print("Tree received and built successfully")
+                self.waiting_for_tree = False
+                self.pending_tree_data = []
+            return
+
+        if msg_p.startswith("tree_data"):
+            print("FROM SERVER:", msg_p)
+            if self.mode == "client":
+                content = msg_p.replace("tree_data,", "").strip()
+                self.pending_tree_data.append(content)
+            return
+    
+        if msg_p.strip() == "request_tree":
+            if self.mode == "server":
+                print("FROM CLIENT: request_tree")
+
+                if not self.view_root_obj:
+                    return
+
+                nodes = self.view_root_obj.collect_all_nodes_tree()
+
+                for node in nodes:
+                    parent_guid = "None"
+                    if node.parent:
+                        parent_guid = node.parent.guid
+
+                    send_msg = f"tree_data,{node.guid},{parent_guid}\n"
+                    self.my_socket.broadcast(send_msg)
+
+                self.my_socket.broadcast("tree_data_end\n")
+
+            return
+
+
         parts = msg_p.split(",")
         if len(parts) < 2:
             return
@@ -153,37 +215,29 @@ class CMainController:
             folder.delete()
             self.view_root_obj.calc_i_self_tree(0)
                 
-    def broadcast(self, msg, sender=None):
-        for client in self.my_socket.clients:
-            if client != sender:
-                try:
-                    client.sendall(msg.encode())
-                except:
-                    client.close()
-                    self.my_socket.clients.remove(client)
         
     def handle_event(self, event):
+        messages_to_send = []  # collect all messages to send at once
+
         def handle_collision2():
             if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.view_root_obj.find_by_single_point_tree(pointer_x = mouse_x, pointer_y = mouse_y, filter_p = "")
+                folder = self.view_root_obj.find_by_single_point_tree(pointer_x=mouse_x, pointer_y=mouse_y, filter_p="")
                 if folder:
                     print(folder.guid)
                 else:
                     print('folder not found')
+
         def select():
             if self.view_root_obj:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                folder = self.view_root_obj.find_by_single_point_tree(pointer_x=mouse_x, pointer_y=mouse_y, filter_p = "")
+                folder = self.view_root_obj.find_by_single_point_tree(pointer_x=mouse_x, pointer_y=mouse_y, filter_p="")
                 if folder:
                     folder.selected = 0 if folder.selected else 1
                     action = "select" if folder.selected else "deselect"
                     msg = f"{folder.guid},{action}\n"
+                    messages_to_send.append(msg)
 
-                    if self.mode == "server":
-                        self.broadcast(msg)
-                    elif self.mode == "client":
-                        self.my_socket.server_conn.sendall(msg.encode())
         def initiate_tree():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             button_pressed = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x, self.rect_y, self.rect_width, self.rect_height)
@@ -192,165 +246,98 @@ class CMainController:
                     self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
                 elif self.model_src == "r":
                     self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
-                    self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
+                    self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p=self.resistor_manager.resistor_list)
                 elif self.model_src == "m":
-                    self.view_root_obj = None # force refresh
+                    self.view_root_obj = None
                     self.model_root_obj = CFolderModel.my_instantiate_from_flat_file("CFolderModel.txt")
-                    print(self.model_root_obj)
                     if self.model_root_obj:
                         self.model_root_obj.size = 10
-                        self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj,None)
+                        self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None)
                         biggest_node = self.view_root_obj.find_by_biggest_size_tree(self.view_root_obj)
                         biggest_node.is_biggest = 1
                 elif self.model_src == "g":
-                    #self.model_root_obj = CFolderModel.instantiate_from_filesystem("C:\\Program Files",max_depth=3)
-                    self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
+                    if self.mode == "client":
+                        self.view_root_obj = None
+                        self.pending_tree_data = []
+                        self.waiting_for_tree = True
+                        messages_to_send.append("request_tree\n")
+                    elif self.mode == "server":
+                        self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
+
                 if self.view_root_obj:
                     self.view_root_obj.calc_i_self_tree(0)
-                    self.view_root_obj.print_tree(0)
                 self.align_tree_view()
                 self.window.score = 0
                 self.window.score_running = True
                 self.window.last_score_time = pygame.time.get_ticks()
-                
-        def delete():    
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+
+        def delete():
+            if self.view_root_obj:
+                folders_list = self.view_root_obj.find_list_by_selection_tree([])
                 for folder in folders_list:
-                    print("----------", folder.guid)
                     folder.delete()
-                    self.align_tree_view()
                     self.view_root_obj.calc_i_self_tree(0)
-                    self.view_root_obj.print_tree(0)                    
                     msg = f"{folder.guid},delete\n"
-                    if self.mode == "server":
-                        self.broadcast(msg)
-                    elif self.mode == "client":
-                        self.my_socket.server_conn.sendall(msg.encode())
+                    messages_to_send.append(msg)
             self.align_tree_view()
 
-        
-        def add_child():    
+        def add_child():
             count = 0
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+            if self.view_root_obj:
+                folders_list = self.view_root_obj.find_list_by_selection_tree([])
                 for folder in folders_list:
                     for child in folder.children_list:
                         if child.guid.startswith(folder.guid):
                             count += 1
                     new_child = CTreeView(f"{folder.guid}{count + 1}", -1, -1, 100, 100)
                     folder.add_child(new_child)
-                    self.align_tree_view()
-           
+                self.align_tree_view()
+
         def toggle_lines():
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.window.toggle_activate_lines = self.window.find_by_mouse_pos_button(mouse_x, mouse_y, self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height)
-            if self.window.toggle_activate_lines == 0:                
-                self.window.toggle_activate_lines = 1
-            else:
-                self.window.toggle_activate_lines = 0
-                
-        def handle_collision5():    
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
+            self.window.toggle_activate_lines = self.window.find_by_mouse_pos_button(
+                mouse_x, mouse_y, self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height
+            )
+            self.window.toggle_activate_lines = 1 if self.window.toggle_activate_lines == 0 else 0
+
+        def move(vertical_direction_p, horizontal_direction_p):
+            if self.view_root_obj:
+                folders_list = self.view_root_obj.find_list_by_selection_tree([])
                 for folder in folders_list:
-                    print("----------", folder.guid)
-                    if folder.p_x != self.window.height:                   
-                        folder.p_x -= 3 #move local
-                        msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server":
-                            self.broadcast(msg)
-                        elif self.mode == "client":
-                            print(msg)
-                            self.my_socket.server_conn.sendall(msg.encode())
-                    
-        def handle_collision6():    
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
-                for folder in folders_list:
-                    print("----------", folder.guid)
-                    if folder.p_x != self.window.height:                   
-                        folder.p_x += 3 #move local
-                        msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server":
-                            self.broadcast(msg)
-                        elif self.mode == "client":
-                            print(msg)
-                            self.my_socket.server_conn.sendall(msg.encode())
-                    
-        def handle_collision7():    
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
-                for folder in folders_list:
-                    print("----------", folder.guid)
-                    if folder.p_y != self.window.height:                   
-                        folder.p_y += 3 #move local
-                        msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server":
-                            self.broadcast(msg)
-                        elif self.mode == "client":
-                            print(msg)
-                            self.my_socket.server_conn.sendall(msg.encode())
-                    
-        def handle_collision8():    
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
-                for folder in folders_list:
-                    print("----------", folder.guid)
-                    if folder.p_y != self.window.height:                   
-                        folder.p_y -= 3 #move local
-                        msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                        if self.mode == "server":
-                            self.broadcast(msg)
-                        elif self.mode == "client":
-                            print(msg)
-                            self.my_socket.server_conn.sendall(msg.encode())
-                            
-        def move(vertical_direction_p, horizontal_direction_p):    
-            if self.view_root_obj != None:
-                folders_list = []
-                folders_list = self.view_root_obj.find_list_by_selection_tree(folders_list)
-                for folder in folders_list:
-                    print("----------", folder.guid)
-                    if folder.p_y != self.window.height:       
-                        folder.p_y = folder.p_y + vertical_direction_p #move local
-                    if folder.p_x != self.window.width:                       
-                        folder.p_x = folder.p_x + horizontal_direction_p #move local
+                    folder.p_y += vertical_direction_p
+                    folder.p_x += horizontal_direction_p
                     msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                    if self.mode == "server":
-                        self.broadcast(msg)
-                    elif self.mode == "client":
-                        print(msg)
-                        self.my_socket.server_conn.sendall(msg.encode())
-        
+                    messages_to_send.append(msg)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Toggle active state if clicked inside the input box
             select()
             initiate_tree()
-            if self.mode == "server" and self.view_root_obj != None:
+            if self.mode == "server" and self.view_root_obj:
                 ghost = self.view_root_obj.find_by_guid_tree("ghost")
-                self.bot_player = CBotPlayer(guid = "bot", ghost_p = ghost, window_width = self.window.width, window_height = self.window.height)  
+                self.bot_player = CBotPlayer(guid="bot", ghost_p=ghost, window_width=self.window.width, window_height=self.window.height)
             toggle_lines()
+
         if event.type == pygame.KEYDOWN:
             speed = 9
             if event.key == pygame.K_UP:
-                move(vertical_direction_p = speed *(-1), horizontal_direction_p = 0)
+                move(-speed, 0)
             if event.key == pygame.K_DOWN:
-                move(vertical_direction_p = speed *(1), horizontal_direction_p = 0)
-            if event.key == pygame.K_RIGHT:
-                move(vertical_direction_p = 0, horizontal_direction_p = speed *(1))
+                move(speed, 0)
             if event.key == pygame.K_LEFT:
-                move(vertical_direction_p = 0, horizontal_direction_p = speed *(-1))
+                move(0, -speed)
+            if event.key == pygame.K_RIGHT:
+                move(0, speed)
             if event.key == pygame.K_DELETE:
                 delete()
             if event.key == pygame.K_a and (event.mod & pygame.KMOD_CTRL):
                 add_child()
+
+        for msg in messages_to_send:
+            if self.mode == "server":
+                self.my_socket.broadcast(msg)
+            elif self.mode == "client":
+                self.my_socket.send_to_server(msg)
+
                 
 
 
@@ -377,7 +364,7 @@ class CMainController:
                                 for msg in message_list:
                                     if msg:
                                         self.handle_network_message(msg)
-                                        self.broadcast(msg + "\n", sender=conn)
+                                        self.my_socket.broadcast(msg + "\n", sender=conn)
                         except BlockingIOError:
                             pass
                         except ConnectionResetError:
@@ -388,10 +375,10 @@ class CMainController:
                     data = self.my_socket.server_conn.recv(self.buffer_size)
                     if data:
                         raw_msg = data.decode()
-                        print(f"start---------raw msg: {raw_msg}--------end")
+                        #print(f"start---------raw msg: {raw_msg}--------end")
                         message_list = raw_msg.split("\n")
                         for msg in message_list:
-                            print("new msg: ", msg)
+                            #print("new msg: ", msg)
                             if msg != "":
                                 self.handle_network_message(msg)
             except BlockingIOError:
@@ -414,21 +401,24 @@ class CMainController:
             self.screen.fill((0, 0, 0))  # Clear screen
             #self.window.draw_mouse_coordinates(pygame)
             self.window.draw_button(self.rect_x, self.rect_y, self.rect_width, self.rect_height, pygame)
-            self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
+            if self.model_src != "g":
+                self.window.draw_line_button(self.rect_x+self.rect_width+10, self.rect_y, self.rect_width, self.rect_height, pygame)
             if self.view_root_obj != None:
                 if self.mode == "server" and self.model_src == "g" and self.bot_player.ghost != None:
                     if self.mode == "server" and self.bot_player != None:
                         colliding_node = self.bot_player.play(self.view_root_obj)
                         ghost = self.bot_player.ghost
                         msg = f"{ghost.guid},move,{int(ghost.p_x)},{int(ghost.p_y)}\n"
-                        self.broadcast(msg)
+                        self.my_socket.broadcast(msg)
                         if colliding_node:
-                            print("ghost collision", colliding_node.guid)
+                            #print("ghost collision", colliding_node.guid)
                             colliding_node.delete()
+                            self.view_root_obj.calc_i_self_tree(0)
+                            self.align_tree_view()
                             msg = f"{colliding_node.guid},delete\n"
-                            self.broadcast(msg)
+                            self.my_socket.broadcast(msg)
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
-                if self.window.toggle_activate_lines == 1:
+                if self.window.toggle_activate_lines == 1 and self.model_src != "g":
                     self.view_root_obj.draw_line_tree(self.screen, pygame)
                 self.view_root_obj.draw_guid_tree(self.screen, self.font)
             score_text = self.font.render(f"score: {self.window.score}", True, (255, 255, 255))

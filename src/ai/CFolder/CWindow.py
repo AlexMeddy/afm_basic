@@ -10,7 +10,7 @@ class CWindow:
         self.score_running = False
         self.last_score_time = pygame.time.get_ticks()
         self.screen = pygame.display.set_mode((self.width, self.height))
-        self.toggle_activate_lines = 0
+        self.toggle_activate_lines = -1
         
     def draw_mouse_coordinates(self, pygame_p):
         """Draws mouse coordinates in the top-right corner."""

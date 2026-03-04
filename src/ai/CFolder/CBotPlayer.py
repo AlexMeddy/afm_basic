@@ -1,27 +1,42 @@
 import uuid
 import random
+import pygame
 
 class CBotPlayer:
     def __init__(self, guid, ghost_p, window_width, window_height):
+        pygame.init()
         self.guid = guid
         self.ghost = ghost_p
         self.frame_counter = 0
+        self.ct = pygame.time.get_ticks()
+        self.nt = None
+        self.et = 0
+        self.next_ct_delay = random.randint(300, 1500)
+        self.next_nt_delay = None
         self.direction = random.randint(0, 3)
         self.window_width = window_width
         self.window_height = window_height
 
     def play(self, root_p):
-        self.frame_counter += 1
-        if self.frame_counter % 30 == 0:
-            self.direction = random.randint(0, 3)  # pick new direction
+        current_time = pygame.time.get_ticks()
+        if self.nt == None and current_time - self.ct >= self.next_ct_delay:
+            self.nt = current_time
+            self.next_nt_delay = random.randint(200, 1000)
+        elif self.nt != None and current_time - self.nt >= self.next_nt_delay:
+            et = self.nt - self.ct
+            if et >= 200:
+                self.direction = random.randint(0, 3)
+            self.ct = current_time
+            self.nt = None
+            self.next_ct_delay = random.randint(300, 1500)
         if self.direction == 0:  # up
-            self.ghost.p_y -= 3
+            self.ghost.p_y -= 2
         elif self.direction == 1:  # down
-            self.ghost.p_y += 3
+            self.ghost.p_y += 2
         elif self.direction == 2:  # left
-            self.ghost.p_x -= 3
+            self.ghost.p_x -= 2
         elif self.direction == 3:  # right
-            self.ghost.p_x += 3
+            self.ghost.p_x += 2
         self.ghost.p_x = max(0, min(self.ghost.p_x, self.window_width - self.ghost.p_w))
         self.ghost.p_y = max(0, min(self.ghost.p_y, self.window_height - self.ghost.p_h))
         centre_x = self.ghost.p_x + self.ghost.p_w / 2

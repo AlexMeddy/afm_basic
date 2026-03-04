@@ -196,12 +196,12 @@ class CTreeView:
         #if self.parent != None and self.parent.ps != None and self.parent.ps.children_list != []:
         if self.cousin != None:
             r4 = 1
-        print("----------printing rules-------------",r1,r2,r3,r4,self.guid)
+       # print("----------printing rules-------------",r1,r2,r3,r4,self.guid)
         #applying rules
         if r1 == 1: #if root
             self.x = 0 + self.left_margain #root anchor to 0, should be anchored to left margain
         elif r2 == 1: #if no ps
-            print("----------------------------entering r2--------------------------" + self.guid)
+            #print("----------------------------entering r2--------------------------" + self.guid)
             self.x = self.parent.x #a left corner anchor to parent left corner
         elif r3 == 1: #if ps
             #self.x = self.ps.x + self.ps.w + self.space_x #b left corner anchor to ps right corner
@@ -213,12 +213,12 @@ class CTreeView:
             self.x = self.cousin.x + self.cousin.w + self.space_x
         """
         
-    def collect_all_nodes_tree(self, nodes_p):
-        nodes = nodes_p
-        nodes.append(self)
+    def collect_all_nodes_tree(self):
+        nodes = [self]
         for child in self.children_list:
-            nodes = child.collect_all_nodes_tree(nodes)
+            nodes.extend(child.collect_all_nodes_tree())
         return nodes
+
 
     def is_only_root_and_ghost_left_tree(self):
         if self.guid != "root":

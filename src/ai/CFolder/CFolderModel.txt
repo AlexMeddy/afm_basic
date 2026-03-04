@@ -1,0 +1,6 @@
+test,None,32
+f1,test,27
+patterns,f1,23
+__pycache__,patterns,17
+f2,test,24
+f21,f2,20
