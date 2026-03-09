@@ -182,7 +182,7 @@ class CTreeView:
         return available_screen_height
     
     def calc_x(self):
-        print(self.guid)
+        #print(self.guid)
         r1 = 0
         r2 = 0
         r3 = 0
@@ -237,7 +237,7 @@ class CTreeView:
             child.calc_x_tree()
 
     def calc_y(self):
-        print(self.guid)
+        #print(self.guid)
         r1 = 0
         r2 = 0
         if self.parent == None:

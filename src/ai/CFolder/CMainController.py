@@ -129,6 +129,49 @@ class CMainController:
         return view_root
         
     def handle_network_message(self, msg_p):
+        if msg_p.startswith("tree_blob|"):
+            print("new msg: ", msg_p)
+            if self.mode == "client":
+                raw = msg_p[len("tree_blob|"):].replace("\\n", "\n")
+                lines = raw.split("\n")
+
+                node_map = {}
+                parent_map = {}
+
+                for line in lines:
+                    if line.strip() == "":
+                        continue
+
+                    parts = line.split(",")
+
+                    if len(parts) >= 2:
+                        guid = parts[0]
+                        parent = parts[1]
+
+                        node_map[guid] = CTreeView(guid=guid, x=-1, y=-1, w=50, h=50)
+                        parent_map[guid] = parent
+
+                root = None
+
+                for guid, node in node_map.items():
+                    parent_guid = parent_map[guid]
+
+                    if parent_guid == "None":
+                        root = node
+                    else:
+                        parent_node = node_map.get(parent_guid)
+                        if parent_node:
+                            parent_node.add_child(node)
+
+                self.view_root_obj = root
+
+                if self.view_root_obj:
+                    self.view_root_obj.calc_i_self_tree(0)
+                    self.align_tree_view()
+                    print("Tree received and built")
+
+            return
+        """
         if msg_p.startswith("tree_data_end"):
             if self.mode == "client" and self.waiting_for_tree:
                 print("Finished receiving tree")
@@ -165,7 +208,7 @@ class CMainController:
                 content = msg_p.replace("tree_data,", "").strip()
                 self.pending_tree_data.append(content)
             return
-    
+        """
         if msg_p.strip() == "request_tree":
             if self.mode == "server":
                 print("FROM CLIENT: request_tree")
@@ -175,17 +218,21 @@ class CMainController:
 
                 nodes = self.view_root_obj.collect_all_nodes_tree()
 
+                lines = []
                 for node in nodes:
                     parent_guid = "None"
                     if node.parent:
                         parent_guid = node.parent.guid
 
-                    send_msg = f"tree_data,{node.guid},{parent_guid}\n"
-                    self.my_socket.broadcast(send_msg)
+                    lines.append(f"{node.guid},{parent_guid}")
 
-                self.my_socket.broadcast("tree_data_end\n")
+                tree_blob = "\\n".join(lines)
+                send_msg = f"tree_blob|{tree_blob}\n"
+
+                self.my_socket.broadcast(send_msg)
 
             return
+
 
 
         parts = msg_p.split(",")
@@ -364,7 +411,11 @@ class CMainController:
                                 for msg in message_list:
                                     if msg:
                                         self.handle_network_message(msg)
+
+                                    if msg.strip() != "request_tree":
                                         self.my_socket.broadcast(msg + "\n", sender=conn)
+                                        #print_log("socket-------", 1)
+
                         except BlockingIOError:
                             pass
                         except ConnectionResetError:
@@ -433,7 +484,6 @@ class CMainController:
     
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode",
