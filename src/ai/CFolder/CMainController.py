@@ -6,6 +6,7 @@ from CTreeView import CTreeView
 from CFolderModel import CFolderModel
 from CResistorModel import CResistorModel
 from CResistorModel import CResistorModelListManager
+from CDebugLog import CDebugLog
 #from CController import CController
 from CWindow import CWindow
 from CSocket import CSocket
@@ -14,7 +15,7 @@ import pygame
 import socket
 
 class CMainController:
-    def __init__(self, mode_p, file_src_p):
+    def __init__(self, mode_p, file_src_p, debug_mode_p):
         pygame.init()
         self.window = CWindow(width=900, height=800)
         self.my_socket = CSocket()
@@ -24,6 +25,7 @@ class CMainController:
         self.font = pygame.font.SysFont(None, 24)       
         self.view_root_obj = None
         self.bot_player = None
+        self.debug_mode = debug_mode_p
         self.resistor_manager = CResistorModelListManager()
         #self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
         #self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
@@ -414,7 +416,7 @@ class CMainController:
 
                                     if msg.strip() != "request_tree":
                                         self.my_socket.broadcast(msg + "\n", sender=conn)
-                                        #print_log("socket-------", 1)
+                                        #CDebugLog.print_log("socket-------", self.debug_mode)
 
                         except BlockingIOError:
                             pass
@@ -498,9 +500,11 @@ if __name__ == "__main__":
         required=True,
         help="Run as socket server or client"
     )
+    parser.add_argument("--debug", help="debug mode, numbers only")
+
     args = parser.parse_args()
-    
-    app = CMainController(mode_p=args.mode, file_src_p=args.model_src)
+    CDebugLog.print_log("main-------", args.debug)
+    app = CMainController(mode_p=args.mode, file_src_p=args.model_src, debug_mode_p=args.debug)
     
         
     app.run()
