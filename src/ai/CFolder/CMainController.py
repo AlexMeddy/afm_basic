@@ -6,13 +6,15 @@ from CTreeView import CTreeView
 from CFolderModel import CFolderModel
 from CResistorModel import CResistorModel
 from CResistorModel import CResistorModelListManager
-from CDebugLog import CDebugLog
 #from CController import CController
 from CWindow import CWindow
 from CSocket import CSocket
 from CBotPlayer import CBotPlayer
 import pygame
+from CDebugLog import CDebugLog
 import socket
+from icecream import ic
+
 
 class CMainController:
     def __init__(self, mode_p, file_src_p, debug_mode_p):
@@ -25,7 +27,7 @@ class CMainController:
         self.font = pygame.font.SysFont(None, 24)       
         self.view_root_obj = None
         self.bot_player = None
-        self.debug_mode = debug_mode_p
+        CDebugLog.debug_mode = debug_mode_p
         self.resistor_manager = CResistorModelListManager()
         #self.resistor_manager.instantiate_from_flat_file("ResistorModelctreetest.txt")
         #self.view_root_obj = self.map_from_resistor_model_to_view_linear(resistor_list_p = self.resistor_manager.resistor_list)
@@ -36,10 +38,10 @@ class CMainController:
         #self.view_root_obj = CMainController.map_from_model_to_view_tree(self.model_root_obj, None) #use CMainController.map_from_model_to_view_tree()
         if self.view_root_obj != None:
             self.align_tree_view()
-        
+        self.debug_mode = debug_mode_p
         self.pending_tree_data = []
         self.waiting_for_tree = False
-
+        self.tree_msg = ""
         print('----------------print tree before calculation-----------------')
         self.rect_width = 50
         self.rect_height = 50
@@ -131,110 +133,132 @@ class CMainController:
         return view_root
         
     def handle_network_message(self, msg_p):
-        if msg_p.startswith("tree_blob|"):
-            print("new msg: ", msg_p)
-            if self.mode == "client":
-                raw = msg_p[len("tree_blob|"):].replace("\\n", "\n")
-                lines = raw.split("\n")
+        if self.tree_msg == "blob":
+            if msg_p.startswith("tree_blob|"):
+                print("new msg: ", msg_p)
+                if self.mode == "client":
+                    raw = msg_p[len("tree_blob|"):].replace("\\n", "\n")
+                    lines = raw.split("\n")
 
-                node_map = {}
-                parent_map = {}
+                    node_map = {}
+                    parent_map = {}
 
-                for line in lines:
-                    if line.strip() == "":
-                        continue
+                    for line in lines:
+                        if line.strip() == "":
+                            continue
 
-                    parts = line.split(",")
+                        parts = line.split(",")
 
-                    if len(parts) >= 2:
-                        guid = parts[0]
-                        parent = parts[1]
+                        if len(parts) >= 2:
+                            guid = parts[0]
+                            parent = parts[1]
 
-                        node_map[guid] = CTreeView(guid=guid, x=-1, y=-1, w=50, h=50)
-                        parent_map[guid] = parent
+                            node_map[guid] = CTreeView(guid=guid, x=-1, y=-1, w=50, h=50)
+                            parent_map[guid] = parent
 
-                root = None
+                    root = None
 
-                for guid, node in node_map.items():
-                    parent_guid = parent_map[guid]
+                    for guid, node in node_map.items():
+                        parent_guid = parent_map[guid]
 
-                    if parent_guid == "None":
-                        root = node
-                    else:
-                        parent_node = node_map.get(parent_guid)
-                        if parent_node:
-                            parent_node.add_child(node)
+                        if parent_guid == "None":
+                            root = node
+                        else:
+                            parent_node = node_map.get(parent_guid)
+                            if parent_node:
+                                parent_node.add_child(node)
 
-                self.view_root_obj = root
+                    self.view_root_obj = root
 
-                if self.view_root_obj:
-                    self.view_root_obj.calc_i_self_tree(0)
-                    self.align_tree_view()
-                    print("Tree received and built")
+                    if self.view_root_obj:
+                        self.view_root_obj.calc_i_self_tree(0)
+                        self.align_tree_view()
+                        print("Tree received and built")
 
-            return
-        """
-        if msg_p.startswith("tree_data_end"):
-            if self.mode == "client" and self.waiting_for_tree:
-                print("Finished receiving tree")
-                node_map = {}
-                parent_map = {}
-                for line in self.pending_tree_data:
-                    parts = line.split(",")
-                    if len(parts) >= 2:
-                        guid = parts[0]
-                        parent = parts[1]
-                        node_map[guid] = CTreeView(guid=guid, x=-1, y=-1, w=50, h=50)
-                        parent_map[guid] = parent
-                root = None
-                for guid, node in node_map.items():
-                    parent_guid = parent_map[guid]
-                    if parent_guid == "None":
-                        root = node
-                    else:
-                        parent_node = node_map.get(parent_guid)
-                        if parent_node:
-                            parent_node.add_child(node)
-                self.view_root_obj = root
-                if self.view_root_obj:
-                    self.view_root_obj.calc_i_self_tree(0)
-                    self.align_tree_view()
-                    print("Tree received and built successfully")
-                self.waiting_for_tree = False
-                self.pending_tree_data = []
-            return
+                return
+            if msg_p.strip() == "request_tree":
+                if self.mode == "server":
+                    print("FROM CLIENT: request_tree")
 
-        if msg_p.startswith("tree_data"):
-            print("FROM SERVER:", msg_p)
-            if self.mode == "client":
-                content = msg_p.replace("tree_data,", "").strip()
-                self.pending_tree_data.append(content)
-            return
-        """
+                    if not self.view_root_obj:
+                        return
+
+                    nodes = self.view_root_obj.collect_all_nodes_tree()
+
+                    lines = []
+                    for node in nodes:
+                        parent_guid = "None"
+                        if node.parent:
+                            parent_guid = node.parent.guid
+
+                        lines.append(f"{node.guid},{parent_guid}")
+
+                    tree_blob = "\\n".join(lines)
+                    send_msg = f"tree_blob|{tree_blob}\n"
+
+                    self.my_socket.broadcast(send_msg)
+
+                return
+                
+        if self.tree_msg == "line":
+            if msg_p.startswith("tree_data_end"):
+                if self.mode == "client" and self.waiting_for_tree:
+                    print("Finished receiving tree")
+                    node_map = {}
+                    parent_map = {}
+                    for line in self.pending_tree_data:
+                        parts = line.split(",")
+                        if len(parts) >= 2:
+                            guid = parts[0]
+                            parent = parts[1]
+                            node_map[guid] = CTreeView(guid=guid, x=-1, y=-1, w=50, h=50)
+                            parent_map[guid] = parent
+                    root = None
+                    for guid, node in node_map.items():
+                        parent_guid = parent_map[guid]
+                        if parent_guid == "None":
+                            root = node
+                        else:
+                            parent_node = node_map.get(parent_guid)
+                            if parent_node:
+                                parent_node.add_child(node)
+                    self.view_root_obj = root
+                    if self.view_root_obj:
+                        self.view_root_obj.calc_i_self_tree(0)
+                        self.align_tree_view()
+                        print("Tree received and built successfully")
+                    self.waiting_for_tree = False
+                    self.pending_tree_data = []
+                return
+
+            if msg_p.startswith("tree_data"):
+                CDebugLog.print_log(f"FROM SERVER: {msg_p}", 1)
+                if self.mode == "client":
+                    content = msg_p.replace("tree_data,", "").strip()
+                    self.pending_tree_data.append(content)
+                return
+            
+        
         if msg_p.strip() == "request_tree":
             if self.mode == "server":
-                print("FROM CLIENT: request_tree")
+                CDebugLog.print_log("FROM CLIENT: request_tree", 1)
 
                 if not self.view_root_obj:
                     return
 
                 nodes = self.view_root_obj.collect_all_nodes_tree()
 
-                lines = []
                 for node in nodes:
                     parent_guid = "None"
                     if node.parent:
                         parent_guid = node.parent.guid
 
-                    lines.append(f"{node.guid},{parent_guid}")
+                    send_msg = f"tree_data,{node.guid},{parent_guid}\n"
+                    self.my_socket.broadcast(send_msg, delay=2)
 
-                tree_blob = "\\n".join(lines)
-                send_msg = f"tree_blob|{tree_blob}\n"
-
-                self.my_socket.broadcast(send_msg)
+                self.my_socket.broadcast("tree_data_end\n", delay=2)
 
             return
-
 
 
         parts = msg_p.split(",")
@@ -266,7 +290,13 @@ class CMainController:
                 
         
     def handle_event(self, event):
-        messages_to_send = []  # collect all messages to send at once
+
+        def send(messages_to_send):
+            if messages_to_send: #if not empty
+                if self.mode == "server":
+                    self.my_socket.broadcast(messages_to_send, delay=2)
+                elif self.mode == "client":
+                    self.my_socket.send_to_server(messages_to_send)
 
         def handle_collision2():
             if self.view_root_obj:
@@ -285,7 +315,7 @@ class CMainController:
                     folder.selected = 0 if folder.selected else 1
                     action = "select" if folder.selected else "deselect"
                     msg = f"{folder.guid},{action}\n"
-                    messages_to_send.append(msg)
+                    send(msg)
 
         def initiate_tree():
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -309,7 +339,7 @@ class CMainController:
                         self.view_root_obj = None
                         self.pending_tree_data = []
                         self.waiting_for_tree = True
-                        messages_to_send.append("request_tree\n")
+                        send("request_tree\n")
                     elif self.mode == "server":
                         self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
 
@@ -327,7 +357,7 @@ class CMainController:
                     folder.delete()
                     self.view_root_obj.calc_i_self_tree(0)
                     msg = f"{folder.guid},delete\n"
-                    messages_to_send.append(msg)
+                    send(msg)
             self.align_tree_view()
 
         def add_child():
@@ -356,7 +386,7 @@ class CMainController:
                     folder.p_y += vertical_direction_p
                     folder.p_x += horizontal_direction_p
                     msg = f"{folder.guid},move,{int(folder.p_x)},{int(folder.p_y)}\n"
-                    messages_to_send.append(msg)
+                    send(msg)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             select()
@@ -380,12 +410,8 @@ class CMainController:
                 delete()
             if event.key == pygame.K_a and (event.mod & pygame.KMOD_CTRL):
                 add_child()
-
-        for msg in messages_to_send:
-            if self.mode == "server":
-                self.my_socket.broadcast(msg)
-            elif self.mode == "client":
-                self.my_socket.send_to_server(msg)
+                
+        
 
                 
 
@@ -400,24 +426,24 @@ class CMainController:
                         conn, addr = self.my_socket.server_conn.accept()
                         conn.setblocking(False)
                         self.my_socket.clients.append(conn)
-                        print("Client connected:", addr)
+                        CDebugLog.print_log(f"Client connected: {addr}", 1)
                     except BlockingIOError:
                         pass
 
                     for conn in self.my_socket.clients[:]:
                         try:
                             data = conn.recv(self.buffer_size)
+                            #ic(data)
                             if data:
                                 raw_msg = data.decode()
+                                #ic(data)
                                 message_list = raw_msg.split("\n")
                                 for msg in message_list:
                                     if msg:
                                         self.handle_network_message(msg)
-
                                     if msg.strip() != "request_tree":
-                                        self.my_socket.broadcast(msg + "\n", sender=conn)
-                                        #CDebugLog.print_log("socket-------", self.debug_mode)
-
+                                        self.my_socket.broadcast(msg + "\n", sender=conn, delay=2)
+                                    
                         except BlockingIOError:
                             pass
                         except ConnectionResetError:
@@ -462,14 +488,14 @@ class CMainController:
                         colliding_node = self.bot_player.play(self.view_root_obj)
                         ghost = self.bot_player.ghost
                         msg = f"{ghost.guid},move,{int(ghost.p_x)},{int(ghost.p_y)}\n"
-                        self.my_socket.broadcast(msg)
+                        self.my_socket.broadcast(msg, delay=2)
                         if colliding_node:
                             #print("ghost collision", colliding_node.guid)
                             colliding_node.delete()
                             self.view_root_obj.calc_i_self_tree(0)
                             self.align_tree_view()
                             msg = f"{colliding_node.guid},delete\n"
-                            self.my_socket.broadcast(msg)
+                            self.my_socket.broadcast(msg, delay=2)
                 self.view_root_obj.draw_tree(self.screen, pygame, self.font)
                 if self.window.toggle_activate_lines == 1 and self.model_src != "g":
                     self.view_root_obj.draw_line_tree(self.screen, pygame)
@@ -486,6 +512,7 @@ class CMainController:
     
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mode",
@@ -501,10 +528,14 @@ if __name__ == "__main__":
         help="Run as socket server or client"
     )
     parser.add_argument("--debug", help="debug mode, numbers only")
-
-    args = parser.parse_args()
-    CDebugLog.print_log("main-------", args.debug)
-    app = CMainController(mode_p=args.mode, file_src_p=args.model_src, debug_mode_p=args.debug)
     
-        
+    parser.add_argument(
+        "--tree",
+        choices=["blob", "line"],
+        required=True,
+        help="Run as socket server or client"
+    )
+    args = parser.parse_args()
+    app = CMainController(mode_p=args.mode, file_src_p=args.model_src, debug_mode_p=int(args.debug))    
+    app.tree_msg = args.tree
     app.run()

@@ -1,5 +1,6 @@
 import pygame
 import sys
+from CDebugLog import CDebugLog
 
 class CWindow:
     def __init__(self, width=800, height=600):
@@ -32,5 +33,5 @@ class CWindow:
         if mx >= bx and mx <= (bx + bw) and my >= by and my <= (by + bh):#found
             if self.toggle_activate_lines == 1:
                 button_pressed = 1
-            print("button pressed")
+            CDebugLog.print_log("BUTTON PRESSED", 2)
         return button_pressed
