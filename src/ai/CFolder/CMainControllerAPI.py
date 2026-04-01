@@ -8,7 +8,7 @@ from CResistorModel import CResistorModel
 from CResistorModel import CResistorModelListManager
 #from CController import CController
 from CWindow import CWindow
-from CSocket import CSocket
+from CSocketAPI import CSocket
 from CBotPlayer import CBotPlayer
 import pygame
 from CDebugLog import CDebugLog
@@ -52,23 +52,20 @@ class CMainController:
         self.buffer_size = 1024
         self.model_src = file_src_p
         self.mode = mode_p
+        """
         if self.mode == "server":
             self.my_socket.server_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.my_socket.server_conn.bind(("0.0.0.0", 2012))
             self.my_socket.server_conn.listen()
             self.my_socket.server_conn.setblocking(False)            
             print("Server started")
-            
+        """    
         if self.mode == "client":
             server_ip = args.ip
             if not server_ip:
-                raise ValueError("Client requires --ip")
-
-            self.my_socket.server_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.my_socket.server_conn.connect((server_ip, 2012))
-            self.my_socket.server_conn.setblocking(False)
-
-            print("Client connected to server")
+                raise ValueError("Client requires --ip") 
+            self.my_socket.server_url = f"http://{server_ip}:5000"
+            print("Client ready (REST mode)")
     
     def is_game_finished(self):
         if self.view_root_obj is None:
@@ -331,10 +328,10 @@ class CMainController:
                         biggest_node.is_biggest = 1
                 elif self.model_src == "g":
                     if self.mode == "client":
-                        self.view_root_obj = None
-                        self.pending_tree_data = []
-                        self.waiting_for_tree = True
-                        send("request_tree\n")
+                        response = self.my_socket.send_to_server("request_tree", {})
+
+                        if response:
+                            print("Server responded with client IP:", response.get("client_ip"))
                     elif self.mode == "server":
                         self.view_root_obj = CTreeView.instantiate_from_flat_file("TreeView.txt")
 
@@ -416,6 +413,7 @@ class CMainController:
         running = True
         while running:
             try:
+                '''
                 if self.mode == "server":
                     try:
                         conn, addr = self.my_socket.server_conn.accept()
@@ -455,6 +453,7 @@ class CMainController:
                             #print("new msg: ", msg)
                             if msg != "":
                                 self.handle_network_message(msg)
+                '''
             except BlockingIOError:
                 pass
             if self.window.score_running:
