@@ -1,0 +1,5 @@
+1-create a python app that has both a socket server and a socket client interface
+2-this app has to recieve a message from a socket client and then send it to a socket server, the message has to be intact when the app recieves and sends it. 
+2.1-also this app needs to print the messages
+3-for the socket connection, this app needs to connect to socket server first before accepting client connection when the apps launched
+4-create args for the ip address for the client

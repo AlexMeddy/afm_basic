@@ -11,9 +11,17 @@ class CSocket:
     def send_to_server(self, endpoint: str, data: dict = None):
         try:
             url = f"{self.server_url}/{endpoint}"
+
+            print(f"\n[CLIENT -> SERVER]")
+            print(f"URL: {url}")
+            print(f"METHOD: PUT")
+            print(f"BODY: {data}")
+
             response = requests.put(url, json=data)
 
-            CDebugLog.print_log(f"POST {url} -> {response.text}", 1)
+            print(f"\n[SERVER -> CLIENT RESPONSE]")
+            print(f"STATUS: {response.status_code}")
+            print(f"RAW TEXT: {response.text}\n")
 
             return response.json()
         except Exception as e:

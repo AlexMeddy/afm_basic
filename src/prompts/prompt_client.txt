@@ -1,0 +1,4 @@
+1-create a python app that has a socket client interface
+2-this app recieves messages from a socket server and sends messages back to socket server. 
+3-make a method that asks how much money the user wants and then when the amount is entered it sends the message to server saying the amount of money the user wants and then it prints "this is your requested money: [amount]" for the client
+4-create args for the ip address for the client

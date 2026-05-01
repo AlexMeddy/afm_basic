@@ -328,8 +328,7 @@ class CMainController:
                         biggest_node.is_biggest = 1
                 elif self.model_src == "g":
                     if self.mode == "client":
-                        response = self.my_socket.send_to_server("request_tree", {})
-
+                        response = self.my_socket.send_to_server("request_tree", {"msg": "request_tree"})
                         if response:
                             print("Server responded with client IP:", response.get("client_ip"))
                     elif self.mode == "server":
