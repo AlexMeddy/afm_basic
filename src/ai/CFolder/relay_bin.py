@@ -1,7 +1,7 @@
 import socket
 import threading
 import argparse
-#python relay.py --server-ip 127.0.0.1 --server-port 62432 --client-ip 0.0.0.0 --client-port 2000
+#python relay_bin.py --server-ip 127.0.0.1 --server-port 62432 --client-ip 0.0.0.0 --client-port 2000
 
 class RelayApp:
     def __init__(self, server_ip, server_port, client_ip, client_port):
@@ -9,7 +9,7 @@ class RelayApp:
         self.server_port = server_port
         self.client_ip = client_ip
         self.client_port = client_port
-        self.sequential_id = -1
+
         self.server_conn = None
         self.client_conn = None
 
@@ -37,7 +37,6 @@ class RelayApp:
             print(f"[!] Client listener error: {e}")
             exit(1)
 
-    # STEP 3: relay client -> server
     def handle_client_to_server(self):
         while True:
             try:
@@ -45,16 +44,19 @@ class RelayApp:
                 if not data:
                     break
 
-                print(f"[CLIENT -> SERVER] {data.decode(errors='ignore')}")
+                # HEX PRINT
+                print(f"[CLIENT -> SERVER] HEX: {data.hex()}")
+
+                # (optional readable text)
+                #print(f"[CLIENT -> SERVER] TEXT: {data.decode(errors='ignore')}")
+
                 self.server_conn.sendall(data)
-                #print(type(data))
-                self.save_msg_to_file(0, [data])
 
             except Exception as e:
                 print(f"[!] Error (client -> server): {e}")
                 break
 
-    # OPTIONAL: relay server -> client (good for full duplex)
+
     def handle_server_to_client(self):
         while True:
             try:
@@ -62,27 +64,17 @@ class RelayApp:
                 if not data:
                     break
 
-                print(f"[SERVER -> CLIENT] {data.decode(errors='ignore')}")
+                # HEX PRINT
+                print(f"[SERVER -> CLIENT] HEX: {data.hex()}")
+
+                # (optional readable text)
+                #print(f"[SERVER -> CLIENT] TEXT: {data.decode(errors='ignore')}")
+
                 self.client_conn.sendall(data)
-                self.save_msg_to_file(1, [data])
 
             except Exception as e:
                 print(f"[!] Error (server -> client): {e}")
                 break
-    
-    def save_msg_to_file(self, send_direction_p, msg_p=None):
-        self.sequential_id +=1
-        if msg_p is None:
-            msg_p = []
-        #msg_p.append(b'\x0a')
-        direction_msg = ''
-        if send_direction_p == 0: #client to server
-            direction_msg = "c_to_s"
-        elif send_direction_p == 1: #server to client
-            direction_msg = "s_to_c"
-        with open(f"output//{self.sequential_id}_{direction_msg}_msg.bin", "wb") as f:
-            for child in msg_p:
-                f.write(child)
 
     def start(self):
         self.connect_to_server()
