@@ -23,16 +23,15 @@ class PacketCapture:
         )
 
         # Try to use loopback automatically if available
-        self.iface = None
-
+        self.iface = r"\Device\NPF_Loopback"
+        
     def callback(self, packet):
         print(packet.summary())
         self.writer.write(packet)
 
     def sniff_loop(self):
         sniff(
-            iface="Loopback Pseudo-Interface 1",   # keep auto-detect
-            filter=f"tcp port {self.port}",
+            iface=r"\Device\NPF_Loopback",
             prn=self.callback,
             store=False
         )
