@@ -1,7 +1,22 @@
 HTTP/1.1 200 OK
-Server: Werkzeug/3.1.8 Python/3.13.9
-Date: Fri, 12 Jun 2026 10:00:17 GMT
-Content-Type: application/json
-Content-Length: 77
+Content-Type: text/html
+Content-Length: 202
 Connection: close
 
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>My Website</title>
+</head>
+
+<body>
+
+    <h1>Hello World</h1>
+
+    <p>This is my web server.</p>
+
+    <a href="/about">About</a>
+
+</body>
+</html>
