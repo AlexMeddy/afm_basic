@@ -56,6 +56,7 @@ def connect_to_server() -> None:
             tcp_socket,
             server_hostname=SERVER_HOST,
         ) as tls_socket:
+            print("at this point verification worked")
             #tls_socket = context.wrap_socket(tcp_socket,server_hostname=SERVER_HOST)
             print("[+] TLS connection established")
             print(f"[+] TLS version: {tls_socket.version()}")
