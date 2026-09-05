@@ -14,18 +14,13 @@ def create_ssl_context() -> ssl.SSLContext:
 
     server.crt is trusted as the server's certificate authority
     for this local simulation.
-    
+    """
     context = ssl.create_default_context(
         ssl.Purpose.SERVER_AUTH
     )
     context.check_hostname = True
     context.verify_mode = ssl.CERT_REQUIRED
-    """
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    
     return context
 
 
@@ -47,7 +42,7 @@ def connect_to_server() -> None:
     """
     Create a TCP connection and then establish TLS over it.
     """
-    rc = -1
+    rc = -1 #disconnected
     context = create_ssl_context()
     print("before context ", context)
     with socket.create_connection(
@@ -57,7 +52,6 @@ def connect_to_server() -> None:
             tcp_socket,
             server_hostname=SERVER_HOST,
         ) as tls_socket:
-            print("at this point verification worked")
             #tls_socket = context.wrap_socket(tcp_socket,server_hostname=SERVER_HOST)
             print("[+] TLS connection established")
             rc = 1
@@ -79,11 +73,10 @@ def connect_to_server() -> None:
                 print("[-] Server closed the connection")
     return rc
 
+
 def main() -> None:
-    rc =-1
     try:
         rc = connect_to_server()
-        #rc = 1
     except FileNotFoundError:
         print("[-] server.crt was not found")
     except ConnectionRefusedError:
@@ -95,10 +88,9 @@ def main() -> None:
     except KeyboardInterrupt:
         print("\n[+] Client stopped")
         
-    if rc == 1:
-        print("i know it worked")
-    else:
+    if rc == -1:
         print("i know it failed")
+
 
 if __name__ == "__main__":
     main()

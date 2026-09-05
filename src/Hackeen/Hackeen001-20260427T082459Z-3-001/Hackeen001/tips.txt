@@ -1,0 +1,2 @@
+taskkill /F /IM python3.13.exe
+socket python client with tls with cert verification 

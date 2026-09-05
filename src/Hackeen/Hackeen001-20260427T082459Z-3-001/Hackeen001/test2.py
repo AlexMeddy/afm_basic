@@ -2,7 +2,6 @@
 def open_door():
     print("trying to open_door")
     door_open_status = None
-    
     try:
         with open(r"C:\Users\alexf\afm_basic\src\ai\CFolder\output\2_c_to_s_msg.bin", "rb") as file:
             door_open_status = file.read()
