@@ -5,8 +5,8 @@ import ssl
 HOST = "127.0.0.1"
 PORT = 6543
 
-CERT_FILE = "server.crt"
-KEY_FILE = "server.key"
+CERT_FILE = "server_b.crt"
+KEY_FILE = "server_b.key"
 
 
 def create_ssl_context() -> ssl.SSLContext:
@@ -70,6 +70,12 @@ def handle_client(client_socket: socket.socket, context: ssl.SSLContext) -> None
 
     except UnicodeDecodeError:
         print("[-] Client sent invalid UTF-8 data")
+        
+    except ConnectionAbortedError as error:
+        print(f"[-] Connection aborted during TLS handshake: {error}")
+
+    except ConnectionResetError as error:
+        print(f"[-] Connection reset by client: {error}")
 
 
 def start_server() -> None:

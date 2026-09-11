@@ -3,7 +3,7 @@ import ssl
 import os
 
 
-HOST = "127.0.0.1"
+HOST = "localhost"
 PORT = 8443
 
 WEB_ROOT = "pages"
@@ -136,7 +136,7 @@ def start_server() -> None:
 
     server.listen()
 
-    print(f"HTTPS server running at https://localhost:{PORT}")
+    print(f"HTTPS server running at https://{HOST}:{PORT}")
 
     while True:
 

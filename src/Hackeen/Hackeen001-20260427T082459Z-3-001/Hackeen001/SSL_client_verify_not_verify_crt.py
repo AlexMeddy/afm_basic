@@ -5,7 +5,7 @@ import ssl
 SERVER_HOST = "localhost"
 SERVER_PORT = 6543
 
-CERT_FILE = "server1.crt"
+CERT_FILE = "server_b.crt"
 
 
 def create_ssl_context_verify() -> ssl.SSLContext:
@@ -21,6 +21,20 @@ def create_ssl_context_verify() -> ssl.SSLContext:
     context.verify_mode = ssl.CERT_REQUIRED
 
     return context
+    
+def save_server_certificate(host: str, port: int, filename: str = "received_server.crt") -> None:
+    """
+    Retrieve the certificate presented by the TLS server
+    and save it as a PEM .crt file.
+    """
+    certificate = ssl.get_server_certificate(
+        (host, port)
+    )
+
+    with open(filename, "w") as file:
+        file.write(certificate)
+
+    print(f"[+] Server certificate saved to: {filename}")
     
 def create_ssl_context_no_verify() -> ssl.SSLContext:
     """
@@ -95,20 +109,29 @@ def connect_to_server(context) -> None:
 def main() -> None:
     rc = -1
     try:
+        save_server_certificate(SERVER_HOST, SERVER_PORT, "received_server.crt")
         context = create_ssl_context_verify()
-        connect_to_server(context)
+        connect_to_server(context) #crt verfication 1
         rc = 1
     except FileNotFoundError:
         print("[-] server.crt was not found")
     except ConnectionRefusedError:
         print("[-] Connection refused. Start server.py first.")
-    except ssl.SSLCertVerificationError as error:
+    except ssl.SSLCertVerificationError as error: 
+        #2
         print(f"[-] Certificate verification failed: {error}")
-        context = create_ssl_context_no_verify()
-        connect_to_server(context)
-        rc = 1
+        result = input("Your connection isn't private, would you like to proceed with no certificate verification? enter yes or no: ")
+        if result == "yes":
+            context = create_ssl_context_no_verify() #connect with no crt verification
+            try:
+                connect_to_server(context) #3
+                rc = 1
+            except Exception as e:
+                print("Error:", e)
+        
     except ssl.SSLError as error:
         print(f"[-] TLS error: {error}")
+        
     except KeyboardInterrupt:
         print("\n[+] Client stopped")
     
