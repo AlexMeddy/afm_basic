@@ -5,7 +5,7 @@ import ssl
 SERVER_HOST = "localhost"
 SERVER_PORT = 6543
 
-CERT_FILE = "server_b.crt"
+CERT_FILE = "certificates/server_b.crt"
 
 
 def create_ssl_context_verify() -> ssl.SSLContext:
@@ -22,7 +22,7 @@ def create_ssl_context_verify() -> ssl.SSLContext:
 
     return context
     
-def save_server_certificate(host: str, port: int, filename: str = "received_server.crt") -> None:
+def save_server_certificate(host: str, port: int, filename: str = "certificates/received_server.crt") -> None:
     """
     Retrieve the certificate presented by the TLS server
     and save it as a PEM .crt file.
@@ -109,12 +109,12 @@ def connect_to_server(context) -> None:
 def main() -> None:
     rc = -1
     try:
-        save_server_certificate(SERVER_HOST, SERVER_PORT, "received_server.crt")
+        save_server_certificate(SERVER_HOST, SERVER_PORT, "certificates/received_server.crt")
         context = create_ssl_context_verify()
         connect_to_server(context) #crt verfication 1
         rc = 1
     except FileNotFoundError:
-        print("[-] server.crt was not found")
+        print("[-] certificates/server_b.crt was not found")
     except ConnectionRefusedError:
         print("[-] Connection refused. Start server.py first.")
     except ssl.SSLCertVerificationError as error: 

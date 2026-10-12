@@ -6,8 +6,8 @@ HOST = "127.0.0.1"
 PORT = 8443
 
 WEB_ROOT = "pages"
-CERT_FILE = "server.crt"
-KEY_FILE = "server.key"
+CERT_FILE = "certificates/server.crt"
+KEY_FILE = "certificates/server.key"
 
 
 def get_file_path(request_path: str) -> str:

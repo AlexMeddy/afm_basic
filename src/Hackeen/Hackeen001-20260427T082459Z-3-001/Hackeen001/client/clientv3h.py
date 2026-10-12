@@ -39,10 +39,10 @@ class Socketsocket_client:
     def read_msg_from_file(self, file_id_p):
         binary_msg = None
         if file_id_p == 0:
-            with open("amount_msg.bin", "rb") as f:
+            with open("common/amount_msg.bin", "rb") as f:
                 binary_msg = f.read()
         elif file_id_p == 1:
-            with open("handshake_msg.bin", "rb") as f:
+            with open("common/handshake_msg.bin", "rb") as f:
                 binary_msg = f.read()
         return binary_msg
         

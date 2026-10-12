@@ -11,7 +11,7 @@ print(f"[+] Connected to {HOST}:{PORT}")
 
 def read_msg_from_file():
     msg = ""
-    with open("test_msg.txt", "r") as f:
+    with open("common/test_msg.txt", "r") as f:
         msg = f.read()
     return msg
 '''

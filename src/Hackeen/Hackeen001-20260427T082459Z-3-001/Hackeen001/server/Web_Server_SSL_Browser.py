@@ -1,15 +1,17 @@
 import socket
 import ssl
 import os
+from pathlib import Path
 
 
 HOST = "localhost"
 PORT = 8443
 
-WEB_ROOT = "pages"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+WEB_ROOT = PROJECT_ROOT / "pages"
 
-CERT_FILE = "server.crt"
-KEY_FILE = "server.key"
+CERT_FILE = PROJECT_ROOT / "certificates" / "server.crt"
+KEY_FILE = PROJECT_ROOT / "certificates" / "server.key"
 
 
 def get_file_path(request_path: str) -> str:

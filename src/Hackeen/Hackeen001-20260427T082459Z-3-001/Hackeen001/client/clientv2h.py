@@ -16,7 +16,7 @@ class SocketClient:
             self.client.connect((self.server_ip, self.port))
             print(f"[+] Connected to {self.server_ip}:{self.port}")
             #self.client.sendall(b"hi this is tit milk")
-            with open("handshake_msg.bin", "rb") as f:
+            with open("common/handshake_msg.bin", "rb") as f:
                 lines = f.readlines()
             for line in lines:                
                 self.client.sendall(line)
@@ -48,10 +48,10 @@ class SocketClient:
     def read_msg_from_file(self, file_id_p):
         lines = []
         if file_id_p == 0:
-            with open("amount_msg.bin", "rb") as f:
+            with open("common/amount_msg.bin", "rb") as f:
                 lines = f.readlines()
         elif file_id_p == 1:
-            with open("handshake_msg.bin", "rb") as f:
+            with open("common/handshake_msg.bin", "rb") as f:
                 lines = f.readlines()
         return lines
 

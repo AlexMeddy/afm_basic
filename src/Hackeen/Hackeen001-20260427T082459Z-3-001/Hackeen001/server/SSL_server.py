@@ -5,8 +5,8 @@ import ssl
 HOST = "127.0.0.1"
 PORT = 6543
 
-CERT_FILE = "server_b.crt"
-KEY_FILE = "server_b.key"
+CERT_FILE = "certificates/server_b.crt"
+KEY_FILE = "certificates/server_b.key"
 
 
 def create_ssl_context() -> ssl.SSLContext:
